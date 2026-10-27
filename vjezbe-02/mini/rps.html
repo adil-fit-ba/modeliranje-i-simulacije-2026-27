@@ -1,0 +1,848 @@
+<!doctype html>
+<html lang="bs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rock Paper Scissors</title>
+<meta name="description" content="Mini-prezentacija vježbi 2: model Rock Paper Scissors, ciklična dominacija na mreži parcela, od pravila i koda do rezultata iz NetLoga.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:wght@500;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Raspored: mini-prezentacija od 10 slajdova; jedan slajd na ekranu (strelice), ili svi jedan ispod
+   drugog (način „Čitanje“). Papir je svijetao, svijet i putanje su na tamnoj podlozi kao u NetLogu. */
+:root {
+  --papir: #eef1f4; --list: #ffffff; --tinta: #17212b; --siva: #56636f; --linija: #d3dae1;
+  --narandza: #b9531a; --narandza-meko: #f6dfd0; --margina: #e5a3a3; --svijet: #0b0d10;
+  --za: #345da9; --protiv: #d73229; --neodlucni: #8d8d8d;
+  --f-naslov: "Bitter", "Georgia", "Cambria", serif;
+  --f-tekst: "IBM Plex Sans", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "IBM Plex Mono", "Cascadia Mono", Consolas, "Courier New", monospace;
+  --t-0: 0.83rem; --t-1: 1rem; --t-2: 1.17rem; --t-3: 1.5rem; --t-4: 2.2rem; --t-5: 3.1rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --papir: #10161c; --list: #18212a; --tinta: #e3e9ee; --siva: #9ba8b4; --linija: #2a3540;
+    --narandza: #f0894a; --narandza-meko: #3a2416; --margina: #6b3535; --za: #5b86d6; --protiv: #e5574e; --neodlucni: #9a9a9a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --papir: #10161c; --list: #18212a; --tinta: #e3e9ee; --siva: #9ba8b4; --linija: #2a3540;
+  --narandza: #f0894a; --narandza-meko: #3a2416; --margina: #6b3535; --za: #5b86d6; --protiv: #e5574e; --neodlucni: #9a9a9a;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { font-size: 18px; }
+@media (max-width: 600px) { html { font-size: 16px; } }
+body { margin: 0; background: var(--papir); color: var(--tinta); font-family: var(--f-tekst); line-height: 1.55; }
+[hidden] { display: none !important; }
+a { color: var(--narandza); text-underline-offset: 0.15em; }
+:focus-visible { outline: 3px solid var(--narandza); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--f-naslov); text-wrap: balance; line-height: 1.18; margin: 0; }
+p { margin: 0; }
+code { font-family: var(--f-mono); font-size: 0.9em; }
+p code, li code, td code { background: var(--narandza-meko); padding: 0.05em 0.3em; border-radius: 3px; }
+.okvir { max-width: 1200px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.oznaka { font-family: var(--f-mono); font-size: var(--t-0); letter-spacing: 0.08em; text-transform: uppercase; color: var(--narandza); font-weight: 500; }
+.siva { color: var(--siva); }
+.mala { font-size: var(--t-0); }
+
+/* traka na vrhu */
+.vrh { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--papir); border-bottom: 1px solid var(--linija); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--papir); }
+.vrh .okvir { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem 1rem; padding-block: 0.55rem; flex-wrap: wrap; }
+.vrh b { font-family: var(--f-naslov); font-weight: 700; }
+.nacin { display: flex; gap: 0.3rem; }
+button { font: 500 var(--t-0) var(--f-mono); border-radius: 4px; padding: 0.4rem 0.8rem; cursor: pointer;
+  border: 1px solid var(--narandza); background: transparent; color: var(--narandza); }
+button[aria-pressed="true"], button.glavno { background: var(--narandza); color: var(--list); }
+button:disabled { opacity: 0.45; cursor: default; }
+
+/* slajdovi */
+.slajd { padding-block: 2rem 6rem; scroll-margin-top: 3.4rem; }
+main.prezentacija .slajd { display: none; min-height: calc(100svh - 3.2rem); }
+main.prezentacija .slajd.aktivan { display: block; }
+main.citanje .slajd { border-bottom: 1px solid var(--linija); padding-block: 2.5rem; }
+.glava { display: grid; gap: 0.35rem; margin-bottom: 1.4rem; }
+.glava h2 { font-size: var(--t-4); max-width: 30ch; }
+.glava .podnaslov { font-size: var(--t-2); color: var(--siva); max-width: 52rem; }
+.dvije { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2rem; align-items: start; }
+.dvije > * { min-width: 0; }
+@media (max-width: 900px) { .dvije { grid-template-columns: minmax(0, 1fr); } }
+.tekst { display: grid; gap: 1rem; }
+.tekst ul { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.35rem; }
+.panel { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 1rem; }
+.pitanje { background: var(--narandza-meko); border-radius: 4px; padding: 0.9rem 1rem; }
+.pitanje h3 { font-size: var(--t-1); margin-bottom: 0.25rem; }
+
+/* naslovni slajd */
+.naslovni { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 2.4rem; align-items: center; padding-top: 1rem; }
+.naslovni > * { min-width: 0; }
+.naslovni h1 { font-size: var(--t-5); letter-spacing: -0.01em; margin: 0.4rem 0 0.9rem; }
+.naslovni .teza { font-size: var(--t-3); font-family: var(--f-naslov); line-height: 1.3; }
+.naslovni .uvod { margin-top: 1rem; color: var(--siva); }
+@media (max-width: 900px) { .naslovni { grid-template-columns: minmax(0, 1fr); } }
+
+/* list papira: pravilo za model na papiru */
+.papir {
+  margin: 0; background-color: var(--list); border: 1px solid var(--linija); border-radius: 4px;
+  padding: 1rem 1.2rem 1.2rem 2.4rem; position: relative; line-height: 1.75rem;
+  background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(1.75rem - 1px), var(--linija) calc(1.75rem - 1px), var(--linija) 1.75rem);
+  background-position: 0 2.55rem;
+}
+.papir::before { content: ""; position: absolute; left: 1.5rem; top: 0; bottom: 0; width: 2px; background: var(--margina); }
+.papir figcaption { font-family: var(--f-mono); font-size: var(--t-0); color: var(--siva); letter-spacing: 0.04em; text-transform: uppercase; line-height: 1.75rem; }
+.papir p, .papir li { font-family: var(--f-naslov); font-size: 1.08rem; }
+.papir ul { list-style: none; margin: 0; padding: 0 0 0 1.2rem; }
+.papir li::before { content: "→ "; color: var(--narandza); font-family: var(--f-tekst); }
+.papir b { color: var(--narandza); }
+
+/* kartice (pojava, sastavni dijelovi, koraci) */
+.kartice { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); }
+.kartica { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 1rem; display: grid; gap: 0.6rem; align-content: start; }
+.kartica h3 { font-size: var(--t-2); }
+.kartica svg { width: 100%; height: auto; display: block; }
+.kartica ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.25rem; }
+.kartica .kod-cip { font-family: var(--f-mono); font-size: 0.78rem; color: var(--siva); border-top: 1px dashed var(--linija); padding-top: 0.5rem; }
+.korak-broj { font-family: var(--f-mono); font-weight: 500; color: var(--narandza); }
+
+/* SVG ilustracije: boje iz tokena */
+.il-osa { stroke: var(--siva); stroke-width: 1.5; }
+.il-tekst { fill: var(--siva); font: 13px var(--f-mono); }
+.il-tekst-veci { fill: var(--tinta); font: 600 15px var(--f-tekst); }
+.il-za { fill: var(--za); } .il-protiv { fill: var(--protiv); } .il-neo { fill: var(--neodlucni); }
+.il-prozor { fill: var(--narandza-meko); stroke: var(--narandza); stroke-dasharray: 4 3; }
+.il-strelica { stroke: var(--narandza); stroke-width: 2.5; fill: none; }
+.il-vrh { fill: var(--narandza); }
+.il-domet { fill: none; stroke: var(--narandza); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.il-svijet { fill: var(--svijet); }
+.il-kuca { fill: #eded2f; }
+.il-precrtano { stroke: var(--protiv); stroke-width: 3; }
+.il-oblak { fill: var(--list); stroke: var(--siva); stroke-width: 1.2; }
+
+/* kalkulator jednog susreta */
+.kalk { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 1.5rem; }
+.kalk > * { min-width: 0; }
+@media (max-width: 900px) { .kalk { grid-template-columns: minmax(0, 1fr); } }
+.klizaci { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem 1.2rem; }
+@media (max-width: 520px) { .klizaci { grid-template-columns: minmax(0, 1fr); } }
+.klizac { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+.klizac label { font-family: var(--f-mono); font-size: var(--t-0); }
+.klizac output { font-family: var(--f-mono); font-size: var(--t-0); font-variant-numeric: tabular-nums; }
+.klizac input { grid-column: 1 / -1; width: 100%; accent-color: var(--narandza); }
+.racun { font-family: var(--f-mono); font-size: 0.86rem; line-height: 1.7; background: var(--papir); border-radius: 4px; padding: 0.7rem 0.9rem; overflow-x: auto; white-space: pre; }
+.racun .da { color: var(--za); font-weight: 600; } .racun .ne { color: var(--protiv); font-weight: 600; }
+.dugmad { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+
+/* putanje stava */
+.putanje-okvir { background: var(--svijet); border-radius: 6px; padding: 0.6rem; }
+canvas.putanje { width: 100%; aspect-ratio: 2 / 1; display: block; }
+.izbor { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.6rem; }
+.izbor button { border-color: var(--linija); color: var(--siva); }
+.izbor button[aria-pressed="true"] { border-color: var(--narandza); color: var(--list); background: var(--narandza); }
+.legenda { display: flex; gap: 1rem; flex-wrap: wrap; font-size: var(--t-0); color: var(--siva); margin-top: 0.4rem; }
+.legenda i { display: inline-block; width: 0.8em; height: 0.8em; border-radius: 50%; margin-right: 0.35em; vertical-align: -0.05em; }
+.potpis { font-size: var(--t-0); color: var(--siva); margin-top: 0.4rem; }
+.potpis b { color: var(--tinta); font-weight: 600; }
+
+/* grafikoni iz mjerenja */
+svg.grafik { width: 100%; height: auto; display: block; overflow: visible; }
+.g-mreza { stroke: var(--linija); stroke-width: 1; } .g-os { stroke: var(--siva); stroke-width: 1; }
+.g-oznaka { fill: var(--siva); font: 12px var(--f-mono); } .g-naslov-x { fill: var(--siva); font: 12px var(--f-tekst); }
+.g-vrijednost { fill: var(--tinta); font: 500 12px var(--f-mono); }
+.g-raspon { stroke: var(--narandza); stroke-width: 3; stroke-linecap: round; opacity: 0.35; }
+.g-tacka { fill: var(--narandza); }
+.g-ref { stroke: var(--siva); stroke-width: 1.2; stroke-dasharray: 4 4; }
+.g-ref-tekst { fill: var(--siva); font: italic 12px var(--f-tekst); }
+
+/* kod */
+.kodovi { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; }
+.kodovi > * { min-width: 0; }
+@media (max-width: 900px) { .kodovi { grid-template-columns: minmax(0, 1fr); } }
+.kod { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; overflow: hidden; }
+.kod .jezik { font-family: var(--f-mono); font-size: var(--t-0); padding: 0.4rem 0.8rem; border-bottom: 1px solid var(--linija); color: var(--siva); }
+.kod pre { margin: 0; padding: 0.8rem; overflow-x: auto; }
+.kod code { font-size: 14px; line-height: 1.55; white-space: pre; }
+.kod .kom { color: var(--siva); font-style: italic; }
+.kod mark { background: var(--narandza-meko); color: inherit; border-radius: 2px; padding: 0 0.15em; }
+.kod mark b { color: var(--narandza); font-family: var(--f-tekst); }
+.oblacici { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: 1rem; margin-top: 1rem; }
+.oblacici div { border-left: 3px solid var(--narandza); padding-left: 0.8rem; }
+.oblacici b.br { font-family: var(--f-mono); color: var(--narandza); margin-right: 0.3rem; }
+
+/* probaj */
+.veze { display: grid; gap: 0.7rem; }
+.veze a { display: block; text-decoration: none; background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 0.8rem 1rem; color: var(--tinta); }
+.veze a:hover { border-color: var(--narandza); }
+.veze a b { color: var(--narandza); }
+.veze a span { display: block; color: var(--siva); font-size: var(--t-0); }
+.literatura { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.35rem; font-size: 0.92rem; }
+
+/* donja navigacija */
+.navigacija { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--papir); border-top: 1px solid var(--linija);
+  padding-bottom: env(safe-area-inset-bottom, 0px); }
+.navigacija .okvir { display: flex; align-items: center; gap: 0.8rem; padding-block: 0.5rem; }
+.navigacija .naslov-slajda { flex: 1; min-width: 0; font-size: var(--t-0); color: var(--siva); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.navigacija .broj { font-family: var(--f-mono); font-size: var(--t-0); font-variant-numeric: tabular-nums; }
+.napredak { position: absolute; top: -1px; left: 0; height: 2px; background: var(--narandza); transition: width 0.25s; }
+main.citanje ~ .navigacija { display: none; }
+@media (prefers-reduced-motion: reduce) { .napredak { transition: none; } }
+
+</style>
+<style>
+/* dodaci za mini 6: boje stanja, svijet, grafikoni udjela */
+:root { --rps-c: #d73229; --rps-z: #3f8a2c; --rps-p: #345da9; --rps-0: #8d8d8d; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --rps-c: #e5574e; --rps-z: #6cbb52; --rps-p: #6f9be6; --rps-0: #9a9a9a; }
+}
+:root[data-theme="dark"] { --rps-c: #e5574e; --rps-z: #6cbb52; --rps-p: #6f9be6; --rps-0: #9a9a9a; }
+.ilu { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.8rem; align-items: start; }
+@media (max-width: 520px) { .ilu { grid-template-columns: minmax(0, 1fr); } }
+.svijet-okvir { background: var(--svijet); border-radius: 6px; padding: 0.5rem; }
+canvas.svijet { width: 100%; aspect-ratio: 1 / 1; display: block; max-width: min(24rem, 44svh); margin: 0 auto; image-rendering: pixelated; }
+.grafik-okvir { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 0.5rem; }
+canvas.zivi-grafik { width: 100%; aspect-ratio: 1 / 1; display: block; max-height: min(24rem, 44svh); }
+.brojke { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.5rem; margin-top: 0.6rem; }
+@media (max-width: 600px) { .brojke { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.brojke div { background: var(--list); border: 1px solid var(--linija); border-radius: 4px; padding: 0.4rem 0.6rem; }
+.brojke span { display: block; font-family: var(--f-mono); font-size: var(--t-0); color: var(--siva); }
+.brojke b { font-family: var(--f-mono); font-size: 1.1rem; font-variant-numeric: tabular-nums; }
+.kontrole { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0.5rem 1rem; align-items: end; margin-top: 0.6rem; }
+@media (max-width: 520px) { .kontrole { grid-template-columns: minmax(0, 1fr); } }
+.g-c { stroke: var(--rps-c); } .g-z { stroke: var(--rps-z); } .g-p { stroke: var(--rps-p); } .g-0 { stroke: var(--rps-0); stroke-dasharray: 4 3; }
+.f-c { fill: var(--rps-c); } .f-z { fill: var(--rps-z); } .f-p { fill: var(--rps-p); } .f-0 { fill: #000; stroke: var(--siva); stroke-width: 1; }
+.tablica { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+.tablica th, .tablica td { padding: 0.35rem 0.5rem; border-bottom: 1px solid var(--linija); text-align: right; font-variant-numeric: tabular-nums; }
+.tablica th:first-child, .tablica td:first-child { text-align: left; }
+.tablica th { font-family: var(--f-mono); font-size: var(--t-0); font-weight: 500; color: var(--siva); }
+.tabela-okvir { overflow-x: auto; }
+.legenda i.crta { border-radius: 0; height: 3px; width: 1.2em; vertical-align: 0.25em; }
+.slike-svijeta { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: 1rem; align-items: start; }
+@media (max-width: 600px) { .slike-svijeta { grid-template-columns: minmax(0, 1fr); } }
+.slike-svijeta img { width: 100%; display: block; border-radius: 4px; image-rendering: pixelated; background: #000; }
+.dogadjaj svg { max-width: 14rem; }
+</style>
+</head>
+<body>
+
+<header class="vrh">
+  <div class="okvir">
+    <span><span class="oznaka">Vježbe 2 · mini</span> &nbsp;<b>Rock Paper Scissors</b></span>
+    <div class="nacin" role="group" aria-label="Način prikaza">
+      <button type="button" id="nacin-prezentacija" aria-pressed="true">Prezentacija</button>
+      <button type="button" id="nacin-citanje" aria-pressed="false">Čitanje</button>
+    </div>
+  </div>
+</header>
+
+<main class="prezentacija" id="slajdovi">
+
+<!-- 1 ============================================================ -->
+<section class="slajd" id="s1" data-naslov="Rock Paper Scissors">
+  <div class="okvir naslovni">
+    <div>
+      <span class="oznaka">Modeliranje i simulacije · Vježbe 2 · mini-prezentacija</span>
+      <h1>Rock Paper Scissors: ciklična dominacija</h1>
+      <p class="teza">Crvena pobjeđuje zelenu, zelena plavu, a plava crvenu. Nijedna boja ne pobjeđuje trajno, a brzina reprodukcije mijenja obrazac koji nastaje.</p>
+      <p class="uvod">Model iz biblioteke NetLoga u kojem su agenti samo parcele (patches): pravila, kod u NetLogu i C#, šta se mjeri i rezultat 30 pokretanja (3 brzine reprodukcije × 10).</p>
+      <p class="uvod mala">Za promjenu slajda koristite strelice ← → ili dugmad pri dnu. Opcija „Čitanje“ prikazuje sve slajdove na jednoj stranici.</p>
+    </div>
+    <figure style="margin:0" class="interaktivno">
+      <div class="ilu">
+        <div class="svijet-okvir"><canvas class="svijet" id="svijet" aria-label="Svijet modela: 100 × 100 parcela, crvene, zelene, plave i prazne"></canvas></div>
+        <div class="grafik-okvir"><canvas class="zivi-grafik" id="zivi" aria-label="Udio parcela svake boje kroz vrijeme"></canvas></div>
+      </div>
+      <div class="kontrole">
+        <div class="dugmad">
+          <button type="button" class="glavno" id="m-kreni">Pokreni</button>
+          <button type="button" id="m-setup">setup</button>
+        </div>
+        <div class="klizac"><label for="k-repr">reproduce-rate-exponent</label><output id="o-repr"></output><input type="range" id="k-repr" min="-1" max="1" step="0.1" value="0"></div>
+      </div>
+      <div class="brojke">
+        <div><span>tick</span><b id="m-tick">0</b></div>
+        <div><span>crvena</span><b id="m-c">0</b></div>
+        <div><span>zelena</span><b id="m-z">0</b></div>
+        <div><span>plava</span><b id="m-p">0</b></div>
+        <div><span>prazno</span><b id="m-0">0</b></div>
+      </div>
+      <figcaption class="potpis">Crna polja su prazna. Na grafiku su udjeli parcela: <span style="color:var(--rps-c)">crvena</span>, <span style="color:var(--rps-z)">zelena</span>,
+        <span style="color:var(--rps-p)">plava</span>, <span style="color:var(--rps-0)">prazno</span>. <b>Ilustracija u web pregledniku</b> (JavaScript, ista pravila kao u NetLogu,
+        ali manji svijet: 100 × 100 umjesto 151 × 151 parcela). Izmjerene vrijednosti su na slajdovima 6 i 7.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 2 ============================================================ -->
+<section class="slajd" id="s2" data-naslov="Agenti su parcele">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Agenti</span>
+      <h2>Agenti su parcele, a stanje je boja parcele</h2>
+      <p class="podnaslov">Model nema turtles. Svaka parcela (patch) je crvena, zelena, plava ili prazna (crna) i djeluje samo na jednu od četiri susjedne parcele (<code>neighbors4</code>).</p>
+    </div>
+    <div class="dvije">
+      <div class="tekst">
+        <div class="kartica">
+          <svg viewBox="0 0 420 230" role="img" aria-label="Krug dominacije: crvena pobjeđuje zelenu, zelena pobjeđuje plavu, plava pobjeđuje crvenu">
+            <defs><marker id="vrh" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" class="il-vrh"/></marker></defs>
+            <circle cx="210" cy="48" r="30" class="f-c"/><circle cx="100" cy="182" r="30" class="f-p"/><circle cx="320" cy="182" r="30" class="f-z"/>
+            <text class="il-tekst-veci" x="210" y="20" text-anchor="middle" dy="-4">crvena</text>
+            <text class="il-tekst-veci" x="100" y="226" text-anchor="middle">plava</text>
+            <text class="il-tekst-veci" x="320" y="226" text-anchor="middle">zelena</text>
+            <path d="M238 66 L300 152" class="il-strelica" marker-end="url(#vrh)"/>
+            <path d="M285 182 L135 182" class="il-strelica" marker-end="url(#vrh)"/>
+            <path d="M120 152 L182 66" class="il-strelica" marker-end="url(#vrh)"/>
+            <text class="il-tekst" x="290" y="104">pobjeđuje</text>
+            <text class="il-tekst" x="210" y="172" text-anchor="middle">pobjeđuje</text>
+            <text class="il-tekst" x="130" y="104" text-anchor="end">pobjeđuje</text>
+          </svg>
+          <div class="kod-cip">strelica: od pobjednika prema poraženom</div>
+        </div>
+        <ul>
+          <li>Svijet ima 151 × 151 = 22 801 parcelu i omotava se (torus). Na početku je svaka parcela slučajno jedno od četiri stanja (<code>one-of [ red green blue black ]</code>), oko 25 % svakog.</li>
+          <li>Nijedna boja nije najjača: svaka pobjeđuje jednu i gubi od druge.</li>
+        </ul>
+        <div class="pitanje"><h3>Agent ne mora biti pokretan</h3>
+          <p>Parcela izvršava kod i mijenja susjednu parcelu, pa je agent iako se ne kreće. U modelu stava „mjesto“ je samo okolina; ovdje je mjesto sam agent.</p></div>
+      </div>
+      <div class="kodovi" style="grid-template-columns:minmax(0,1fr)">
+        <div class="kod"><div class="jezik">NetLogo</div><pre><code>to setup
+  clear-all
+  ask patches [
+    set pcolor one-of [ red green blue black ]
+  ]
+  reset-ticks
+end
+
+to-report beat? [ target ]
+  report (pcolor = red   and [ pcolor ] of target = green) or
+         (pcolor = green and [ pcolor ] of target = blue) or
+         (pcolor = blue  and [ pcolor ] of target = red)
+end</code></pre></div>
+        <div class="kod"><div class="jezik">C#</div><pre><code>static void Setup()
+{
+    World.ClearAll(-75, 75, -75, 75);           <span class="kom">// 151 × 151</span>
+    World.Ask(World.Patches, p =&gt;
+        p.Pcolor = World.OneOf(Red, Green, Blue, Black));
+    World.ResetTicks();
+}
+
+bool Beats(Patch t) =&gt;                         <span class="kom">// beat?</span>
+       (Pcolor == Red   &amp;&amp; t.Pcolor == Green)
+    || (Pcolor == Green &amp;&amp; t.Pcolor == Blue)
+    || (Pcolor == Blue  &amp;&amp; t.Pcolor == Red);</code></pre></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 ============================================================ -->
+<section class="slajd" id="s3" data-naslov="Tri događaja">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Pravila</span>
+      <h2>Tri događaja između parcele i susjeda</h2>
+      <p class="podnaslov">Parcela izabere jednu slučajnu susjednu parcelu (<code>one-of neighbors4</code>) i s njom izvrši jedan od tri događaja.</p>
+    </div>
+    <div class="kartice">
+      <div class="kartica dogadjaj"><h3><span class="korak-broj">1</span> zamjena (swap)</h3>
+        <svg viewBox="0 0 220 70" role="img" aria-label="Zamjena: crvena i plava parcela zamijene boje">
+          <rect x="6" y="14" width="40" height="40" class="f-c"/><rect x="46" y="14" width="40" height="40" class="f-p"/>
+          <path d="M96 34 L116 34" class="il-strelica"/><path d="M114 28 L125 34 L114 40 Z" class="il-vrh"/>
+          <rect x="134" y="14" width="40" height="40" class="f-p"/><rect x="174" y="14" width="40" height="40" class="f-c"/></svg>
+        <p>Parcele zamijene boje. Tako se „jedinke“ pomjeraju kroz prostor.</p><div class="kod-cip">swap target</div></div>
+      <div class="kartica dogadjaj"><h3><span class="korak-broj">2</span> reprodukcija</h3>
+        <svg viewBox="0 0 220 70" role="img" aria-label="Reprodukcija: zelena parcela se proširi na praznu susjednu parcelu">
+          <rect x="6" y="14" width="40" height="40" class="f-z"/><rect x="46" y="14" width="40" height="40" class="f-0"/>
+          <path d="M96 34 L116 34" class="il-strelica"/><path d="M114 28 L125 34 L114 40 Z" class="il-vrh"/>
+          <rect x="134" y="14" width="40" height="40" class="f-z"/><rect x="174" y="14" width="40" height="40" class="f-z"/></svg>
+        <p>Ako je jedna od dvije parcele prazna, preuzme boju druge. Inače se ništa ne dešava.</p><div class="kod-cip">reproduce target</div></div>
+      <div class="kartica dogadjaj"><h3><span class="korak-broj">3</span> selekcija</h3>
+        <svg viewBox="0 0 220 70" role="img" aria-label="Selekcija: crvena pobijedi zelenu, zelena parcela postaje prazna">
+          <rect x="6" y="14" width="40" height="40" class="f-c"/><rect x="46" y="14" width="40" height="40" class="f-z"/>
+          <path d="M96 34 L116 34" class="il-strelica"/><path d="M114 28 L125 34 L114 40 Z" class="il-vrh"/>
+          <rect x="134" y="14" width="40" height="40" class="f-c"/><rect x="174" y="14" width="40" height="40" class="f-0"/></svg>
+        <p>Ako jedna boja pobjeđuje drugu, poražena parcela postaje prazna. Iste boje ili prazno: ništa.</p><div class="kod-cip">select target</div></div>
+    </div>
+    <div class="kodovi" style="margin-top:1rem">
+      <div class="kod"><div class="jezik">NetLogo</div><pre><code>to select [ target ]
+  ifelse beat? target [
+    ask target [ set pcolor black ]
+  ] [
+    if [ beat? myself ] of target [
+      set pcolor black
+    ]
+  ]
+end
+
+to reproduce [ target ]
+  ifelse [ pcolor ] of target = black [
+    ask target [ set pcolor [ pcolor ] of myself ]
+  ] [
+    if pcolor = black [ set pcolor [ pcolor ] of target ]
+  ]
+end</code></pre></div>
+      <div class="kod"><div class="jezik">C#</div><pre><code>void Select(Patch target)
+{
+    if (Beats(target))
+        target.Pcolor = Black;
+    else if (target.Beats(this))      <span class="kom">// [ beat? myself ] of target</span>
+        Pcolor = Black;
+}
+
+void Reproduce(Patch target)
+{
+    if (target.Pcolor == Black)
+        target.Pcolor = Pcolor;       <span class="kom">// [ pcolor ] of myself</span>
+    else if (Pcolor == Black)
+        Pcolor = target.Pcolor;
+}</code></pre></div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 ============================================================ -->
+<section class="slajd" id="s4" data-naslov="Jedan tick">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Vrijeme</span>
+      <h2>Jedan tick: lista događaja slučajnim redom</h2>
+      <p class="podnaslov">Model ne kaže „svaka parcela uradi isto“. Prvo se odredi koliko će biti događaja svake vrste, zatim se lista promiješa i svaki događaj izvrši slučajna parcela.</p>
+    </div>
+    <div class="dvije">
+      <div class="tekst">
+        <ul>
+          <li>Broj događaja jedne vrste je slučajan, s Poissonovom raspodjelom i očekivanjem <code>count patches / 3 × stopa</code>.</li>
+          <li>Stopa je <code>10 ^ eksponent</code>. Uz sve tri stope 1 (eksponenti 0) prosječno je jedan događaj po parceli u ticku.</li>
+          <li><code>reproduce-rate-exponent</code> mijenja samo reprodukciju: −1 daje 10 puta rjeđu, a 1 10 puta češću reprodukciju od zadane.</li>
+          <li>Parcela može u istom ticku učestvovati u više događaja ili ni u jednom.</li>
+        </ul>
+        <div class="tabela-okvir"><table class="tablica">
+          <thead><tr><th>reproduce-rate-exponent</th><th>stopa</th><th>reprodukcija u ticku (očekivano)</th></tr></thead>
+          <tbody>
+            <tr><td>−1</td><td>0,1</td><td>≈ 760</td></tr>
+            <tr><td>0 (zadano)</td><td>1</td><td>≈ 7600</td></tr>
+            <tr><td>1</td><td>10</td><td>≈ 76 000</td></tr>
+          </tbody></table></div>
+        <p class="mala siva">22 801 / 3 ≈ 7600; zamjena i selekcija ostaju na ≈ 7600 događaja po ticku.</p>
+      </div>
+      <div class="kodovi" style="grid-template-columns:minmax(0,1fr)">
+        <div class="kod"><div class="jezik">NetLogo</div><pre><code>to go
+  let repetitions count patches / 3
+  let events shuffle (sentence
+    n-values random-poisson (repetitions * swap-rate)      [ 0 ]
+    n-values random-poisson (repetitions * reproduce-rate) [ 1 ]
+    n-values random-poisson (repetitions * select-rate)    [ 2 ]
+  )
+  foreach events [ event -&gt;
+    ask one-of patches [
+      let target one-of neighbors4
+      if event = 0 [ swap target ]
+      if event = 1 [ reproduce target ]
+      if event = 2 [ select target ]
+    ]
+  ]
+  tick
+end</code></pre></div>
+        <div class="kod"><div class="jezik">C#</div><pre><code>static void Go()
+{
+    double rep = World.Patches.Count / 3.0;
+    var events = new List&lt;int&gt;();
+    events.AddRange(Enumerable.Repeat(0, RandomPoisson(rep * SwapRate)));
+    events.AddRange(Enumerable.Repeat(1, RandomPoisson(rep * ReproduceRate)));
+    events.AddRange(Enumerable.Repeat(2, RandomPoisson(rep * SelectRate)));
+    foreach (var e in events.Shuffle())
+    {
+        var p = (RpsPatch)World.Patches.OneOf();       <span class="kom">// ask one-of patches</span>
+        var target = (RpsPatch)p.Neighbors4.OneOf();
+        if (e == 0) p.Swap(target);
+        if (e == 1) p.Reproduce(target);
+        if (e == 2) p.Select(target);
+    }
+    World.Tick();
+}
+<span class="kom">// RandomPoisson nije u MiniNetLogo; random-poisson u NetLogu</span></code></pre></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 ============================================================ -->
+<section class="slajd" id="s5" data-naslov="Šta se mjeri">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Mjere</span>
+      <h2>Mjeri se broj parcela svake boje u svakom ticku</h2>
+      <p class="podnaslov">BehaviorSpace, NetLogo 7.0.4 headless: tri vrijednosti <code>reproduce-rate-exponent</code> (−1, 0, 1), po 10 pokretanja, 600 tickova; ostale stope zadane.</p>
+    </div>
+    <div class="dvije">
+      <div class="tekst">
+        <ul>
+          <li><b>opstanak</b>: da li sve tri boje postoje u ticku 600 i koliki je najmanji broj parcela neke boje u cijelom pokretanju;</li>
+          <li><b>udio praznih parcela</b>, prosjek od ticka 100 (prvih 100 tickova je prelaz od slučajnog početka);</li>
+          <li><b>amplituda</b>: standardna devijacija broja parcela jedne boje od ticka 100, podijeljena prosjekom te boje (relativno rasipanje), i najveći udio jedne boje među obojenim parcelama;</li>
+          <li><b>prostorni obrazac</b>: u ticku 600, među obojenim susjedima obojene parcele, udio susjeda iste boje (10 novih pokretanja po uslovu).</li>
+        </ul>
+        <div class="pitanje"><h3>Zašto relativno rasipanje</h3>
+          <p>Uz rjeđu reprodukciju ima više praznih parcela, pa je i manje obojenih. Isto rasipanje u broju parcela tada je veći dio populacije.</p></div>
+      </div>
+      <div class="kodovi" style="grid-template-columns:minmax(0,1fr)">
+        <div class="kod"><div class="jezik">NetLogo · BehaviorSpace</div><pre><code><span class="kom">; Vary: reproduce-rate-exponent [ -1 0 1 ]</span>
+<span class="kom">; Repetitions 10, Time limit 600, every step</span>
+count patches with [ pcolor = red ]
+count patches with [ pcolor = green ]
+count patches with [ pcolor = blue ]
+count patches with [ pcolor = black ]
+
+<span class="kom">; na kraju pokretanja: udio susjeda iste boje</span>
+mean [ count neighbors4 with [ pcolor = [ pcolor ] of myself ]
+       / count neighbors4 with [ pcolor != black ] ]
+  of patches with [ pcolor != black and
+                    any? neighbors4 with [ pcolor != black ] ]</code></pre></div>
+        <div class="kod"><div class="jezik">C#</div><pre><code>int Count(Color c) =&gt; World.Patches.Count(p =&gt; p.Pcolor == c);
+
+double IstaBoja() =&gt; World.Patches
+    .Where(p =&gt; p.Pcolor != Black &amp;&amp; p.Neighbors4.Any(n =&gt; n.Pcolor != Black))
+    .Average(p =&gt; p.Neighbors4.Count(n =&gt; n.Pcolor == p.Pcolor)
+             / (double)p.Neighbors4.Count(n =&gt; n.Pcolor != Black));</code></pre></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 ============================================================ -->
+<section class="slajd" id="s6" data-naslov="Rezultat: jedno pokretanje">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Rezultat · NetLogo</span>
+      <h2>Udjeli boja se stalno mijenjaju, a nijedna ne nestaje</h2>
+      <p class="podnaslov">Jedno pokretanje po brzini reprodukcije (svaki 5. tick) i izgled svijeta u ticku 600 (drugo pokretanje, random-seed 1).</p>
+    </div>
+    <div class="izbor" role="group" aria-label="Brzina reprodukcije" id="izbor-repr"></div>
+    <div class="slike-svijeta">
+      <figure style="margin:0"><img id="slika" alt="" width="453" height="453"><figcaption class="potpis" id="p-slika"></figcaption></figure>
+      <figure style="margin:0">
+        <div class="panel"><div id="g-primjer"></div></div>
+        <div class="legenda"><span><i class="crta" style="background:var(--rps-c)"></i>crvena</span><span><i class="crta" style="background:var(--rps-z)"></i>zelena</span><span><i class="crta" style="background:var(--rps-p)"></i>plava</span><span><i class="crta" style="background:var(--rps-0)"></i>prazno</span></div>
+        <figcaption class="potpis" id="p-primjer"></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- 7 ============================================================ -->
+<section class="slajd" id="s7" data-naslov="Rezultat: 10 pokretanja">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Rezultat · NetLogo</span>
+      <h2>Sve tri boje opstaju; rjeđa reprodukcija daje više praznog prostora i veće oscilacije</h2>
+      <p class="podnaslov" id="t-podnaslov"></p>
+    </div>
+    <div class="dvije">
+      <div class="tabela-okvir"><table class="tablica">
+        <thead><tr><th>mjera</th><th id="h-1"></th><th id="h0"></th><th id="h1"></th></tr></thead>
+        <tbody id="t-zbir"></tbody></table>
+        <p class="mala siva" style="margin-top:0.5rem">Raspon među pokretanjima, u zagradi medijan. Udjeli su od ticka 100.</p></div>
+      <div class="tekst">
+        <p id="t-opstanak"></p>
+        <p id="t-prazno"></p>
+        <p id="t-amplituda"></p>
+        <div class="pitanje"><h3>Jedno pokretanje nije rezultat</h3><p id="t-slucaj"></p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 ============================================================ -->
+<section class="slajd" id="s8" data-naslov="Tumačenje">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Tumačenje</span>
+      <h2>Bez trajnog pobjednika, jer je svaki pobjednik nečiji plijen</h2>
+      <p class="podnaslov">Kad se jedna boja proširi, raste i prostor za boju koja nju pobjeđuje. Prednost je zato uvijek privremena i lokalna.</p>
+    </div>
+    <div class="kartice">
+      <div class="kartica"><h3>Ciklična dominacija</h3><p>Crvena smanjuje zelenu, pa plava (koju zelena pobjeđuje) dobija prostor, a plava zatim smanjuje crvenu. Nijedno pravilo ne kaže „održi ravnotežu“; ona nastaje iz kruga.</p><div class="kod-cip">beat? · select</div></div>
+      <div class="kartica"><h3>Lokalnost</h3><p>Parcela djeluje samo na susjednu. Zato se boje grupišu u oblasti, a granice oblasti se pomjeraju; na cijelom svijetu sve tri boje postoje istovremeno.</p><div class="kod-cip" id="c-ista"></div></div>
+      <div class="kartica"><h3>Brzina reprodukcije</h3><p id="c-repr"></p><div class="kod-cip">reproduce-rate-exponent</div></div>
+      <div class="kartica"><h3>Granice tvrdnje</h3><p id="c-granice"></p><div class="kod-cip">600 tickova · 151 × 151</div></div>
+    </div>
+    <div class="pitanje" style="margin-top:1rem"><h3>Gdje se javlja ciklična dominacija</h3>
+      <p>Model se oslanja na radove o cikličnoj kompeticiji u biologiji (Reichenbach, Mobilia i Frey, 2007 i 2008; navedeni u Info kartici modela). Za temu iz društvenih nauka treba pokazati da u njoj zaista postoji krug, a ne hijerarhija: ko pobjeđuje koga i šta znači „prazno“.</p></div>
+  </div>
+</section>
+
+<!-- 9 ============================================================ -->
+<section class="slajd" id="s9" data-naslov="Probajte">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Probajte</span>
+      <h2>Model u NetLogu i samostalna vježba</h2>
+      <p class="podnaslov">Model se otvara iz biblioteke: File → Models Library → Sample Models → Biology → Rock Paper Scissors.</p>
+    </div>
+    <div class="dvije">
+      <div class="veze">
+        <a href="../prezentacije/v02a-ponavljanje.html#s29"><b>Prezentacija „Ponavljanje“, slajd 29</b>
+          <span>Rock Paper Scissors u pregledu četiri modela: pravila i dvije slike.</span></a>
+        <a href="../prezentacije/v02a-ponavljanje.html#s57"><b>Prilog 4</b>
+          <span>Vrijednosti po pokretanju za Wolf Sheep i Rock Paper Scissors iz prezentacije.</span></a>
+        <a href="netlogo-kroz-csharp.html"><b>Mini: NetLogo kroz C#</b>
+          <span>Parcele, neighbors4, ask, one-of i myself objašnjeni kodom u C#.</span></a>
+        <a href="model-stava.html"><b>Mini: model stava</b>
+          <span>Model s vježbi 2: agenti koji se kreću i mijenjaju stav.</span></a>
+      </div>
+      <div class="tekst">
+        <div class="panel"><h3 style="font-size:var(--t-1);margin-bottom:0.4rem">Šta isprobati</h3>
+          <ul>
+            <li>Pokrenite model s <code>reproduce-rate-exponent</code> −1, 0 i 1. Opišite razliku u slici svijeta poslije 600 tickova.</li>
+            <li>Postavite <code>swap-rate-exponent</code> na 1 (brže kretanje). Prije pokretanja zapišite očekivanje: hoće li oblasti biti veće ili manje?</li>
+            <li>U BehaviorSpace ponovite jedan uslov 10 puta i zapišite najmanji broj parcela neke boje u svakom pokretanju.</li>
+            <li>Info kartica modela pita: postoje li postavke parametara pri kojima jedna boja nestane? Šta se tada dešava s druge dvije?</li>
+          </ul></div>
+        <div class="pitanje"><h3>Samostalna vježba</h3>
+          <p>Nađite u svojoj temi tri strategije, proizvoda ili grupe od kojih svaka ima prednost nad jednom i slabost prema drugoj. Šta bi bila „reprodukcija“, a šta „prazno mjesto“? Navedite izvor za tvrdnju da odnos zaista ide u krug.</p></div>
+        <p class="mala siva" id="t-izvor"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<nav class="navigacija" aria-label="Slajdovi">
+  <div class="napredak" id="napredak"></div>
+  <div class="okvir">
+    <button type="button" id="nazad" aria-label="Prethodni slajd">←</button>
+    <span class="broj" id="broj">1 / 9</span>
+    <button type="button" id="naprijed" aria-label="Sljedeći slajd">→</button>
+    <span class="naslov-slajda" id="naslov-slajda"></span>
+  </div>
+</nav>
+
+<script>window.RPS = {"n":10,"ticks":600,"parcela":22801,"korak":5,"uslovi":[{"eksponent":-1,"stopa":0.1,"opstale":10,"najmanje":{"min":2027,"med":2396,"max":2521,"n":10},"najmanje_udio":{"min":0.089,"med":0.105,"max":0.111,"n":10},"sd":{"min":515,"med":1037,"max":1651,"n":10},"rel":{"min":0.113,"med":0.224,"max":0.347,"n":10},"vodeca":{"min":0.376,"med":0.482,"max":0.547,"n":10},"raspon":{"min":2024,"med":3369,"max":5111,"n":10},"prazno":{"min":0.332,"med":0.391,"max":0.403,"n":10},"ista":{"min":0.863,"med":0.881,"max":0.903,"n":10},"slika":"slike/rps-kraj--1.png","primjer":{"run":1,"t":[0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,105,110,115,120,125,130,135,140,145,150,155,160,165,170,175,180,185,190,195,200,205,210,215,220,225,230,235,240,245,250,255,260,265,270,275,280,285,290,295,300,305,310,315,320,325,330,335,340,345,350,355,360,365,370,375,380,385,390,395,400,405,410,415,420,425,430,435,440,445,450,455,460,465,470,475,480,485,490,495,500,505,510,515,520,525,530,535,540,545,550,555,560,565,570,575,580,585,590,595,600],"crvena":[5674,3705,3053,2717,2577,2513,2457,2425,2443,2505,2589,2650,2698,2764,2835,2943,3049,3176,3307,3418,3507,3626,3760,3928,4033,4166,4245,4351,4460,4541,4629,4742,4776,4774,4807,4806,4686,4715,4736,4733,4742,4774,4796,4808,4697,4754,4819,4829,4838,4871,4871,4952,4951,4935,4901,4875,4820,4791,4783,4715,4677,4622,4580,4529,4446,4368,4314,4310,4284,4205,4099,4050,3951,3890,3775,3698,3671,3610,3580,3562,3518,3528,3476,3400,3477,3512,3531,3595,3638,3732,3879,4053,4202,4398,4613,4810,5020,5208,5394,5585,5775,5959,6151,6284,6449,6536,6721,6859,6933,7009,7064,7079,7113,7089,6990,6907,6843,6746,6687,6540,6292],"zelena":[5701,3650,3008,2721,2579,2493,2511,2565,2598,2678,2716,2813,2908,3003,3079,3171,3275,3311,3363,3448,3496,3584,3676,3692,3720,3793,3868,3885,3910,3946,3960,3926,3921,3900,3831,3761,3667,3613,3564,3530,3445,3437,3403,3297,3202,3192,3163,3089,3002,3000,3039,3090,3112,3204,3275,3366,3509,3700,3757,3898,4004,4157,4315,4479,4606,4728,4929,5114,5341,5495,5713,5940,6178,6361,6537,6710,6850,6990,7025,7155,7162,7185,7181,7202,7242,7170,7148,7118,7066,6936,6821,6684,6541,6374,6222,6081,5939,5782,5641,5501,5323,5194,5040,4946,4891,4721,4630,4536,4464,4407,4336,4201,4067,3976,3824,3743,3667,3554,3491,3444,3413],"plava":[5742,3714,3131,2847,2738,2696,2730,2713,2749,2776,2813,2853,2901,2924,2945,2901,2840,2810,2786,2783,2797,2769,2785,2809,2853,2889,2971,3012,3087,3203,3309,3385,3509,3696,3889,3991,4154,4296,4423,4535,4648,4821,4985,5176,5304,5479,5667,5840,5923,5981,6020,6064,6149,6207,6192,6168,6128,6057,5971,5945,5830,5677,5553,5388,5262,5195,5144,5107,4994,4908,4845,4769,4702,4658,4590,4577,4589,4601,4589,4618,4567,4574,4573,4573,4575,4538,4525,4500,4474,4455,4428,4353,4297,4240,4163,4009,3889,3751,3693,3573,3424,3359,3324,3260,3209,3214,3255,3296,3305,3371,3405,3466,3562,3664,3788,3933,4019,4146,4317,4405,4589],"prazno":[5684,11732,13609,14516,14907,15099,15103,15098,15011,14842,14683,14485,14294,14110,13942,13786,13637,13504,13345,13152,13001,12822,12580,12372,12195,11953,11717,11553,11344,11111,10903,10748,10595,10431,10274,10243,10294,10177,10078,10003,9966,9769,9617,9520,9598,9376,9152,9043,9038,8949,8871,8695,8589,8455,8433,8392,8344,8253,8290,8243,8290,8345,8353,8405,8487,8510,8414,8270,8182,8193,8144,8042,7970,7892,7899,7816,7691,7600,7607,7466,7554,7514,7571,7626,7507,7581,7597,7588,7623,7678,7673,7711,7761,7789,7803,7901,7953,8060,8073,8142,8279,8289,8286,8311,8252,8330,8195,8110,8099,8014,7996,8055,8059,8072,8199,8218,8272,8355,8306,8412,8507]}},{"eksponent":0,"stopa":1,"opstale":10,"najmanje":{"min":4797,"med":5174,"max":5568,"n":10},"najmanje_udio":{"min":0.21,"med":0.227,"max":0.244,"n":10},"sd":{"min":506,"med":802,"max":1009,"n":10},"rel":{"min":0.073,"med":0.116,"max":0.146,"n":10},"vodeca":{"min":0.397,"med":0.42,"max":0.483,"n":10},"raspon":{"min":2327,"med":3227,"max":4320,"n":10},"prazno":{"min":0.082,"med":0.087,"max":0.089,"n":10},"ista":{"min":0.791,"med":0.815,"max":0.833,"n":10},"slika":"slike/rps-kraj-0.png","primjer":{"run":11,"t":[0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,105,110,115,120,125,130,135,140,145,150,155,160,165,170,175,180,185,190,195,200,205,210,215,220,225,230,235,240,245,250,255,260,265,270,275,280,285,290,295,300,305,310,315,320,325,330,335,340,345,350,355,360,365,370,375,380,385,390,395,400,405,410,415,420,425,430,435,440,445,450,455,460,465,470,475,480,485,490,495,500,505,510,515,520,525,530,535,540,545,550,555,560,565,570,575,580,585,590,595,600],"crvena":[5671,5868,6106,6286,6576,6821,6871,6749,6613,6568,6679,6632,6606,6664,6659,6559,6642,6701,6818,6993,7126,7346,7579,7743,7845,7840,7792,7859,7763,7683,7480,7278,7014,6774,6426,6146,5914,5781,5709,5508,5376,5200,5144,5095,5188,5331,5462,5614,5778,5964,6250,6544,6931,7248,7483,7711,7853,7935,7943,7920,7747,7670,7510,7363,7212,6969,6657,6419,6240,6172,6160,6194,6435,6715,7024,7293,7471,7662,7739,7861,7975,8061,8140,8233,8306,8257,8289,8308,8318,8165,7939,7605,7324,7100,6918,6733,6526,6555,6510,6649,6844,7069,7167,7268,7307,7360,7471,7597,7594,7451,7228,6995,6663,6478,6255,6125,5987,5953,5901,5923,5974],"zelena":[5677,6126,6235,6207,6226,6117,6146,6196,6271,6321,6366,6564,6801,6756,6831,7047,7159,7280,7167,7097,6901,6705,6544,6462,6335,6316,6158,5956,5826,5707,5495,5343,5118,4935,4832,4860,4997,5138,5340,5657,6161,6661,7114,7724,8284,8763,9205,9328,9460,9419,9345,9121,8866,8475,8050,7607,7109,6770,6418,6123,6111,6128,6249,6375,6561,6677,6888,7013,7091,7206,7248,7195,7158,7086,7125,7231,7274,7367,7394,7319,7266,7028,6682,6436,6119,6008,5893,5856,5787,5882,5993,6262,6438,6427,6564,6755,6895,6992,7088,7086,7125,7248,7294,7312,7137,6964,6611,6371,6147,6146,6131,6150,6235,6338,6423,6448,6478,6553,6608,6753,6823],"plava":[5753,6051,6208,6234,6325,6317,6396,6651,6886,7030,7166,7116,6991,6954,6937,6814,6797,6718,6756,6719,6775,6796,6699,6675,6638,6718,6861,7061,7339,7612,8041,8454,8915,9318,9721,10042,10170,10196,10101,9938,9539,9166,8647,8061,7409,6763,6240,5900,5680,5481,5303,5231,5190,5207,5344,5517,5802,6141,6491,6854,7061,7140,7140,7113,7063,7162,7334,7525,7622,7600,7516,7488,7364,7114,6880,6455,6256,6087,5987,5873,5884,6002,6224,6407,6522,6650,6759,6840,6932,6932,6984,7102,7212,7440,7378,7411,7485,7361,7245,7162,6911,6545,6432,6378,6424,6453,6722,6848,7099,7298,7481,7632,7893,8116,8167,8285,8388,8355,8339,8199,8071],"prazno":[5700,4756,4252,4074,3674,3546,3388,3205,3031,2882,2590,2489,2403,2427,2374,2381,2203,2102,2060,1992,1999,1954,1979,1921,1983,1927,1990,1925,1873,1799,1785,1726,1754,1774,1822,1753,1720,1686,1651,1698,1725,1774,1896,1921,1920,1944,1894,1959,1883,1937,1903,1905,1814,1871,1924,1966,2037,1955,1949,1904,1882,1863,1902,1950,1965,1993,1922,1844,1848,1823,1877,1924,1844,1886,1772,1822,1800,1685,1681,1748,1676,1710,1755,1725,1854,1886,1860,1797,1764,1822,1885,1832,1827,1834,1941,1902,1895,1893,1958,1904,1921,1939,1908,1843,1933,2024,1997,1985,1961,1906,1961,2024,2010,1869,1956,1943,1948,1940,1953,1926,1933]}},{"eksponent":1,"stopa":10,"opstale":10,"najmanje":{"min":5468,"med":5618,"max":5675,"n":10},"najmanje_udio":{"min":0.24,"med":0.246,"max":0.249,"n":10},"sd":{"min":455,"med":682,"max":961,"n":10},"rel":{"min":0.061,"med":0.091,"max":0.128,"n":10},"vodeca":{"min":0.388,"med":0.408,"max":0.444,"n":10},"raspon":{"min":2035,"med":3162,"max":3848,"n":10},"prazno":{"min":0.011,"med":0.012,"max":0.012,"n":10},"ista":{"min":0.75,"med":0.765,"max":0.782,"n":10},"slika":"slike/rps-kraj-1.png","primjer":{"run":21,"t":[0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,105,110,115,120,125,130,135,140,145,150,155,160,165,170,175,180,185,190,195,200,205,210,215,220,225,230,235,240,245,250,255,260,265,270,275,280,285,290,295,300,305,310,315,320,325,330,335,340,345,350,355,360,365,370,375,380,385,390,395,400,405,410,415,420,425,430,435,440,445,450,455,460,465,470,475,480,485,490,495,500,505,510,515,520,525,530,535,540,545,550,555,560,565,570,575,580,585,590,595,600],"crvena":[5687,7540,7607,7767,7622,7453,7222,7157,6892,6884,7047,7552,7892,8177,8183,8174,7894,7563,7300,7093,6887,6795,6808,6936,6919,6891,6912,7033,7318,7661,7984,8140,8205,8247,8191,8143,8160,8051,7908,7550,7323,7058,7033,7056,7198,7440,7819,8017,8187,8234,8179,8029,7782,7584,7341,7139,6977,6841,6695,6515,6459,6531,6684,6953,7388,7792,8010,8041,8033,8058,8012,7850,7526,7178,6936,6902,6665,6677,6702,6975,7166,7652,7950,8435,8820,9087,9201,9037,8608,8147,7683,7336,7243,7166,7142,7087,7094,7177,7421,7763,8090,8389,8649,8827,8725,8444,8089,7652,7115,6515,6103,6012,6109,6275,6614,6952,7308,7667,7965,8221,8366],"zelena":[5871,7577,7570,7243,7090,7148,7287,7486,7768,7921,7935,7789,7696,7541,7454,7178,6959,6835,6844,6877,7047,7154,7279,7512,7800,8207,8550,8737,8609,8354,8129,7974,7863,7535,7492,7354,7115,6951,7018,7256,7589,7866,7987,8058,8107,7971,7794,7681,7395,7223,7072,6932,6893,6906,7136,7472,7862,8228,8530,8616,8510,8425,8337,8220,8206,8107,8004,7778,7422,7173,6928,6783,6853,7058,7237,7443,7858,8293,8724,8892,9010,8760,8631,8201,7737,7323,6843,6621,6605,6741,6942,7092,7071,7224,7420,7766,8088,8237,8226,8123,8155,7905,7432,6954,6535,6277,6053,6010,6208,6814,7510,8038,8350,8358,8270,8073,7779,7583,7468,7364,7189],"plava":[5635,7108,7099,7300,7641,7742,7926,7789,7774,7649,7481,7155,6906,6795,6873,7175,7658,8136,8381,8552,8601,8583,8417,8107,7814,7426,7072,6755,6621,6509,6415,6421,6471,6757,6882,7048,7245,7545,7614,7729,7628,7626,7545,7421,7214,7123,6934,6799,6955,7084,7296,7594,7887,8047,8056,7930,7701,7472,7337,7435,7599,7562,7530,7335,6960,6633,6517,6726,7096,7326,7578,7914,8155,8314,8383,8185,8011,7573,7129,6657,6355,6096,5931,5870,5966,6145,6486,6889,7303,7652,7909,8120,8195,8131,7955,7690,7360,7145,6901,6628,6304,6257,6438,6727,7270,7814,8408,8885,9178,9176,8934,8485,8075,7903,7677,7516,7478,7315,7114,6977,6957],"prazno":[5608,576,525,491,448,458,366,369,367,347,338,305,307,288,291,274,290,267,276,279,266,269,297,246,268,277,267,276,253,277,273,266,262,262,236,256,281,254,261,266,261,251,236,266,282,267,254,304,264,260,254,246,239,264,268,260,261,260,239,235,233,283,250,293,247,269,270,256,250,244,283,254,267,251,245,271,267,258,246,277,270,293,289,295,278,246,271,254,285,261,267,253,292,280,284,258,259,242,253,287,252,250,282,293,271,266,251,254,300,296,254,266,267,265,240,260,236,236,254,239,289]}}]};</script>
+<script>
+// Zajednički dio lekcija (isti kao u mini-prezentacijama blokova s vježbi 3): jedan slajd na ekranu ili svi jedan
+// ispod drugog (način „Čitanje“), strelice i prevlačenje, adresa #sN, zapamćen način prikaza.
+// Upotreba: Prezentacija("lekcija1", crtajVidljivo), gdje crtajVidljivo iscrta grafike na vidljivim slajdovima.
+window.Prezentacija = function (kljuc, crtajVidljivo) {
+  const $ = s => document.querySelector(s);
+  const main = $("#slajdovi"), slajdovi = [...document.querySelectorAll(".slajd")];
+  let tren = 0;
+  function prikazi(i, izHasha) {
+    tren = Math.max(0, Math.min(slajdovi.length - 1, i));
+    slajdovi.forEach((s, k) => s.classList.toggle("aktivan", k === tren));
+    $("#broj").textContent = `${tren + 1} / ${slajdovi.length}`;
+    $("#naslov-slajda").textContent = slajdovi[tren].dataset.naslov;
+    $("#napredak").style.width = `${((tren + 1) / slajdovi.length) * 100}%`;
+    $("#nazad").disabled = tren === 0; $("#naprijed").disabled = tren === slajdovi.length - 1;
+    if (!izHasha) { try { history.replaceState(null, "", "#" + slajdovi[tren].id); } catch (e) {} }
+    if (main.classList.contains("prezentacija")) window.scrollTo(0, 0);
+    crtajVidljivo();
+  }
+  $("#nazad").addEventListener("click", () => prikazi(tren - 1));
+  $("#naprijed").addEventListener("click", () => prikazi(tren + 1));
+  document.addEventListener("keydown", e => {
+    if (!main.classList.contains("prezentacija") || e.target.closest("input, textarea, select")) return;
+    if (["ArrowRight", "PageDown"].includes(e.key) || (e.key === " " && !e.target.closest("button"))) { e.preventDefault(); prikazi(tren + 1); }
+    if (["ArrowLeft", "PageUp"].includes(e.key)) { e.preventDefault(); prikazi(tren - 1); }
+    if (e.key === "Home") prikazi(0);
+    if (e.key === "End") prikazi(slajdovi.length - 1);
+  });
+  let dodirX = null;
+  main.addEventListener("touchstart", e => { dodirX = e.touches[0].clientX; }, { passive: true });
+  main.addEventListener("touchend", e => {
+    if (dodirX === null || !main.classList.contains("prezentacija")) return;
+    const dx = e.changedTouches[0].clientX - dodirX; dodirX = null;
+    if (e.target.closest("input, select, canvas, .interaktivno")) return;
+    if (Math.abs(dx) > 70) prikazi(tren + (dx < 0 ? 1 : -1));
+  });
+  function nacin(citanje) {
+    main.classList.toggle("citanje", citanje); main.classList.toggle("prezentacija", !citanje);
+    $("#nacin-citanje").setAttribute("aria-pressed", citanje); $("#nacin-prezentacija").setAttribute("aria-pressed", !citanje);
+    try { localStorage.setItem(kljuc + "-nacin", citanje ? "citanje" : "prezentacija"); } catch (e) {}
+    if (citanje) requestAnimationFrame(() => slajdovi[tren].scrollIntoView());
+    crtajVidljivo();
+  }
+  $("#nacin-citanje").addEventListener("click", () => nacin(true));
+  $("#nacin-prezentacija").addEventListener("click", () => nacin(false));
+  addEventListener("resize", () => crtajVidljivo());
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => crtajVidljivo());
+
+  let pocetni = 0;
+  const h = location.hash.replace("#", ""), k = slajdovi.findIndex(s => s.id === h); if (k >= 0) pocetni = k;
+  let sacuvano = null; try { sacuvano = localStorage.getItem(kljuc + "-nacin"); } catch (e) {}
+  if (sacuvano === "citanje") nacin(true);
+  prikazi(pocetni, true);
+  if (main.classList.contains("prezentacija")) setTimeout(() => window.scrollTo(0, 0), 0);
+  addEventListener("hashchange", () => {
+    const i = slajdovi.findIndex(s => s.id === location.hash.replace("#", ""));
+    if (i >= 0 && i !== tren) { prikazi(i, true); if (main.classList.contains("citanje")) slajdovi[i].scrollIntoView(); }
+  });
+  return { prikazi };
+};
+
+// Zajedničke pomoćne funkcije za grafike (SVG) i brojeve.
+window.Pomoc = (() => {
+  const SVG = "http://www.w3.org/2000/svg";
+  const el = (ime, atr = {}, tekst) => { const e = document.createElementNS(SVG, ime); for (const [k, v] of Object.entries(atr)) e.setAttribute(k, v); if (tekst !== undefined) e.textContent = tekst; return e; };
+  const zarez = (x, d = 2) => x.toFixed(d).replace(".", ",").replace("-", "−");
+  const pct = x => `${Math.round(x * 100)}%`;
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  // mulberry32: ponovljivi slučajni brojevi za ilustracije u web pregledniku
+  const rng = seed => () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  return { el, zarez, pct, css, rng };
+})();
+
+</script>
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  const { el, zarez, pct, css, rng } = window.Pomoc;
+  const D = window.RPS, U = Object.fromEntries(D.uslovi.map(u => [u.eksponent, u]));
+  const raspon = s => s.min === s.max ? `${s.min}` : `${s.min}–${s.max}`;
+  const rp = s => `${pct(s.min)}–${pct(s.max)}`;
+  const minus = e => String(e).replace("-", "−");
+  const hilj = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, "\u00a0");
+
+  // ---------------- model u web pregledniku (ista pravila kao Rock Paper Scissors, NetLogo 7.0.4) ----------------
+  const N = 100, NP = N * N, BOJE = [[215, 50, 41], [89, 176, 60], [52, 93, 169], [0, 0, 0]], CRNA = 3;   // 0 crvena, 1 zelena, 2 plava, 3 prazno
+  let polje = new Uint8Array(NP), tick = 0, slucaj = rng(1), tajmer = null, istorija = [];
+  const rnd = n => Math.floor(slucaj() * n);
+  const gauss = () => { let u = 0, v = 0; while (!u) u = slucaj(); v = slucaj(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
+  const poisson = l => { if (l < 30) { let k = 0, p = 1; const L = Math.exp(-l); do { k++; p *= slucaj(); } while (p > L); return k - 1; } return Math.max(0, Math.round(l + Math.sqrt(l) * gauss())); };
+  const susjed = i => { const x = i % N, y = (i - x) / N; switch (rnd(4)) { case 0: return y * N + (x + 1) % N; case 1: return y * N + (x + N - 1) % N; case 2: return ((y + 1) % N) * N + x; default: return ((y + N - 1) % N) * N + x; } };
+  const pobjedjuje = (a, b) => a !== CRNA && b === (a + 1) % 3 && b !== CRNA;   // crvena > zelena > plava > crvena
+  function setup() {
+    slucaj = rng(Math.floor(Math.random() * 1e9)); tick = 0; istorija = [];
+    for (let i = 0; i < NP; i++) polje[i] = rnd(4);
+    zapisi(); nacrtaj();
+  }
+  function korak() {
+    const rep = NP / 3, stopa = Math.pow(10, +$("#k-repr").value);
+    const n0 = poisson(rep), n1 = poisson(rep * stopa), n2 = poisson(rep);
+    const dog = new Uint8Array(n0 + n1 + n2); dog.fill(1, n0, n0 + n1); dog.fill(2, n0 + n1);
+    for (let i = dog.length - 1; i > 0; i--) { const j = rnd(i + 1), t = dog[i]; dog[i] = dog[j]; dog[j] = t; }   // shuffle
+    for (const e of dog) {
+      const a = rnd(NP), b = susjed(a), pa = polje[a], pb = polje[b];
+      if (e === 0) { polje[a] = pb; polje[b] = pa; }                                    // swap
+      else if (e === 1) { if (pb === CRNA) polje[b] = pa; else if (pa === CRNA) polje[a] = pb; }   // reproduce
+      else { if (pobjedjuje(pa, pb)) polje[b] = CRNA; else if (pobjedjuje(pb, pa)) polje[a] = CRNA; }   // select
+    }
+    tick++; zapisi(); nacrtaj();
+    if (tick >= 1500) zaustavi();
+  }
+  function zapisi() { const c = [0, 0, 0, 0]; for (let i = 0; i < NP; i++) c[polje[i]]++; istorija.push(c.map(v => v / NP)); }
+  function zaustavi() { clearInterval(tajmer); tajmer = null; $("#m-kreni").textContent = "Pokreni"; }
+  const platno = document.createElement("canvas"); platno.width = N; platno.height = N;
+  function nacrtaj() { nacrtajSvijet(); nacrtajGrafik(); }
+  function nacrtajSvijet() {
+    const c = $("#svijet"); if (!c || c.offsetParent === null) return;
+    const g0 = platno.getContext("2d"), slika = g0.createImageData(N, N);
+    for (let i = 0; i < NP; i++) { const b = BOJE[polje[i]], x = i % N, y = N - 1 - (i - x) / N, k = (y * N + x) * 4; slika.data[k] = b[0]; slika.data[k + 1] = b[1]; slika.data[k + 2] = b[2]; slika.data[k + 3] = 255; }
+    g0.putImageData(slika, 0, 0);
+    const dpr = Math.min(devicePixelRatio || 1, 2), w = c.clientWidth || 300;
+    c.width = Math.round(w * dpr); c.height = Math.round(w * dpr);
+    const g = c.getContext("2d"); g.imageSmoothingEnabled = false; g.drawImage(platno, 0, 0, c.width, c.height);
+    const z = istorija[istorija.length - 1];
+    $("#m-tick").textContent = tick; ["c", "z", "p", "0"].forEach((k, i) => $("#m-" + k).textContent = pct(z[i]));
+  }
+  function nacrtajGrafik() {
+    const c = $("#zivi"); if (!c || c.offsetParent === null) return;
+    const dpr = Math.min(devicePixelRatio || 1, 2), w = c.clientWidth || 300, h = c.clientHeight || w;
+    c.width = Math.round(w * dpr); c.height = Math.round(h * dpr);
+    const g = c.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const L = 36, R = 16, T = 10, B = 20, tmax = Math.max(200, Math.ceil(istorija.length / 100) * 100), ymax = 0.6;
+    const x = t => L + (w - L - R) * t / tmax, y = v => T + (h - T - B) * (1 - v / ymax);
+    g.font = `11px ${css("--f-mono")}`; g.fillStyle = css("--siva"); g.strokeStyle = css("--linija"); g.lineWidth = 1;
+    for (const v of [0, 0.2, 0.4, 0.6]) { g.beginPath(); g.moveTo(L, y(v)); g.lineTo(w - R, y(v)); g.stroke(); g.textAlign = "right"; g.fillText(pct(v), L - 4, y(v) + 4); }
+    g.textAlign = "center"; for (const t of [0, tmax / 2, tmax]) g.fillText(t, x(t), h - 5);
+    [["--rps-0", 3, true], ["--rps-c", 0], ["--rps-z", 1], ["--rps-p", 2]].forEach(([boja, k, crtkano]) => {
+      g.strokeStyle = css(boja); g.lineWidth = 1.8; g.setLineDash(crtkano ? [4, 3] : []); g.beginPath();
+      istorija.forEach((z, t) => t ? g.lineTo(x(t), y(z[k])) : g.moveTo(x(t), y(z[k]))); g.stroke(); g.setLineDash([]);
+    });
+  }
+  $("#m-kreni").addEventListener("click", () => {
+    if (tajmer) { zaustavi(); return; }
+    if (tick >= 1500) setup();
+    tajmer = setInterval(korak, 40); $("#m-kreni").textContent = "Zaustavi";
+  });
+  $("#m-setup").addEventListener("click", () => { zaustavi(); setup(); });
+  const klizac = () => { $("#o-repr").textContent = `${zarez(+$("#k-repr").value, 1)} (stopa ${zarez(Math.pow(10, +$("#k-repr").value), 2)})`; };
+  $("#k-repr").addEventListener("input", klizac);
+  klizac(); setup();
+
+  // ---------------- jedno pokretanje (slajd 6) ----------------
+  const OPIS = { "-1": "10× rjeđa reprodukcija", "0": "zadana reprodukcija", "1": "10× češća reprodukcija" };
+  function primjer(cilj, u) {
+    cilj.replaceChildren();
+    const p = u.primjer, W = 520, H = 280, L = 46, R = 14, T = 14, B = 40, ymax = 0.6;
+    const x = t => L + (W - L - R) * t / D.ticks, y = v => T + (H - T - B) * (1 - v / ymax);
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, class: "grafik", role: "img", "aria-label": `Udio parcela svake boje kroz ${D.ticks} tickova, ${OPIS[u.eksponent]}` });
+    for (const v of [0, 0.2, 0.4, 0.6]) {
+      svg.append(el("line", { x1: L, x2: W - R, y1: y(v), y2: y(v), class: v === 0 ? "g-os" : "g-mreza" }));
+      svg.append(el("text", { x: L - 6, y: y(v) + 4, "text-anchor": "end", class: "g-oznaka" }, pct(v)));
+    }
+    for (let t = 0; t <= D.ticks; t += 100) svg.append(el("text", { x: x(t), y: H - B + 16, "text-anchor": "middle", class: "g-oznaka" }, t));
+    svg.append(el("text", { x: L + (W - L - R) / 2, y: H - 6, "text-anchor": "middle", class: "g-naslov-x" }, "tick"));
+    for (const [k, kl] of [["prazno", "g-0"], ["crvena", "g-c"], ["zelena", "g-z"], ["plava", "g-p"]])
+      svg.append(el("polyline", { points: p[k].map((v, i) => `${x(p.t[i])},${y(v / D.parcela)}`).join(" "), class: kl, fill: "none", "stroke-width": 2 }));
+    cilj.append(svg);
+    const boje = ["crvena", "zelena", "plava"], od100 = p.t.findIndex(t => t >= 100);
+    const najm = Math.min(...boje.flatMap(b => p[b].slice(od100))), najv = Math.max(...boje.flatMap(b => p[b].slice(od100)));
+    $("#p-primjer").innerHTML = `<b>Jedno pokretanje</b> (NetLogo, prvo od ${D.n} pokretanja, ${OPIS[u.eksponent]}): od ticka 100 broj parcela jedne boje je između ` +
+      `${hilj(najm)} i ${hilj(najv)} od ${hilj(D.parcela)}.`;
+    $("#slika").src = u.slika; $("#slika").alt = `Svijet modela u ticku ${D.ticks}, ${OPIS[u.eksponent]}`;
+    $("#p-slika").innerHTML = `<b>NetLogo, tick ${D.ticks}</b>, ${OPIS[u.eksponent]} (<code>reproduce-rate-exponent</code> ${minus(u.eksponent)}, random-seed 1, export-view).`;
+  }
+  const izbor = $("#izbor-repr");
+  D.uslovi.forEach((u, i) => {
+    const b = document.createElement("button"); b.type = "button"; b.textContent = `${minus(u.eksponent)}: ${OPIS[u.eksponent]}`;
+    b.setAttribute("aria-pressed", u.eksponent === 0);
+    b.addEventListener("click", () => { izbor.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); primjer($("#g-primjer"), u); });
+    izbor.append(b);
+  });
+  primjer($("#g-primjer"), U[0]);
+
+  // ---------------- zbirni rezultat (slajd 7) ----------------
+  const E = [-1, 0, 1].map(e => U[e]);
+  ["h-1", "h0", "h1"].forEach((id, i) => $("#" + id).textContent = `eksponent ${minus(E[i].eksponent)}`);
+  const s = (v, f) => `${f(v.min)}–${f(v.max)} (${f(v.med)})`;
+  const cijeli = v => hilj(v), p100 = v => pct(v), p1 = v => `${zarez(v * 100, 1)}%`;
+  const redovi = [
+    ["sve tri boje u ticku 600", u => `${u.opstale} od ${D.n}`],
+    ["najmanje parcela jedne boje (cijelo pokretanje)", u => s(u.najmanje, cijeli)],
+    ["prazne parcele", u => s(u.prazno, p1)],
+    ["relativno rasipanje boje", u => s(u.rel, p100)],
+    ["najveći udio jedne boje među obojenim", u => s(u.vodeca, p100)],
+    ["susjedi iste boje (tick 600)", u => s(u.ista, p100)],
+  ];
+  $("#t-zbir").innerHTML = redovi.map(([n, f]) => `<tr><td>${n}</td>${E.map(u => `<td>${f(u)}</td>`).join("")}</tr>`).join("");
+  $("#t-podnaslov").textContent = `NetLogo 7.0.4, ${D.n} pokretanja po vrijednosti reproduce-rate-exponent, ${D.ticks} tickova, svijet 151 × 151 = ${hilj(D.parcela)} parcela.`;
+  const [A, Z, C] = E;
+  $("#t-opstanak").innerHTML = `<b>Opstanak.</b> U svih ${D.n * 3} pokretanja sve tri boje postoje i u ticku ${D.ticks}. Najmanji broj parcela jedne boje u nekom trenutku je ` +
+    `${hilj(A.najmanje.min)} uz rjeđu reprodukciju, ${hilj(Z.najmanje.min)} uz zadanu i ${hilj(C.najmanje.min)} uz češću; daleko od nule.`;
+  $("#t-prazno").innerHTML = `<b>Prazan prostor.</b> Uz rjeđu reprodukciju prazne parcele se sporo popunjavaju: prazno je ${s(A.prazno, p1)} svijeta, ` +
+    `uz zadanu ${s(Z.prazno, p1)}, a uz češću ${s(C.prazno, p1)}.`;
+  $("#t-amplituda").innerHTML = `<b>Oscilacije.</b> Relativno rasipanje boje je ${pct(A.rel.med)} uz rjeđu, ${pct(Z.rel.med)} uz zadanu i ${pct(C.rel.med)} uz češću reprodukciju (medijani). ` +
+    `Najveći udio jedne boje među obojenim parcelama dostiže ${pct(A.vodeca.med)}, ${pct(Z.vodeca.med)} i ${pct(C.vodeca.med)}; kad bi boje bile podjednako zastupljene, bio bi oko 33%.`;
+  $("#t-slucaj").textContent = `Rasponi među pokretanjima se preklapaju: relativno rasipanje je ${s(A.rel, p100)} uz rjeđu i ${s(Z.rel, p100)} uz zadanu reprodukciju. ` +
+    `Razliku između dva pojedinačna pokretanja zato ne treba tumačiti kao efekat parametra; poredi se raspon iz ${D.n} pokretanja.`;
+
+  // ---------------- tumačenje (slajd 8) ----------------
+  $("#c-ista").textContent = `susjedi iste boje: ${pct(Z.ista.med)} (zadano), uz slučajan raspored ≈ 33%`;
+  $("#c-repr").textContent = `Rjeđa reprodukcija ostavlja više praznog prostora (${p1(A.prazno.med)} umjesto ${p1(Z.prazno.med)}). Boja koja izgubi parcele sporo ih vraća, ` +
+    `pa udjeli više osciliraju, a jednobojne oblasti su homogenije (susjedi iste boje: ${pct(A.ista.med)}, uz zadanu ${pct(Z.ista.med)}, uz češću ${pct(C.ista.med)}). Češća reprodukcija skoro popuni svijet (${p1(C.prazno.med)} praznih).`;
+  $("#c-granice").textContent = `Tvrdnja „nijedna boja ne nestaje“ odnosi se na izmjereno: ${D.n} pokretanja po uslovu, ${D.ticks} tickova i svijet od ${hilj(D.parcela)} parcela. ` +
+    "U mnogo manjem svijetu ili kroz mnogo više tickova jedna boja može nestati slučajno; to nije izmjereno.";
+  $("#t-izvor").textContent = `Brojke na slajdovima 6–8 su iz NetLoga 7.0.4 (headless, BehaviorSpace): 3 uslova × ${D.n} pokretanja × ${D.ticks} tickova, ` +
+    `i još ${D.n} pokretanja po uslovu za udio susjeda iste boje; grafik na slajdu 6 je jedno pokretanje, a slike su iz pokretanja s random-seed 1. ` +
+    "Simulacija na slajdu 1 je ilustracija u web pregledniku. Model: Head, B., Grider, R. i Wilensky, U. (2017). NetLogo Rock Paper Scissors model. Modeliranje i simulacije, FIT UNMO, 2026/27.";
+
+  Prezentacija("v02-mini-rps", () => nacrtaj());
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+<experiments><experiment name="t3-jednosmjerno" repetitions="20" sequentialRunOrder="true" runMetricsEveryStep="true" timeLimit="150"><setup>setup</setup><go>go</go><metrics><metric>udio-za</metric></metrics><constants><enumeratedValueSet variable="mediji-rade?"><value value="false"/><value value="true"/></enumeratedValueSet></constants></experiment></experiments>

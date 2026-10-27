@@ -1,0 +1,13 @@
+
+Blok 5, mjesto s iskustvom: 20 ustanova, tick 150 (20 pokretanja po vrijednosti)
+   loših razgovor   prosječno povjerenje                   bili u ustanovi                        nisu bili
+       0    False   sred 0.650, med 0.649 (0.627–0.672)    sred 0.766, med 0.767 (0.725–0.801)    sred 0.500, med 0.500 (0.500–0.500)
+       0     True   sred 0.609, med 0.608 (0.588–0.635)    sred 0.632, med 0.630 (0.607–0.660)    sred 0.577, med 0.578 (0.550–0.593)
+     0.3    False   sred 0.560, med 0.561 (0.533–0.593)    sred 0.606, med 0.612 (0.558–0.646)    sred 0.500, med 0.500 (0.500–0.500)
+     0.3     True   sred 0.544, med 0.544 (0.532–0.555)    sred 0.553, med 0.554 (0.539–0.566)    sred 0.531, med 0.531 (0.522–0.543)
+     0.7    False   sred 0.441, med 0.441 (0.416–0.462)    sred 0.396, med 0.397 (0.363–0.429)    sred 0.500, med 0.500 (0.500–0.500)
+     0.7     True   sred 0.456, med 0.457 (0.445–0.467)    sred 0.446, med 0.446 (0.433–0.465)    sred 0.470, med 0.469 (0.462–0.479)
+       1    False   sred 0.350, med 0.351 (0.328–0.373)    sred 0.234, med 0.233 (0.199–0.275)    sred 0.500, med 0.500 (0.500–0.500)
+       1     True   sred 0.391, med 0.392 (0.365–0.412)    sred 0.368, med 0.370 (0.340–0.393)    sred 0.423, med 0.422 (0.407–0.450)
+
+Ukupno 12.5 s; CSV u rezultati/blok1-csharp.csv … blok4-csharp.csv

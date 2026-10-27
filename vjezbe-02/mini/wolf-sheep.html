@@ -1,0 +1,929 @@
+<!doctype html>
+<html lang="bs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wolf Sheep Predation</title>
+<meta name="description" content="Mini-prezentacija vježbi 2: model Wolf Sheep Predation s travom, od pravila i koda do rezultata 100 pokretanja u NetLogu.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:wght@500;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Raspored: mini-prezentacija od 10 slajdova; jedan slajd na ekranu (strelice), ili svi jedan ispod
+   drugog (način „Čitanje“). Papir je svijetao, svijet i putanje su na tamnoj podlozi kao u NetLogu. */
+:root {
+  --papir: #eef1f4; --list: #ffffff; --tinta: #17212b; --siva: #56636f; --linija: #d3dae1;
+  --narandza: #b9531a; --narandza-meko: #f6dfd0; --margina: #e5a3a3; --svijet: #0b0d10;
+  --za: #345da9; --protiv: #d73229; --neodlucni: #8d8d8d;
+  --f-naslov: "Bitter", "Georgia", "Cambria", serif;
+  --f-tekst: "IBM Plex Sans", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "IBM Plex Mono", "Cascadia Mono", Consolas, "Courier New", monospace;
+  --t-0: 0.83rem; --t-1: 1rem; --t-2: 1.17rem; --t-3: 1.5rem; --t-4: 2.2rem; --t-5: 3.1rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --papir: #10161c; --list: #18212a; --tinta: #e3e9ee; --siva: #9ba8b4; --linija: #2a3540;
+    --narandza: #f0894a; --narandza-meko: #3a2416; --margina: #6b3535; --za: #5b86d6; --protiv: #e5574e; --neodlucni: #9a9a9a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --papir: #10161c; --list: #18212a; --tinta: #e3e9ee; --siva: #9ba8b4; --linija: #2a3540;
+  --narandza: #f0894a; --narandza-meko: #3a2416; --margina: #6b3535; --za: #5b86d6; --protiv: #e5574e; --neodlucni: #9a9a9a;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { font-size: 18px; }
+@media (max-width: 600px) { html { font-size: 16px; } }
+body { margin: 0; background: var(--papir); color: var(--tinta); font-family: var(--f-tekst); line-height: 1.55; }
+[hidden] { display: none !important; }
+a { color: var(--narandza); text-underline-offset: 0.15em; }
+:focus-visible { outline: 3px solid var(--narandza); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--f-naslov); text-wrap: balance; line-height: 1.18; margin: 0; }
+p { margin: 0; }
+code { font-family: var(--f-mono); font-size: 0.9em; }
+p code, li code, td code { background: var(--narandza-meko); padding: 0.05em 0.3em; border-radius: 3px; }
+.okvir { max-width: 1200px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.oznaka { font-family: var(--f-mono); font-size: var(--t-0); letter-spacing: 0.08em; text-transform: uppercase; color: var(--narandza); font-weight: 500; }
+.siva { color: var(--siva); }
+.mala { font-size: var(--t-0); }
+
+/* traka na vrhu */
+.vrh { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--papir); border-bottom: 1px solid var(--linija); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--papir); }
+.vrh .okvir { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem 1rem; padding-block: 0.55rem; flex-wrap: wrap; }
+.vrh b { font-family: var(--f-naslov); font-weight: 700; }
+.nacin { display: flex; gap: 0.3rem; }
+button { font: 500 var(--t-0) var(--f-mono); border-radius: 4px; padding: 0.4rem 0.8rem; cursor: pointer;
+  border: 1px solid var(--narandza); background: transparent; color: var(--narandza); }
+button[aria-pressed="true"], button.glavno { background: var(--narandza); color: var(--list); }
+button:disabled { opacity: 0.45; cursor: default; }
+
+/* slajdovi */
+.slajd { padding-block: 2rem 6rem; scroll-margin-top: 3.4rem; }
+main.prezentacija .slajd { display: none; min-height: calc(100svh - 3.2rem); }
+main.prezentacija .slajd.aktivan { display: block; }
+main.citanje .slajd { border-bottom: 1px solid var(--linija); padding-block: 2.5rem; }
+.glava { display: grid; gap: 0.35rem; margin-bottom: 1.4rem; }
+.glava h2 { font-size: var(--t-4); max-width: 30ch; }
+.glava .podnaslov { font-size: var(--t-2); color: var(--siva); max-width: 52rem; }
+.dvije { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2rem; align-items: start; }
+.dvije > * { min-width: 0; }
+@media (max-width: 900px) { .dvije { grid-template-columns: minmax(0, 1fr); } }
+.tekst { display: grid; gap: 1rem; }
+.tekst ul { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.35rem; }
+.panel { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 1rem; }
+.pitanje { background: var(--narandza-meko); border-radius: 4px; padding: 0.9rem 1rem; }
+.pitanje h3 { font-size: var(--t-1); margin-bottom: 0.25rem; }
+
+/* naslovni slajd */
+.naslovni { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 2.4rem; align-items: center; padding-top: 1rem; }
+.naslovni > * { min-width: 0; }
+.naslovni h1 { font-size: var(--t-5); letter-spacing: -0.01em; margin: 0.4rem 0 0.9rem; }
+.naslovni .teza { font-size: var(--t-3); font-family: var(--f-naslov); line-height: 1.3; }
+.naslovni .uvod { margin-top: 1rem; color: var(--siva); }
+@media (max-width: 900px) { .naslovni { grid-template-columns: minmax(0, 1fr); } }
+
+/* list papira: pravilo za model na papiru */
+.papir {
+  margin: 0; background-color: var(--list); border: 1px solid var(--linija); border-radius: 4px;
+  padding: 1rem 1.2rem 1.2rem 2.4rem; position: relative; line-height: 1.75rem;
+  background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(1.75rem - 1px), var(--linija) calc(1.75rem - 1px), var(--linija) 1.75rem);
+  background-position: 0 2.55rem;
+}
+.papir::before { content: ""; position: absolute; left: 1.5rem; top: 0; bottom: 0; width: 2px; background: var(--margina); }
+.papir figcaption { font-family: var(--f-mono); font-size: var(--t-0); color: var(--siva); letter-spacing: 0.04em; text-transform: uppercase; line-height: 1.75rem; }
+.papir p, .papir li { font-family: var(--f-naslov); font-size: 1.08rem; }
+.papir ul { list-style: none; margin: 0; padding: 0 0 0 1.2rem; }
+.papir li::before { content: "→ "; color: var(--narandza); font-family: var(--f-tekst); }
+.papir b { color: var(--narandza); }
+
+/* kartice (pojava, sastavni dijelovi, koraci) */
+.kartice { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); }
+.kartica { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 1rem; display: grid; gap: 0.6rem; align-content: start; }
+.kartica h3 { font-size: var(--t-2); }
+.kartica svg { width: 100%; height: auto; display: block; }
+.kartica ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.25rem; }
+.kartica .kod-cip { font-family: var(--f-mono); font-size: 0.78rem; color: var(--siva); border-top: 1px dashed var(--linija); padding-top: 0.5rem; }
+.korak-broj { font-family: var(--f-mono); font-weight: 500; color: var(--narandza); }
+
+/* SVG ilustracije: boje iz tokena */
+.il-osa { stroke: var(--siva); stroke-width: 1.5; }
+.il-tekst { fill: var(--siva); font: 13px var(--f-mono); }
+.il-tekst-veci { fill: var(--tinta); font: 600 15px var(--f-tekst); }
+.il-za { fill: var(--za); } .il-protiv { fill: var(--protiv); } .il-neo { fill: var(--neodlucni); }
+.il-prozor { fill: var(--narandza-meko); stroke: var(--narandza); stroke-dasharray: 4 3; }
+.il-strelica { stroke: var(--narandza); stroke-width: 2.5; fill: none; }
+.il-vrh { fill: var(--narandza); }
+.il-domet { fill: none; stroke: var(--narandza); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.il-svijet { fill: var(--svijet); }
+.il-kuca { fill: #eded2f; }
+.il-precrtano { stroke: var(--protiv); stroke-width: 3; }
+.il-oblak { fill: var(--list); stroke: var(--siva); stroke-width: 1.2; }
+
+/* kalkulator jednog susreta */
+.kalk { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 1.5rem; }
+.kalk > * { min-width: 0; }
+@media (max-width: 900px) { .kalk { grid-template-columns: minmax(0, 1fr); } }
+.klizaci { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem 1.2rem; }
+@media (max-width: 520px) { .klizaci { grid-template-columns: minmax(0, 1fr); } }
+.klizac { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+.klizac label { font-family: var(--f-mono); font-size: var(--t-0); }
+.klizac output { font-family: var(--f-mono); font-size: var(--t-0); font-variant-numeric: tabular-nums; }
+.klizac input { grid-column: 1 / -1; width: 100%; accent-color: var(--narandza); }
+.racun { font-family: var(--f-mono); font-size: 0.86rem; line-height: 1.7; background: var(--papir); border-radius: 4px; padding: 0.7rem 0.9rem; overflow-x: auto; white-space: pre; }
+.racun .da { color: var(--za); font-weight: 600; } .racun .ne { color: var(--protiv); font-weight: 600; }
+.dugmad { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+
+/* putanje stava */
+.putanje-okvir { background: var(--svijet); border-radius: 6px; padding: 0.6rem; }
+canvas.putanje { width: 100%; aspect-ratio: 2 / 1; display: block; }
+.izbor { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.6rem; }
+.izbor button { border-color: var(--linija); color: var(--siva); }
+.izbor button[aria-pressed="true"] { border-color: var(--narandza); color: var(--list); background: var(--narandza); }
+.legenda { display: flex; gap: 1rem; flex-wrap: wrap; font-size: var(--t-0); color: var(--siva); margin-top: 0.4rem; }
+.legenda i { display: inline-block; width: 0.8em; height: 0.8em; border-radius: 50%; margin-right: 0.35em; vertical-align: -0.05em; }
+.potpis { font-size: var(--t-0); color: var(--siva); margin-top: 0.4rem; }
+.potpis b { color: var(--tinta); font-weight: 600; }
+
+/* grafikoni iz mjerenja */
+svg.grafik { width: 100%; height: auto; display: block; overflow: visible; }
+.g-mreza { stroke: var(--linija); stroke-width: 1; } .g-os { stroke: var(--siva); stroke-width: 1; }
+.g-oznaka { fill: var(--siva); font: 12px var(--f-mono); } .g-naslov-x { fill: var(--siva); font: 12px var(--f-tekst); }
+.g-vrijednost { fill: var(--tinta); font: 500 12px var(--f-mono); }
+.g-raspon { stroke: var(--narandza); stroke-width: 3; stroke-linecap: round; opacity: 0.35; }
+.g-tacka { fill: var(--narandza); }
+.g-ref { stroke: var(--siva); stroke-width: 1.2; stroke-dasharray: 4 4; }
+.g-ref-tekst { fill: var(--siva); font: italic 12px var(--f-tekst); }
+
+/* kod */
+.kodovi { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; }
+.kodovi > * { min-width: 0; }
+@media (max-width: 900px) { .kodovi { grid-template-columns: minmax(0, 1fr); } }
+.kod { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; overflow: hidden; }
+.kod .jezik { font-family: var(--f-mono); font-size: var(--t-0); padding: 0.4rem 0.8rem; border-bottom: 1px solid var(--linija); color: var(--siva); }
+.kod pre { margin: 0; padding: 0.8rem; overflow-x: auto; }
+.kod code { font-size: 14px; line-height: 1.55; white-space: pre; }
+.kod .kom { color: var(--siva); font-style: italic; }
+.kod mark { background: var(--narandza-meko); color: inherit; border-radius: 2px; padding: 0 0.15em; }
+.kod mark b { color: var(--narandza); font-family: var(--f-tekst); }
+.oblacici { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: 1rem; margin-top: 1rem; }
+.oblacici div { border-left: 3px solid var(--narandza); padding-left: 0.8rem; }
+.oblacici b.br { font-family: var(--f-mono); color: var(--narandza); margin-right: 0.3rem; }
+
+/* probaj */
+.veze { display: grid; gap: 0.7rem; }
+.veze a { display: block; text-decoration: none; background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 0.8rem 1rem; color: var(--tinta); }
+.veze a:hover { border-color: var(--narandza); }
+.veze a b { color: var(--narandza); }
+.veze a span { display: block; color: var(--siva); font-size: var(--t-0); }
+.literatura { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.35rem; font-size: 0.92rem; }
+
+/* donja navigacija */
+.navigacija { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--papir); border-top: 1px solid var(--linija);
+  padding-bottom: env(safe-area-inset-bottom, 0px); }
+.navigacija .okvir { display: flex; align-items: center; gap: 0.8rem; padding-block: 0.5rem; }
+.navigacija .naslov-slajda { flex: 1; min-width: 0; font-size: var(--t-0); color: var(--siva); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.navigacija .broj { font-family: var(--f-mono); font-size: var(--t-0); font-variant-numeric: tabular-nums; }
+.napredak { position: absolute; top: -1px; left: 0; height: 2px; background: var(--narandza); transition: width 0.25s; }
+main.citanje ~ .navigacija { display: none; }
+@media (prefers-reduced-motion: reduce) { .napredak { transition: none; } }
+
+</style>
+<style>
+/* dodaci za mini 5: boje vrsta, svijet, grafikoni populacija, ishodi */
+:root { --ovce: #345da9; --vukovi: #17212b; --trava: #3f8a2c; --i-obje: #3f8a2c; --i-vukovi: #b9531a; --i-sve: #56636f; --i-prekid: #c9a227; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --ovce: #6f9be6; --vukovi: #e3e9ee; --trava: #74c25a; --i-obje: #5fae47; --i-vukovi: #f0894a; --i-sve: #8d9aa6; --i-prekid: #d9b94a; }
+}
+:root[data-theme="dark"] { --ovce: #6f9be6; --vukovi: #e3e9ee; --trava: #74c25a; --i-obje: #5fae47; --i-vukovi: #f0894a; --i-sve: #8d9aa6; --i-prekid: #d9b94a; }
+.ilu { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.8rem; align-items: start; }
+@media (max-width: 520px) { .ilu { grid-template-columns: minmax(0, 1fr); } }
+.svijet-okvir { background: var(--svijet); border-radius: 6px; padding: 0.5rem; }
+canvas.svijet { width: 100%; aspect-ratio: 1 / 1; display: block; max-width: min(24rem, 44svh); margin: 0 auto; }
+.grafik-okvir { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 0.5rem; }
+canvas.zivi-grafik { width: 100%; aspect-ratio: 1 / 1; display: block; max-height: min(24rem, 44svh); }
+.brojke { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.5rem; margin-top: 0.6rem; }
+@media (max-width: 600px) { .brojke { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.brojke div { background: var(--list); border: 1px solid var(--linija); border-radius: 4px; padding: 0.4rem 0.6rem; }
+.brojke span { display: block; font-family: var(--f-mono); font-size: var(--t-0); color: var(--siva); }
+.brojke b { font-family: var(--f-mono); font-size: 1.1rem; font-variant-numeric: tabular-nums; }
+.kontrole { display: grid; grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr); gap: 0.5rem 1rem; align-items: end; margin-top: 0.6rem; }
+@media (max-width: 700px) { .kontrole { grid-template-columns: minmax(0, 1fr); } }
+.kontrole select { font: var(--t-0) var(--f-mono); padding: 0.35rem 0.4rem; border: 1px solid var(--linija); border-radius: 4px; background: var(--list); color: var(--tinta); max-width: 100%; }
+.stanje { font-family: var(--f-mono); font-size: var(--t-0); color: var(--siva); min-height: 1.3em; margin-top: 0.3rem; }
+.g-ovce { stroke: var(--ovce); } .g-vukovi { stroke: var(--vukovi); } .g-trava { stroke: var(--trava); stroke-dasharray: 5 3; }
+.i-obje { fill: var(--i-obje); } .i-vukovi { fill: var(--i-vukovi); } .i-sve { fill: var(--i-sve); } .i-prekid { fill: var(--i-prekid); }
+.i-broj { fill: #fff; font: 600 12px var(--f-mono); }
+.tablica { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+.tablica th, .tablica td { padding: 0.35rem 0.5rem; border-bottom: 1px solid var(--linija); text-align: right; font-variant-numeric: tabular-nums; }
+.tablica th:first-child, .tablica td:first-child { text-align: left; }
+.tablica th { font-family: var(--f-mono); font-size: var(--t-0); font-weight: 500; color: var(--siva); }
+.tabela-okvir { overflow-x: auto; }
+.legenda i.crta { border-radius: 0; height: 3px; width: 1.2em; vertical-align: 0.25em; }
+</style>
+</head>
+<body>
+
+<header class="vrh">
+  <div class="okvir">
+    <span><span class="oznaka">Vježbe 2 · mini</span> &nbsp;<b>Wolf Sheep Predation</b></span>
+    <div class="nacin" role="group" aria-label="Način prikaza">
+      <button type="button" id="nacin-prezentacija" aria-pressed="true">Prezentacija</button>
+      <button type="button" id="nacin-citanje" aria-pressed="false">Čitanje</button>
+    </div>
+  </div>
+</header>
+
+<main class="prezentacija" id="slajdovi">
+
+<!-- 1 ============================================================ -->
+<section class="slajd" id="s1" data-naslov="Wolf Sheep Predation">
+  <div class="okvir naslovni">
+    <div>
+      <span class="oznaka">Modeliranje i simulacije · Vježbe 2 · mini-prezentacija</span>
+      <h1>Wolf Sheep Predation: ovce, vukovi i trava</h1>
+      <p class="teza">Dvije vrste turtles i trava na parcelama. Brojevi ovaca i vukova osciliraju, a da li neka vrsta izumre, zavisi od parametara i od slučajnosti.</p>
+      <p class="uvod">Model iz biblioteke NetLoga, verzija <code>sheep-wolves-grass</code>: pravila, kod u NetLogu i C#, šta se mjeri i rezultat 100 pokretanja (5 uslova × 20).</p>
+      <p class="uvod mala">Za promjenu slajda koristite strelice ← → ili dugmad pri dnu. Opcija „Čitanje“ prikazuje sve slajdove na jednoj stranici.</p>
+    </div>
+    <figure style="margin:0" class="interaktivno">
+      <div class="ilu">
+        <div class="svijet-okvir"><canvas class="svijet" id="svijet" aria-label="Svijet modela: 51 × 51 parcela s travom, ovce i vukovi"></canvas></div>
+        <div class="grafik-okvir"><canvas class="zivi-grafik" id="zivi" aria-label="Broj ovaca, vukova i parcela s travom kroz vrijeme"></canvas></div>
+      </div>
+      <div class="kontrole">
+        <div class="dugmad">
+          <button type="button" class="glavno" id="m-kreni">Pokreni</button>
+          <button type="button" id="m-setup">setup</button>
+        </div>
+        <div class="klizac"><label for="k-trava">grass-regrowth-time</label><output id="o-trava"></output><input type="range" id="k-trava" min="0" max="100" step="1" value="30"></div>
+        <div class="klizac"><label for="k-vuk">wolf-gain-from-food</label><output id="o-vuk"></output><input type="range" id="k-vuk" min="0" max="100" step="1" value="20"></div>
+      </div>
+      <div class="dugmad" style="margin-top:0.5rem">
+        <label class="mala" for="m-verzija" style="font-family:var(--f-mono)">model-version</label>
+        <select id="m-verzija"><option value="trava" selected>sheep-wolves-grass</option><option value="bez">sheep-wolves (bez trave)</option></select>
+      </div>
+      <div class="brojke">
+        <div><span>tick</span><b id="m-tick">0</b></div>
+        <div><span>ovce</span><b id="m-ovce">0</b></div>
+        <div><span>vukovi</span><b id="m-vukovi">0</b></div>
+        <div><span>trava (parcele)</span><b id="m-trava">0</b></div>
+      </div>
+      <p class="stanje" id="m-stanje" aria-live="polite"></p>
+      <figcaption class="potpis">Ovce su bijele, vukovi crni, trava zelena, parcela bez trave smeđa. Na grafiku: <span style="color:var(--ovce)">ovce</span>,
+        <span style="color:var(--vukovi)">vukovi</span>, <span style="color:var(--trava)">trava / 4</span>. <b>Ilustracija u web pregledniku</b>
+        (JavaScript, ista pravila i zadani parametri kao u NetLogu; zaustavlja se na ticku 1000 ili kad ovaca bude više od 5000). Izmjerene vrijednosti su na slajdovima 6 i 7.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 2 ============================================================ -->
+<section class="slajd" id="s2" data-naslov="Agenti i parcele">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Agenti</span>
+      <h2>Dva breeda s energijom i parcele s travom</h2>
+      <p class="podnaslov">Ovce i vukovi su turtles iz dva breeda; obje vrste imaju atribut <code>energy</code>. Parcela (patch) je zelena (trava) ili smeđa, a <code>countdown</code> broji tickove do ponovnog rasta trave.</p>
+    </div>
+    <div class="dvije">
+      <div class="tekst">
+        <div class="tabela-okvir"><table class="tablica">
+          <thead><tr><th>parametar (klizač)</th><th>zadano</th><th style="text-align:left">značenje</th></tr></thead>
+          <tbody>
+            <tr><td><code>initial-number-sheep</code></td><td>100</td><td style="text-align:left">ovaca na početku</td></tr>
+            <tr><td><code>initial-number-wolves</code></td><td>50</td><td style="text-align:left">vukova na početku</td></tr>
+            <tr><td><code>grass-regrowth-time</code></td><td>30</td><td style="text-align:left">tickova do ponovnog rasta trave</td></tr>
+            <tr><td><code>sheep-gain-from-food</code></td><td>4</td><td style="text-align:left">energija iz jedne parcele trave</td></tr>
+            <tr><td><code>wolf-gain-from-food</code></td><td>20</td><td style="text-align:left">energija iz jedne ovce</td></tr>
+            <tr><td><code>sheep-reproduce</code></td><td>4 %</td><td style="text-align:left">vjerovatnoća reprodukcije ovce po ticku</td></tr>
+            <tr><td><code>wolf-reproduce</code></td><td>5 %</td><td style="text-align:left">vjerovatnoća reprodukcije vuka po ticku</td></tr>
+          </tbody></table></div>
+        <ul>
+          <li>Svijet ima 51 × 51 = 2601 parcelu i omotava se (torus). Na početku je oko pola parcela zeleno.</li>
+          <li>Početna energija je slučajna: ovca <code>random (2 * sheep-gain-from-food)</code>, vuk <code>random (2 * wolf-gain-from-food)</code>.</li>
+        </ul>
+        <div class="pitanje"><h3>Prije pokretanja u NetLogu</h3>
+          <p>Pri otvaranju modela izbornik <code>model-version</code> stoji na <code>sheep-wolves</code> (bez trave). Za ovu prezentaciju izaberite <code>sheep-wolves-grass</code>, pa tek onda setup.</p></div>
+      </div>
+      <div class="kodovi" style="grid-template-columns:minmax(0,1fr)">
+        <div class="kod"><div class="jezik">NetLogo</div><pre><code>breed [ sheep a-sheep ]
+breed [ wolves wolf ]
+
+turtles-own [ energy ]      <span class="kom">; i ovce i vukovi</span>
+patches-own [ countdown ]   <span class="kom">; tickova do rasta trave</span></code></pre></div>
+        <div class="kod"><div class="jezik">C#</div><pre><code>abstract class Animal : Turtle      <span class="kom">// turtles-own</span>
+{
+    public double Energy;
+}
+class Sheep : Animal { }            <span class="kom">// breed [ sheep a-sheep ]</span>
+class Wolf : Animal { }             <span class="kom">// breed [ wolves wolf ]</span>
+
+class GrassPatch : Patch            <span class="kom">// patches-own</span>
+{
+    public int Countdown;
+}</code></pre></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 ============================================================ -->
+<section class="slajd" id="s3" data-naslov="Jedan tick">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Pravila</span>
+      <h2>Jedan tick: prvo ovce, zatim vukovi, na kraju trava</h2>
+      <p class="podnaslov">Kretanje troši jednu jedinicu energije. Ko ima energiju manju od nule, nestaje (<code>die</code>). Reprodukcija dijeli energiju između roditelja i potomka.</p>
+    </div>
+    <div class="kartice">
+      <div class="kartica"><h3><span class="korak-broj">1</span> ovce</h3>
+        <ul><li>okret i korak naprijed, energija −1</li><li>na zelenoj parceli: pojede travu (parcela postaje smeđa), energija +4</li><li>energija &lt; 0: ovca nestaje</li><li>s vjerovatnoćom 4 %: potomak</li></ul>
+        <div class="kod-cip">move · eat-grass · death · reproduce-sheep</div></div>
+      <div class="kartica"><h3><span class="korak-broj">2</span> vukovi</h3>
+        <ul><li>okret i korak naprijed, energija −1</li><li>ako je na istoj parceli ovca: pojede jednu (slučajnu), energija +20</li><li>energija &lt; 0: vuk nestaje</li><li>s vjerovatnoćom 5 %: potomak</li></ul>
+        <div class="kod-cip">move · eat-sheep · death · reproduce-wolves</div></div>
+      <div class="kartica"><h3><span class="korak-broj">3</span> parcele</h3>
+        <ul><li>smeđa parcela smanji <code>countdown</code> za 1</li><li>kad <code>countdown</code> dođe do 0, parcela postaje zelena, a <code>countdown</code> se vrati na 30</li></ul>
+        <div class="kod-cip">ask patches [ grow-grass ]</div></div>
+    </div>
+    <div class="kodovi" style="margin-top:1rem">
+      <div class="kod"><div class="jezik">NetLogo</div><pre><code>to go
+  if not any? turtles [ stop ]
+  ask sheep [
+    move
+    set energy energy - 1
+    eat-grass
+    death
+    reproduce-sheep
+  ]
+  ask wolves [
+    move
+    set energy energy - 1
+    eat-sheep
+    death
+    reproduce-wolves
+  ]
+  ask patches [ grow-grass ]
+  tick
+end</code></pre></div>
+      <div class="kod"><div class="jezik">C#</div><pre><code>static bool Go()
+{
+    if (!World.Turtles.Any()) return false;    <span class="kom">// stop</span>
+    World.Ask(sheep, s =&gt;                      <span class="kom">// slučajan red</span>
+    {
+        s.Move();
+        s.Energy -= 1;
+        s.EatGrass();
+        s.Death();
+        if (s.Dead) return;     <span class="kom">// die prekida ostatak bloka</span>
+        s.ReproduceSheep();
+    });
+    World.Ask(wolves, w =&gt;
+    {
+        w.Move(); w.Energy -= 1; w.EatSheep();
+        w.Death(); if (w.Dead) return;
+        w.ReproduceWolves();
+    });
+    World.Ask(patches, p =&gt; p.GrowGrass());
+    World.Tick();
+    return true;
+}</code></pre></div>
+    </div>
+    <p class="mala siva" style="margin-top:0.6rem">Kod je skraćen: u originalu se <code>set energy energy - 1</code>, <code>eat-grass</code> i <code>death</code> za ovce izvršavaju samo u verziji <code>sheep-wolves-grass</code>, a i trava raste samo u toj verziji.</p>
+  </div>
+</section>
+
+<!-- 4 ============================================================ -->
+<section class="slajd" id="s4" data-naslov="Hrana i reprodukcija">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Interakcija</span>
+      <h2>Vuk i ovca na istoj parceli: <code>one-of sheep-here</code></h2>
+      <p class="podnaslov">Vuk vidi samo ovce na svojoj parceli. Ako ih nema, <code>one-of</code> vraća <code>nobody</code> (u C# <code>null</code>) i vuk ne dobija energiju u tom ticku.</p>
+    </div>
+    <div class="kodovi">
+      <div class="kod"><div class="jezik">NetLogo</div><pre><code>to eat-sheep  <span class="kom">; procedura vuka</span>
+  let prey one-of sheep-here
+  if prey != nobody [
+    ask prey [ die ]
+    set energy energy + wolf-gain-from-food
+  ]
+end
+
+to eat-grass  <span class="kom">; procedura ovce</span>
+  if pcolor = green [     <span class="kom">; parcela ispod ovce</span>
+    set pcolor brown
+    set energy energy + sheep-gain-from-food
+  ]
+end
+
+to reproduce-sheep
+  if random-float 100 &lt; sheep-reproduce [
+    set energy (energy / 2)
+    hatch 1 [ rt random-float 360 fd 1 ]
+  ]
+end</code></pre></div>
+      <div class="kod"><div class="jezik">C#</div><pre><code>void EatSheep()   <span class="kom">// metoda klase Wolf</span>
+{
+    var prey = PatchHere.Here&lt;Sheep&gt;().OneOf();
+    if (prey != null)                 <span class="kom">// nobody</span>
+    {
+        prey.Die();
+        Energy += Globals.WolfGainFromFood;
+    }
+}
+
+void EatGrass()   <span class="kom">// metoda klase Sheep</span>
+{
+    if (Pcolor == Green)              <span class="kom">// boja parcele</span>
+    {
+        Pcolor = Brown;
+        Energy += Globals.SheepGainFromFood;
+    }
+}
+
+void ReproduceSheep()
+{
+    if (World.RandomFloat(100) &lt; Globals.SheepReproduce)
+    {
+        Energy /= 2;
+        this.Hatch(c =&gt; { c.Right(World.RandomFloat(360)); c.Forward(1); });
+    }
+}</code></pre></div>
+    </div>
+    <div class="oblacici">
+      <div><b class="br">1</b>Turtle čita i mijenja <code>pcolor</code> parcele na kojoj stoji. Ovca koja dođe kasnije u istom ticku vidi travu koju je prethodna već pojela.</div>
+      <div><b class="br">2</b><code>hatch</code> pravi kopiju roditelja (i njegovu energiju), pa potomak dobija pola energije, kao i roditelj.</div>
+      <div><b class="br">3</b>Isti model u C# je u <code>materijali/netlogo-kroz-csharp/WolfSheep/</code>, linija uz liniju s originalom.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 ============================================================ -->
+<section class="slajd" id="s5" data-naslov="Šta se mjeri">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Mjere</span>
+      <h2>Mjeri se broj ovaca, vukova i parcela s travom u svakom ticku</h2>
+      <p class="podnaslov">BehaviorSpace, NetLogo 7.0.4 headless: 5 uslova, po 20 pokretanja, najviše 1000 tickova. Ostale mjere izračunate su iz ta tri broja.</p>
+    </div>
+    <div class="dvije">
+      <div class="tekst">
+        <ul>
+          <li><b>ishod do ticka 1000</b>: obje vrste opstale, vukovi izumrli, izumrle obje vrste ili ovaca više od 5000 (tada se pokretanje prekida);</li>
+          <li><b>tick izumiranja</b>: prvi tick u kojem je broj vukova (ili ovaca) nula;</li>
+          <li><b>prosjek, najmanja i najveća vrijednost od ticka 100</b>: prvih 100 tickova je prelaz od početnog stanja; računa se samo za pokretanja u kojima obje vrste opstanu;</li>
+          <li><b>period oscilacija</b>: pomak (u tickovima) na kojem se niz broja ovaca najviše poklapa sam sa sobom, tj. prvi vrh autokorelacije;</li>
+          <li><b>kašnjenje vukova</b>: pomak s najvećom korelacijom između broja ovaca i kasnijeg broja vukova.</li>
+        </ul>
+        <div class="tabela-okvir"><table class="tablica">
+          <thead><tr><th>uslov (sve ostalo zadano)</th><th>pokretanja</th></tr></thead>
+          <tbody id="t-uslovi"></tbody></table></div>
+      </div>
+      <div class="kodovi" style="grid-template-columns:minmax(0,1fr)">
+        <div class="kod"><div class="jezik">NetLogo · BehaviorSpace</div><pre><code><span class="kom">; Repetitions 20, Time limit 1000</span>
+<span class="kom">; Measure runs at every step</span>
+count sheep
+count wolves
+count patches with [ pcolor = green ]
+
+<span class="kom">; Stop condition (samo za verziju bez trave</span>
+<span class="kom">; ima učinka): count sheep &gt; 5000</span></code></pre></div>
+        <div class="kod"><div class="jezik">C#</div><pre><code>int CountSheep  =&gt; sheep.Count();     <span class="kom">// count sheep</span>
+int CountWolves =&gt; wolves.Count();    <span class="kom">// count wolves</span>
+int CountGrass  =&gt; patches
+    .Count(p =&gt; p.Pcolor == Green);   <span class="kom">// count grass</span>
+
+<span class="kom">// eksperiment: 20 pokretanja, svaki tick zapis</span>
+for (int run = 1; run &lt;= 20; run++)
+{
+    Setup();
+    while (World.Ticks &lt; 1000 &amp;&amp; Go())
+        Zapisi(run, CountSheep, CountWolves, CountGrass);
+}</code></pre></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 ============================================================ -->
+<section class="slajd" id="s6" data-naslov="Rezultat: oscilacije">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Rezultat · NetLogo</span>
+      <h2>Zadani parametri: obje vrste opstaju, a brojevi osciliraju</h2>
+      <p class="podnaslov">Grafik prikazuje jedno pokretanje (svaki 5. tick). Brojke uz grafik su iz svih 20 pokretanja sa zadanim parametrima.</p>
+    </div>
+    <div class="dvije">
+      <figure style="margin:0">
+        <div class="izbor" role="group" aria-label="Pokretanje" id="izbor-primjer"></div>
+        <div class="panel"><div id="g-primjer"></div></div>
+        <div class="legenda"><span><i class="crta" style="background:var(--ovce)"></i>ovce</span><span><i class="crta" style="background:var(--vukovi)"></i>vukovi</span><span><i class="crta" style="background:var(--trava)"></i>parcele s travom / 4</span></div>
+        <figcaption class="potpis" id="p-primjer"></figcaption>
+      </figure>
+      <div class="tekst">
+        <p id="t-zadano-ishod"></p>
+        <div class="tabela-okvir"><table class="tablica">
+          <thead><tr><th>od ticka 100, po pokretanju</th><th>raspon (20 pokretanja)</th><th>medijan</th></tr></thead>
+          <tbody id="t-zadano"></tbody></table></div>
+        <div class="pitanje"><h3>Oscilacije s kašnjenjem</h3><p id="t-period"></p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 ============================================================ -->
+<section class="slajd" id="s7" data-naslov="Rezultat: ishodi">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Rezultat · NetLogo</span>
+      <h2>Ishod zavisi od parametara i od slučajnosti</h2>
+      <p class="podnaslov">Ishod svakog od 20 pokretanja po uslovu, do ticka 1000. U svakom uslovu mijenja se samo jedan parametar u odnosu na zadane.</p>
+    </div>
+    <div class="dvije">
+      <figure style="margin:0">
+        <div class="panel"><div id="g-ishodi"></div></div>
+        <div class="legenda" id="l-ishodi"></div>
+      </figure>
+      <div class="tekst">
+        <p id="t-vuk40"></p>
+        <p id="t-trava"></p>
+        <p id="t-bez"></p>
+        <div class="pitanje"><h3>Jedno pokretanje nije rezultat</h3><p id="t-slucaj"></p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 ============================================================ -->
+<section class="slajd" id="s8" data-naslov="Tumačenje">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Tumačenje</span>
+      <h2>Oscilacije nastaju iz povratne veze s kašnjenjem</h2>
+      <p class="podnaslov">Nijedno pravilo ne opisuje oscilacije. One nastaju iz tri lokalna pravila: hrana daje energiju, kretanje je troši, a reprodukcija zavisi od toga koliko je jedinki živo.</p>
+    </div>
+    <div class="kartice">
+      <div class="kartica"><h3>Ciklus</h3><p>Više ovaca znači više hrane za vukove, pa broj vukova raste. Vukovi zatim smanje broj ovaca, nakon čega vukovi gube energiju i njihov broj opada. Trava ograničava rast ovaca.</p><div class="kod-cip" id="c-ciklus"></div></div>
+      <div class="kartica"><h3>Parametri</h3><p id="c-parametri"></p><div class="kod-cip">grass-regrowth-time · wolf-gain-from-food</div></div>
+      <div class="kartica"><h3>Slučajnost</h3><p id="c-slucaj"></p><div class="kod-cip">random · one-of · random-float</div></div>
+      <div class="kartica"><h3>Isto ponašanje u C#</h3><p id="c-csharp"></p><div class="kod-cip">materijali/netlogo-kroz-csharp · README</div></div>
+    </div>
+    <div class="pitanje" style="margin-top:1rem"><h3>Šta je „ravnoteža“ u ovom modelu?</h3>
+      <p>Nije jedno stanje, nego raspon unutar kojeg se brojevi kreću. Tvrdnja o ravnoteži zato navodi mjeru (npr. prosjek od ticka 100), raspon među pokretanjima i broj pokretanja u kojima neka vrsta izumre.</p></div>
+  </div>
+</section>
+
+<!-- 9 ============================================================ -->
+<section class="slajd" id="s9" data-naslov="Probajte">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Probajte</span>
+      <h2>Model u NetLogu i samostalna vježba</h2>
+      <p class="podnaslov">Model se otvara iz biblioteke: File → Models Library → Sample Models → Biology → Wolf Sheep Predation.</p>
+    </div>
+    <div class="dvije">
+      <div class="veze">
+        <a href="../prezentacije/v02a-ponavljanje.html#s27"><b>Prezentacija „Ponavljanje“, slajd 27</b>
+          <span>Wolf Sheep u pregledu četiri modela: pravila, breedovi, kod vuka.</span></a>
+        <a href="../prezentacije/v02a-ponavljanje.html#s57"><b>Prilog 4</b>
+          <span>Vrijednosti po pokretanju za Wolf Sheep i Rock Paper Scissors iz prezentacije.</span></a>
+        <a href="netlogo-kroz-csharp.html"><b>Mini: NetLogo kroz C#</b>
+          <span>Turtles, parcele, ask, one-of i nobody objašnjeni kodom u C#.</span></a>
+        <a href="model-stava.html"><b>Mini: model stava</b>
+          <span>Model s vježbi 2: jedan breed koji se kreće i jedan koji stoji.</span></a>
+      </div>
+      <div class="tekst">
+        <div class="panel"><h3 style="font-size:var(--t-1);margin-bottom:0.4rem">Šta isprobati</h3>
+          <ul>
+            <li>Izaberite <code>sheep-wolves-grass</code>, pokrenite model nekoliko puta sa zadanim parametrima i zapišite najmanji i najveći broj vukova poslije ticka 100.</li>
+            <li>Postavite <code>wolf-gain-from-food</code> na 40. Prije pokretanja zapišite očekivanje: više energije po ovci, više vukova?</li>
+            <li>Mijenjajte <code>grass-regrowth-time</code> (15, 30, 60). Pri kojoj vrijednosti vukovi najduže opstaju?</li>
+            <li>U BehaviorSpace ponovite jedan uslov 10 puta i prebrojte pokretanja u kojima vukovi izumru.</li>
+          </ul></div>
+        <div class="pitanje"><h3>Samostalna vježba</h3>
+          <p>Za svoju temu odredite šta je „energija“ agenta (novac, vrijeme, motivacija), šta je troši i šta je obnavlja. Koja vrijednost parametra dovodi do toga da neka grupa nestane, i u koliko od 10 pokretanja?</p></div>
+        <p class="mala siva" id="t-izvor"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<nav class="navigacija" aria-label="Slajdovi">
+  <div class="napredak" id="napredak"></div>
+  <div class="okvir">
+    <button type="button" id="nazad" aria-label="Prethodni slajd">←</button>
+    <span class="broj" id="broj">1 / 9</span>
+    <button type="button" id="naprijed" aria-label="Sljedeći slajd">→</button>
+    <span class="naslov-slajda" id="naslov-slajda"></span>
+  </div>
+</nav>
+
+<script>window.WS = {"n":20,"ticks":1000,"prag_ovaca":5000,"korak":5,"zadano":{"initial-number-sheep":100,"initial-number-wolves":50,"grass-regrowth-time":30,"sheep-gain-from-food":4,"wolf-gain-from-food":20,"sheep-reproduce":4,"wolf-reproduce":5},"uslovi":[{"kljuc":"zadano","opis":"zadani parametri","verzija":"sheep-wolves-grass","promjena":{},"ishodi":{"obje":20,"vukovi":0,"ovce":0,"sve":0,"prekid":0},"t_vuk":null,"t_ovca":null,"pokretanja":[{"run":1,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":164,"vukovi":76,"trava":954,"ovce_min":102,"ovce_max":228,"vukovi_min":43,"vukovi_max":119,"period":152,"kasnjenje":48},{"run":2,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":164,"vukovi":74,"trava":957,"ovce_min":112,"ovce_max":249,"vukovi_min":20,"vukovi_max":114,"period":160,"kasnjenje":107},{"run":3,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":159,"vukovi":77,"trava":977,"ovce_min":111,"ovce_max":238,"vukovi_min":43,"vukovi_max":122,"period":129,"kasnjenje":49},{"run":4,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":159,"vukovi":76,"trava":970,"ovce_min":110,"ovce_max":216,"vukovi_min":45,"vukovi_max":111,"period":163,"kasnjenje":56},{"run":5,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":162,"vukovi":76,"trava":960,"ovce_min":113,"ovce_max":241,"vukovi_min":42,"vukovi_max":117,"period":128,"kasnjenje":35},{"run":6,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":160,"vukovi":77,"trava":972,"ovce_min":107,"ovce_max":249,"vukovi_min":28,"vukovi_max":116,"period":158,"kasnjenje":52},{"run":7,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":156,"vukovi":80,"trava":983,"ovce_min":108,"ovce_max":210,"vukovi_min":51,"vukovi_max":112,"period":155,"kasnjenje":52},{"run":8,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":160,"vukovi":76,"trava":974,"ovce_min":107,"ovce_max":216,"vukovi_min":43,"vukovi_max":112,"period":118,"kasnjenje":52},{"run":9,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":158,"vukovi":75,"trava":995,"ovce_min":97,"ovce_max":235,"vukovi_min":30,"vukovi_max":122,"period":175,"kasnjenje":56},{"run":10,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":161,"vukovi":76,"trava":968,"ovce_min":121,"ovce_max":257,"vukovi_min":35,"vukovi_max":103,"period":163,"kasnjenje":50},{"run":11,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":166,"vukovi":75,"trava":947,"ovce_min":124,"ovce_max":226,"vukovi_min":46,"vukovi_max":108,"period":143,"kasnjenje":61},{"run":12,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":160,"vukovi":76,"trava":973,"ovce_min":91,"ovce_max":232,"vukovi_min":41,"vukovi_max":129,"period":161,"kasnjenje":52},{"run":13,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":165,"vukovi":74,"trava":962,"ovce_min":102,"ovce_max":238,"vukovi_min":35,"vukovi_max":116,"period":149,"kasnjenje":55},{"run":14,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":159,"vukovi":79,"trava":969,"ovce_min":96,"ovce_max":228,"vukovi_min":35,"vukovi_max":121,"period":165,"kasnjenje":42},{"run":15,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":161,"vukovi":75,"trava":969,"ovce_min":119,"ovce_max":228,"vukovi_min":44,"vukovi_max":112,"period":149,"kasnjenje":44},{"run":16,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":162,"vukovi":75,"trava":966,"ovce_min":99,"ovce_max":257,"vukovi_min":41,"vukovi_max":114,"period":179,"kasnjenje":49},{"run":17,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":160,"vukovi":76,"trava":972,"ovce_min":99,"ovce_max":219,"vukovi_min":34,"vukovi_max":119,"period":171,"kasnjenje":56},{"run":18,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":160,"vukovi":76,"trava":972,"ovce_min":112,"ovce_max":217,"vukovi_min":44,"vukovi_max":112,"period":151,"kasnjenje":46},{"run":19,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":160,"vukovi":76,"trava":975,"ovce_min":98,"ovce_max":248,"vukovi_min":43,"vukovi_max":113,"period":163,"kasnjenje":60},{"run":20,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":162,"vukovi":76,"trava":972,"ovce_min":86,"ovce_max":233,"vukovi_min":38,"vukovi_max":127,"period":137,"kasnjenje":52}],"ovce":{"min":156,"med":160,"max":166,"n":20},"vukovi":{"min":74,"med":76,"max":80,"n":20},"trava":{"min":947,"med":971,"max":995,"n":20},"ovce_min":{"min":86,"med":107,"max":124,"n":20},"ovce_max":{"min":210,"med":232,"max":257,"n":20},"vukovi_min":{"min":20,"med":42,"max":51,"n":20},"vukovi_max":{"min":103,"med":115,"max":129,"n":20},"period":{"min":118,"med":156,"max":179,"n":20},"kasnjenje":{"min":35,"med":52,"max":107,"n":20},"primjeri":[{"run":1,"ishod":"obje","ovce":[100,106,105,110,112,119,135,150,158,168,175,181,193,210,217,217,220,226,201,213,200,192,181,181,171,155,137,140,131,131,133,137,154,170,173,178,186,192,205,198,196,188,187,195,187,187,169,167,163,154,146,143,145,143,151,146,149,143,146,150,156,167,163,176,172,186,202,204,187,158,162,182,181,164,164,181,171,153,139,135,117,120,125,122,123,126,127,145,150,175,184,183,184,184,197,200,208,210,208,200,202,187,169,160,163,151,146,138,134,128,130,140,127,132,131,143,144,147,169,172,184,189,199,210,226,205,205,218,213,201,186,191,183,187,172,170,175,173,170,171,167,154,148,140,140,126,102,113,116,117,115,122,116,125,138,142,149,163,176,186,205,197,194,184,182,174,167,170,170,187,191,180,193,178,163,141,142,146,144,159,161,156,166,174,172,179,176,166,173,178,189,174,161,145,144,156,152,153,151,164,172],"vukovi":[50,55,48,50,44,43,37,30,31,34,37,43,44,45,41,45,51,53,59,61,68,74,79,89,89,91,99,119,110,102,91,72,73,72,52,52,49,56,68,67,71,63,66,72,88,86,90,114,109,101,87,78,86,81,90,69,73,79,83,67,66,56,55,58,57,60,65,73,64,66,76,72,84,72,69,75,75,75,74,94,86,89,95,84,81,72,75,69,62,61,48,55,57,60,61,67,77,75,69,79,82,80,82,89,89,94,93,87,92,87,83,75,85,84,89,76,64,65,63,62,59,57,59,52,50,52,55,64,66,79,74,73,80,84,79,69,71,67,73,91,87,99,96,93,97,100,91,95,94,104,93,70,66,67,62,60,51,53,55,66,66,66,62,70,70,71,76,80,73,70,80,70,81,84,93,106,106,89,71,74,82,70,80,82,75,68,74,72,70,71,67,68,82,92,91,88,89,76,68,74,65],"trava":[1294,1277,1257,1242,1180,1151,1123,1084,1023,969,933,882,840,819,829,792,774,757,749,781,786,814,850,878,879,888,933,984,1040,1070,1114,1091,1057,1011,955,893,871,882,822,811,809,837,858,867,891,894,925,953,927,941,1014,1058,1050,1030,1064,1064,1017,987,1005,1039,1037,1008,989,983,939,881,838,840,844,865,932,939,952,939,952,930,867,921,964,1017,1040,1107,1146,1151,1139,1140,1155,1126,1103,1030,986,895,852,828,825,840,833,829,796,793,764,822,843,935,979,996,1037,1024,1074,1067,1080,1095,1082,1093,1056,1048,1033,1025,1014,973,936,902,865,816,786,794,811,784,818,832,864,851,838,868,891,897,911,924,921,930,894,929,950,968,1025,1064,1141,1151,1162,1160,1160,1175,1143,1154,1136,1093,1045,987,935,886,851,830,808,800,854,900,911,947,972,960,907,846,857,868,928,992,1031,1057,1042,1041,1013,973,954,955,951,909,886,892,930,926,911,939,943,947,945,931,965,961,958,943,892],"t":[0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,105,110,115,120,125,130,135,140,145,150,155,160,165,170,175,180,185,190,195,200,205,210,215,220,225,230,235,240,245,250,255,260,265,270,275,280,285,290,295,300,305,310,315,320,325,330,335,340,345,350,355,360,365,370,375,380,385,390,395,400,405,410,415,420,425,430,435,440,445,450,455,460,465,470,475,480,485,490,495,500,505,510,515,520,525,530,535,540,545,550,555,560,565,570,575,580,585,590,595,600,605,610,615,620,625,630,635,640,645,650,655,660,665,670,675,680,685,690,695,700,705,710,715,720,725,730,735,740,745,750,755,760,765,770,775,780,785,790,795,800,805,810,815,820,825,830,835,840,845,850,855,860,865,870,875,880,885,890,895,900,905,910,915,920,925,930,935,940,945,950,955,960,965,970,975,980,985,990,995,1000]},{"run":2,"ishod":"obje","ovce":[100,101,110,117,125,141,154,169,190,206,213,221,248,264,254,248,258,270,257,238,243,243,234,229,219,206,208,187,173,169,171,176,182,189,181,165,174,180,177,175,168,174,163,152,143,143,147,151,168,164,166,165,175,172,165,150,157,161,167,166,165,159,154,164,148,158,156,147,144,152,153,157,159,160,157,149,154,156,158,161,147,160,169,179,173,172,164,172,179,178,182,190,186,179,172,167,152,143,132,136,139,155,161,162,170,167,170,152,135,134,136,134,127,137,138,157,162,171,174,176,188,171,174,163,161,167,187,181,162,164,168,172,168,165,161,152,150,161,168,186,186,180,169,160,150,150,165,175,162,157,145,148,123,122,119,128,125,125,125,116,113,126,124,127,144,150,157,164,167,187,199,205,213,233,210,189,211,216,209,183,171,162,157,148,137,139,142,148,153,162,164,166,164,169,169,154,144,147,135,135,142],"vukovi":[50,52,34,34,30,25,21,24,18,20,21,19,20,16,14,18,17,20,19,18,20,24,28,35,41,53,62,57,56,61,63,66,70,68,79,69,61,58,59,59,69,71,75,71,75,85,87,77,76,79,73,75,75,78,81,83,86,95,74,75,79,84,90,97,83,79,89,70,78,78,66,75,84,90,82,72,83,76,79,78,78,75,75,76,87,72,64,57,61,68,62,57,54,63,74,74,69,65,72,82,74,77,73,76,79,74,82,88,95,96,87,83,84,82,85,83,71,66,65,71,74,81,92,80,88,91,80,88,82,71,76,81,78,77,70,65,63,67,58,59,67,84,79,69,69,75,71,78,90,94,91,100,102,90,83,85,86,95,102,90,94,73,68,62,65,67,57,52,47,54,51,47,43,46,49,49,55,52,67,69,77,74,77,82,85,75,68,78,66,70,79,74,79,92,90,92,99,114,104,91,95],"trava":[1251,1254,1285,1264,1212,1179,1094,1008,928,873,832,793,790,763,732,716,688,700,685,694,738,765,789,739,759,775,772,785,852,908,923,916,885,893,837,840,850,883,918,906,945,915,937,963,977,995,1003,1030,978,938,926,920,912,914,934,953,970,959,954,969,1010,1005,950,968,970,967,954,996,1038,1041,1040,1030,979,933,936,942,939,984,1000,997,996,984,938,870,900,937,933,922,968,980,921,873,862,862,850,867,944,1005,1025,1054,1064,1059,994,977,956,935,933,969,1042,1016,1044,1074,1087,1073,1073,1074,1034,987,937,893,854,867,904,933,985,995,966,947,924,915,914,933,929,950,968,980,966,953,990,957,924,894,886,905,907,959,981,978,954,943,982,993,1028,1090,1150,1168,1119,1110,1116,1076,1093,1109,1144,1148,1140,1136,1063,1027,972,903,835,817,818,816,827,836,873,821,808,817,833,890,938,1029,1065,1081,1085,1089,1048,1030,987,948,939,918,907,920,979,1005,1029,1028,1091],"t":[0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,105,110,115,120,125,130,135,140,145,150,155,160,165,170,175,180,185,190,195,200,205,210,215,220,225,230,235,240,245,250,255,260,265,270,275,280,285,290,295,300,305,310,315,320,325,330,335,340,345,350,355,360,365,370,375,380,385,390,395,400,405,410,415,420,425,430,435,440,445,450,455,460,465,470,475,480,485,490,495,500,505,510,515,520,525,530,535,540,545,550,555,560,565,570,575,580,585,590,595,600,605,610,615,620,625,630,635,640,645,650,655,660,665,670,675,680,685,690,695,700,705,710,715,720,725,730,735,740,745,750,755,760,765,770,775,780,785,790,795,800,805,810,815,820,825,830,835,840,845,850,855,860,865,870,875,880,885,890,895,900,905,910,915,920,925,930,935,940,945,950,955,960,965,970,975,980,985,990,995,1000]},{"run":3,"ishod":"obje","ovce":[100,100,103,117,137,146,159,168,197,214,218,200,225,231,227,250,259,248,234,232,217,198,206,203,192,204,205,219,196,188,159,144,135,116,119,116,119,120,124,122,130,135,142,156,163,179,187,181,167,156,163,160,156,160,151,147,135,126,122,133,144,150,150,164,167,180,175,176,174,163,156,155,156,148,149,148,149,149,157,146,156,150,155,140,127,131,131,135,140,141,155,159,167,167,177,187,205,232,236,210,197,195,175,162,163,163,163,156,150,144,152,143,144,154,154,156,161,164,152,166,173,191,189,188,181,172,171,172,172,161,170,154,144,132,123,115,120,114,118,128,131,139,155,174,176,166,176,177,192,198,202,201,201,201,190,185,171,169,165,150,159,152,156,136,131,151,155,148,140,125,124,122,121,116,135,138,152,157,145,160,155,160,165,161,155,158,160,163,165,168,174,159,162,155,155,157,160,162,168,156,152],"vukovi":[50,53,49,40,34,19,21,16,20,25,24,25,19,22,25,28,36,36,41,44,49,45,49,62,57,67,70,76,76,77,83,93,101,102,94,83,86,80,89,87,75,64,60,56,52,58,58,68,88,91,94,92,79,79,81,78,73,70,71,80,80,73,59,55,73,69,58,55,63,73,64,70,82,71,74,80,85,97,106,99,106,120,116,103,100,112,104,95,79,81,78,63,67,61,53,55,53,53,61,77,68,66,73,69,72,81,85,83,83,72,74,79,80,71,75,74,75,72,67,60,63,65,69,70,79,85,88,83,79,85,84,85,86,86,98,106,94,97,94,88,78,61,63,70,61,59,58,56,66,66,70,74,79,87,88,88,81,85,83,85,84,87,91,82,87,98,97,102,105,105,103,92,86,76,73,65,60,70,71,73,73,75,70,68,76,73,74,73,73,80,75,74,67,71,79,83,85,72,67,75,81],"trava":[1286,1294,1291,1276,1216,1132,1102,1016,944,826,795,810,772,780,745,748,717,696,672,684,751,801,829,843,852,813,767,766,775,799,862,951,1010,1063,1120,1153,1149,1153,1163,1158,1155,1139,1111,1056,1011,929,868,837,858,909,964,996,1008,986,982,974,970,1026,1082,1135,1122,1115,1064,1007,953,915,890,872,903,909,940,981,1019,1012,1013,1024,998,991,984,1020,993,1004,1007,1010,1048,1045,1068,1062,1060,1055,1007,981,975,958,940,890,865,817,748,729,756,776,818,861,945,991,991,986,998,1045,1017,1017,1029,1057,1017,969,980,968,956,950,939,929,904,862,872,864,902,917,935,981,949,960,980,1024,1059,1099,1180,1183,1184,1146,1121,1089,1041,988,929,915,879,876,832,868,855,847,849,821,835,843,891,916,946,952,979,983,957,971,1005,1038,1046,1063,1087,1089,1090,1081,1124,1151,1164,1165,1115,1088,1013,969,966,944,953,972,1002,993,957,985,1013,986,961,962,974,960,947,975,977,977,984,970,966],"t":[0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,105,110,115,120,125,130,135,140,145,150,155,160,165,170,175,180,185,190,195,200,205,210,215,220,225,230,235,240,245,250,255,260,265,270,275,280,285,290,295,300,305,310,315,320,325,330,335,340,345,350,355,360,365,370,375,380,385,390,395,400,405,410,415,420,425,430,435,440,445,450,455,460,465,470,475,480,485,490,495,500,505,510,515,520,525,530,535,540,545,550,555,560,565,570,575,580,585,590,595,600,605,610,615,620,625,630,635,640,645,650,655,660,665,670,675,680,685,690,695,700,705,710,715,720,725,730,735,740,745,750,755,760,765,770,775,780,785,790,795,800,805,810,815,820,825,830,835,840,845,850,855,860,865,870,875,880,885,890,895,900,905,910,915,920,925,930,935,940,945,950,955,960,965,970,975,980,985,990,995,1000]}]},{"kljuc":"trava15","opis":"grass-regrowth-time 15","verzija":"sheep-wolves-grass","promjena":{"grass-regrowth-time":15},"ishodi":{"obje":14,"vukovi":6,"ovce":0,"sve":0,"prekid":0},"t_vuk":{"min":201,"med":410,"max":444,"n":6},"t_ovca":null,"pokretanja":[{"run":1,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":269,"vukovi":89,"trava":1338,"ovce_min":27,"ovce_max":690,"vukovi_min":1,"vukovi_max":319,"period":268,"kasnjenje":83},{"run":2,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":244,"vukovi":91,"trava":1418,"ovce_min":16,"ovce_max":665,"vukovi_min":3,"vukovi_max":342,"period":230,"kasnjenje":72},{"run":3,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":251,"vukovi":92,"trava":1378,"ovce_min":21,"ovce_max":668,"vukovi_min":2,"vukovi_max":313,"period":219,"kasnjenje":70},{"run":4,"ishod":"vukovi","kraj":1000,"t_vuk":444,"t_ovca":null},{"run":5,"ishod":"vukovi","kraj":1000,"t_vuk":236,"t_ovca":null},{"run":6,"ishod":"vukovi","kraj":1000,"t_vuk":420,"t_ovca":null},{"run":7,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":240,"vukovi":84,"trava":1435,"ovce_min":16,"ovce_max":707,"vukovi_min":1,"vukovi_max":318,"period":239,"kasnjenje":78},{"run":8,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":241,"vukovi":89,"trava":1422,"ovce_min":21,"ovce_max":723,"vukovi_min":1,"vukovi_max":335,"period":239,"kasnjenje":80},{"run":9,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":239,"vukovi":91,"trava":1436,"ovce_min":18,"ovce_max":681,"vukovi_min":1,"vukovi_max":359,"period":226,"kasnjenje":71},{"run":10,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":239,"vukovi":87,"trava":1436,"ovce_min":16,"ovce_max":681,"vukovi_min":1,"vukovi_max":299,"period":245,"kasnjenje":81},{"run":11,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":233,"vukovi":89,"trava":1436,"ovce_min":15,"ovce_max":715,"vukovi_min":1,"vukovi_max":350,"period":241,"kasnjenje":73},{"run":12,"ishod":"vukovi","kraj":1000,"t_vuk":400,"t_ovca":null},{"run":13,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":276,"vukovi":85,"trava":1329,"ovce_min":21,"ovce_max":689,"vukovi_min":1,"vukovi_max":317,"period":231,"kasnjenje":79},{"run":14,"ishod":"vukovi","kraj":1000,"t_vuk":434,"t_ovca":null},{"run":15,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":219,"vukovi":107,"trava":1454,"ovce_min":18,"ovce_max":632,"vukovi_min":3,"vukovi_max":352,"period":203,"kasnjenje":63},{"run":16,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":245,"vukovi":96,"trava":1385,"ovce_min":14,"ovce_max":711,"vukovi_min":1,"vukovi_max":348,"period":219,"kasnjenje":67},{"run":17,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":258,"vukovi":86,"trava":1363,"ovce_min":20,"ovce_max":710,"vukovi_min":1,"vukovi_max":308,"period":218,"kasnjenje":71},{"run":18,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":264,"vukovi":83,"trava":1366,"ovce_min":21,"ovce_max":704,"vukovi_min":1,"vukovi_max":293,"period":228,"kasnjenje":79},{"run":19,"ishod":"vukovi","kraj":1000,"t_vuk":201,"t_ovca":null},{"run":20,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":227,"vukovi":105,"trava":1420,"ovce_min":16,"ovce_max":627,"vukovi_min":3,"vukovi_max":317,"period":211,"kasnjenje":65}],"ovce":{"min":219,"med":243,"max":276,"n":14},"vukovi":{"min":83,"med":89,"max":107,"n":14},"trava":{"min":1329,"med":1419,"max":1454,"n":14},"ovce_min":{"min":14,"med":18,"max":27,"n":14},"ovce_max":{"min":627,"med":690,"max":723,"n":14},"vukovi_min":{"min":1,"med":1,"max":3,"n":14},"vukovi_max":{"min":293,"med":318,"max":359,"n":14},"period":{"min":203,"med":229,"max":268,"n":14},"kasnjenje":{"min":63,"med":72,"max":83,"n":14},"primjeri":[{"run":4,"ishod":"vukovi","ovce":[100,95,104,117,126,141,150,166,176,197,219,235,270,304,329,351,348,351,353,333,306,276,252,239,190,153,114,74,59,35,33,29,29,29,25,28,30,36,45,51,55,64,81,94,114,136,169,200,227,263,312,353,397,450,481,539,595,618,602,601,549,539,522,453,452,412,372,323,267,226,169,125,86,49,38,24,19,16,14,11,10,13,14,18,23,28,25,31,36,46,54,66,82,99,119,149,199,233,275,346,425,500,555,614,678,653,671,675,685,667,624,576,563,542,546,539,521,539,524,514,512,526,520,515,509,518,506,510,515,535,526,532,523,515,514,497,515,500,512,504,501,505,504,506,485,494,509,534,525,500,499,510,507,508,511,533,546,535,518,513,535,528,508,504,534,501,510,516,492,465,472,476,489,476,504,519,527,527,511,504,495,513,513,512,499,522,543,535,514,518,508,507,501,496,475,477,482,486,527,510,527],"vukovi":[50,56,65,64,53,50,43,46,48,44,46,50,37,46,49,61,68,88,105,128,138,159,189,199,220,241,281,294,276,238,212,185,164,121,76,68,48,36,28,22,25,23,22,14,14,13,6,7,6,6,7,7,9,11,13,15,19,24,30,34,43,48,60,69,91,119,143,181,211,258,303,336,334,341,316,270,219,158,126,92,72,50,31,14,13,9,9,6,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"trava":[1337,1513,1656,1737,1631,1545,1534,1477,1413,1322,1241,1204,1135,1080,996,953,949,963,912,907,948,1054,1089,1122,1219,1317,1448,1601,1830,2002,2116,2196,2240,2251,2260,2279,2277,2247,2191,2126,2068,2000,1956,1882,1814,1672,1506,1337,1225,1145,1058,942,888,805,760,684,697,655,654,636,697,698,683,734,793,846,858,885,999,1120,1296,1440,1583,1748,1954,2139,2286,2355,2401,2419,2443,2457,2457,2442,2407,2350,2300,2261,2236,2178,2103,2014,1935,1824,1720,1571,1439,1288,1172,1054,885,773,677,672,614,601,599,598,563,613,588,646,643,687,715,700,735,702,689,705,722,734,745,747,697,676,709,745,733,706,706,683,679,699,718,736,714,724,738,726,743,742,730,697,708,747,733,686,694,746,727,739,693,755,727,729,655,698,736,742,680,691,721,747,689,727,758,786,786,767,761,751,765,806,750,719,669,682,716,721,740,700,712,715,754,731,723,691,704,714,713,735,716,714,744,757,767,741,762,720,735],"t":[0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,105,110,115,120,125,130,135,140,145,150,155,160,165,170,175,180,185,190,195,200,205,210,215,220,225,230,235,240,245,250,255,260,265,270,275,280,285,290,295,300,305,310,315,320,325,330,335,340,345,350,355,360,365,370,375,380,385,390,395,400,405,410,415,420,425,430,435,440,445,450,455,460,465,470,475,480,485,490,495,500,505,510,515,520,525,530,535,540,545,550,555,560,565,570,575,580,585,590,595,600,605,610,615,620,625,630,635,640,645,650,655,660,665,670,675,680,685,690,695,700,705,710,715,720,725,730,735,740,745,750,755,760,765,770,775,780,785,790,795,800,805,810,815,820,825,830,835,840,845,850,855,860,865,870,875,880,885,890,895,900,905,910,915,920,925,930,935,940,945,950,955,960,965,970,975,980,985,990,995,1000]}]},{"kljuc":"trava60","opis":"grass-regrowth-time 60","verzija":"sheep-wolves-grass","promjena":{"grass-regrowth-time":60},"ishodi":{"obje":0,"vukovi":20,"ovce":0,"sve":0,"prekid":0},"t_vuk":{"min":113,"med":256,"max":560,"n":20},"t_ovca":null,"pokretanja":[{"run":1,"ishod":"vukovi","kraj":1000,"t_vuk":230,"t_ovca":null},{"run":2,"ishod":"vukovi","kraj":1000,"t_vuk":152,"t_ovca":null},{"run":3,"ishod":"vukovi","kraj":1000,"t_vuk":338,"t_ovca":null},{"run":4,"ishod":"vukovi","kraj":1000,"t_vuk":246,"t_ovca":null},{"run":5,"ishod":"vukovi","kraj":1000,"t_vuk":216,"t_ovca":null},{"run":6,"ishod":"vukovi","kraj":1000,"t_vuk":337,"t_ovca":null},{"run":7,"ishod":"vukovi","kraj":1000,"t_vuk":113,"t_ovca":null},{"run":8,"ishod":"vukovi","kraj":1000,"t_vuk":206,"t_ovca":null},{"run":9,"ishod":"vukovi","kraj":1000,"t_vuk":342,"t_ovca":null},{"run":10,"ishod":"vukovi","kraj":1000,"t_vuk":186,"t_ovca":null},{"run":11,"ishod":"vukovi","kraj":1000,"t_vuk":560,"t_ovca":null},{"run":12,"ishod":"vukovi","kraj":1000,"t_vuk":198,"t_ovca":null},{"run":13,"ishod":"vukovi","kraj":1000,"t_vuk":228,"t_ovca":null},{"run":14,"ishod":"vukovi","kraj":1000,"t_vuk":271,"t_ovca":null},{"run":15,"ishod":"vukovi","kraj":1000,"t_vuk":423,"t_ovca":null},{"run":16,"ishod":"vukovi","kraj":1000,"t_vuk":289,"t_ovca":null},{"run":17,"ishod":"vukovi","kraj":1000,"t_vuk":321,"t_ovca":null},{"run":18,"ishod":"vukovi","kraj":1000,"t_vuk":208,"t_ovca":null},{"run":19,"ishod":"vukovi","kraj":1000,"t_vuk":265,"t_ovca":null},{"run":20,"ishod":"vukovi","kraj":1000,"t_vuk":278,"t_ovca":null}],"primjeri":[{"run":1,"ishod":"vukovi","ovce":[100,88,89,90,97,100,107,112,136,143,140,149,135,135,120,114,109,101,103,90,90,94,106,113,124,127,126,135,135,138,149,147,147,133,130,110,100,104,109,107,103,113,125,127,138,143,156,161,142,151,155,147,145,129,118,122,105,119,115,119,125,130,137,148,146,140,141,141,147,137,134,123,127,119,107,111,115,118,118,135,137,149,162,153,159,152,144,138,121,107,96,91,92,97,102,108,117,132,142,163,153,159,167,164,144,130,119,105,99,90,89,97,104,128,134,149,158,174,180,191,169,157,121,103,77,79,76,77,80,86,95,102,121,135,150,160,178,178,182,166,155,137,125,100,103,108,111,108,120,131,137,147,157,159,157,152,151,162,142,134,119,109,101,102,109,122,134,129,116,124,141,142,163,143,141,130,131,129,122,118,124,122,126,127,135,146,134,128,130,138,129,142,145,142,153,153,139,139,131,124,127],"vukovi":[50,50,54,46,41,30,22,18,15,14,16,21,18,17,15,14,18,11,11,12,9,9,8,10,10,7,7,8,8,11,10,10,8,10,8,8,7,6,12,7,6,8,5,1,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"trava":[1282,1204,1130,1056,1017,951,886,823,749,677,630,560,525,581,645,680,683,724,758,798,828,877,900,921,873,806,748,720,670,611,575,554,567,567,582,604,671,752,782,780,831,851,855,823,759,718,678,629,574,532,522,540,543,567,603,670,718,769,782,797,787,772,767,730,708,666,635,597,574,542,587,636,673,695,722,747,752,760,737,733,728,693,619,558,525,527,538,550,598,651,739,766,819,881,909,932,933,881,802,740,644,595,523,511,493,507,548,604,667,767,847,915,951,933,887,806,737,662,562,481,438,407,439,501,583,683,795,920,986,1043,1091,1096,1045,974,834,709,602,522,456,408,439,462,519,595,680,753,838,878,877,838,822,778,683,618,578,537,505,486,486,521,592,665,719,779,839,858,850,791,774,723,687,624,606,574,546,551,572,584,610,655,691,757,783,812,760,743,721,715,673,678,659,636,590,563,573,586,610,626,635,630,657],"t":[0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,105,110,115,120,125,130,135,140,145,150,155,160,165,170,175,180,185,190,195,200,205,210,215,220,225,230,235,240,245,250,255,260,265,270,275,280,285,290,295,300,305,310,315,320,325,330,335,340,345,350,355,360,365,370,375,380,385,390,395,400,405,410,415,420,425,430,435,440,445,450,455,460,465,470,475,480,485,490,495,500,505,510,515,520,525,530,535,540,545,550,555,560,565,570,575,580,585,590,595,600,605,610,615,620,625,630,635,640,645,650,655,660,665,670,675,680,685,690,695,700,705,710,715,720,725,730,735,740,745,750,755,760,765,770,775,780,785,790,795,800,805,810,815,820,825,830,835,840,845,850,855,860,865,870,875,880,885,890,895,900,905,910,915,920,925,930,935,940,945,950,955,960,965,970,975,980,985,990,995,1000]}]},{"kljuc":"vuk40","opis":"wolf-gain-from-food 40","verzija":"sheep-wolves-grass","promjena":{"wolf-gain-from-food":40},"ishodi":{"obje":11,"vukovi":9,"ovce":0,"sve":0,"prekid":0},"t_vuk":{"min":421,"med":456,"max":648,"n":9},"t_ovca":null,"pokretanja":[{"run":1,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":114,"vukovi":83,"trava":1471,"ovce_min":6,"ovce_max":352,"vukovi_min":2,"vukovi_max":308,"period":262,"kasnjenje":83},{"run":2,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":111,"vukovi":98,"trava":1399,"ovce_min":11,"ovce_max":333,"vukovi_min":6,"vukovi_max":301,"period":221,"kasnjenje":74},{"run":3,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":116,"vukovi":91,"trava":1408,"ovce_min":6,"ovce_max":348,"vukovi_min":1,"vukovi_max":288,"period":229,"kasnjenje":70},{"run":4,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":109,"vukovi":89,"trava":1437,"ovce_min":10,"ovce_max":351,"vukovi_min":4,"vukovi_max":262,"period":256,"kasnjenje":78},{"run":5,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":104,"vukovi":87,"trava":1464,"ovce_min":7,"ovce_max":381,"vukovi_min":1,"vukovi_max":246,"period":284,"kasnjenje":74},{"run":6,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":125,"vukovi":95,"trava":1347,"ovce_min":6,"ovce_max":343,"vukovi_min":5,"vukovi_max":281,"period":237,"kasnjenje":74},{"run":7,"ishod":"vukovi","kraj":1000,"t_vuk":456,"t_ovca":null},{"run":8,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":108,"vukovi":102,"trava":1409,"ovce_min":14,"ovce_max":312,"vukovi_min":5,"vukovi_max":295,"period":222,"kasnjenje":72},{"run":9,"ishod":"vukovi","kraj":1000,"t_vuk":495,"t_ovca":null},{"run":10,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":112,"vukovi":97,"trava":1393,"ovce_min":4,"ovce_max":371,"vukovi_min":1,"vukovi_max":296,"period":255,"kasnjenje":80},{"run":11,"ishod":"vukovi","kraj":1000,"t_vuk":421,"t_ovca":null},{"run":12,"ishod":"vukovi","kraj":1000,"t_vuk":488,"t_ovca":null},{"run":13,"ishod":"vukovi","kraj":1000,"t_vuk":628,"t_ovca":null},{"run":14,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":114,"vukovi":91,"trava":1437,"ovce_min":9,"ovce_max":346,"vukovi_min":2,"vukovi_max":290,"period":252,"kasnjenje":74},{"run":15,"ishod":"vukovi","kraj":1000,"t_vuk":648,"t_ovca":null},{"run":16,"ishod":"vukovi","kraj":1000,"t_vuk":425,"t_ovca":null},{"run":17,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":119,"vukovi":85,"trava":1441,"ovce_min":11,"ovce_max":373,"vukovi_min":2,"vukovi_max":289,"period":276,"kasnjenje":87},{"run":18,"ishod":"obje","kraj":1000,"t_vuk":null,"t_ovca":null,"ovce":121,"vukovi":87,"trava":1415,"ovce_min":7,"ovce_max":364,"vukovi_min":2,"vukovi_max":293,"period":253,"kasnjenje":78},{"run":19,"ishod":"vukovi","kraj":1000,"t_vuk":433,"t_ovca":null},{"run":20,"ishod":"vukovi","kraj":1000,"t_vuk":446,"t_ovca":null}],"ovce":{"min":104,"med":114,"max":125,"n":11},"vukovi":{"min":83,"med":91,"max":102,"n":11},"trava":{"min":1347,"med":1415,"max":1471,"n":11},"ovce_min":{"min":4,"med":7,"max":14,"n":11},"ovce_max":{"min":312,"med":351,"max":381,"n":11},"vukovi_min":{"min":1,"med":2,"max":6,"n":11},"vukovi_max":{"min":246,"med":290,"max":308,"n":11},"period":{"min":221,"med":253,"max":284,"n":11},"kasnjenje":{"min":70,"med":74,"max":87,"n":11},"primjeri":[{"run":7,"ishod":"vukovi","ovce":[100,100,94,91,107,120,121,124,124,132,134,132,125,113,105,89,76,64,57,55,49,40,38,39,33,24,22,19,19,25,23,23,27,34,36,42,47,52,63,73,80,95,117,137,156,182,214,251,270,288,301,307,289,279,261,262,256,251,220,178,141,107,89,76,51,37,28,25,20,18,13,9,6,5,5,5,5,6,6,7,8,9,9,13,14,15,18,20,24,28,33,43,51,62,76,93,112,130,157,184,219,259,289,334,358,376,408,426,404,380,338,321,312,290,281,275,270,265,282,256,259,245,253,251,257,262,274,278,258,249,256,262,263,276,273,262,260,254,257,260,251,245,248,255,267,255,266,271,262,257,244,246,260,254,255,270,274,268,263,253,264,252,237,225,227,250,260,263,286,287,274,281,247,250,264,268,288,263,269,244,238,264,251,250,259,283,262,241,230,251,238,260,259,264,263,269,259,251,261,279,286],"vukovi":[50,70,75,70,72,71,79,85,93,111,136,139,138,146,157,162,166,179,181,178,175,163,157,135,135,126,124,97,76,77,68,55,45,25,25,20,17,19,16,16,19,16,16,18,11,13,14,18,24,24,28,36,43,54,66,74,84,109,130,156,170,199,208,224,229,246,246,251,241,218,205,184,144,110,95,81,70,58,37,28,11,4,4,3,3,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"trava":[1324,1325,1318,1281,1246,1228,1187,1150,1105,1073,1055,1088,1081,1079,1134,1213,1271,1335,1439,1575,1638,1684,1747,1794,1813,1855,1928,1999,2048,2092,2123,2133,2133,2095,2041,1980,1932,1858,1741,1651,1578,1471,1331,1193,1126,1022,889,782,716,677,629,603,624,654,692,675,682,679,700,776,850,996,1111,1271,1423,1537,1678,1794,1903,2011,2084,2165,2225,2294,2356,2395,2438,2466,2467,2453,2440,2421,2399,2378,2350,2320,2280,2245,2202,2152,2102,2020,1924,1794,1677,1540,1380,1243,1100,983,831,737,668,627,588,528,537,502,481,478,510,566,595,636,668,672,655,674,664,678,691,726,745,720,711,687,660,635,658,705,711,678,689,664,651,653,660,686,708,744,703,665,683,717,698,688,728,727,686,692,704,690,674,678,723,699,680,679,677,681,685,704,739,750,780,719,695,663,656,632,638,695,704,709,676,705,678,659,653,694,731,746,735,725,713,669,668,682,724,738,760,759,721,679,638,668,646,684,699,697,683],"t":[0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,105,110,115,120,125,130,135,140,145,150,155,160,165,170,175,180,185,190,195,200,205,210,215,220,225,230,235,240,245,250,255,260,265,270,275,280,285,290,295,300,305,310,315,320,325,330,335,340,345,350,355,360,365,370,375,380,385,390,395,400,405,410,415,420,425,430,435,440,445,450,455,460,465,470,475,480,485,490,495,500,505,510,515,520,525,530,535,540,545,550,555,560,565,570,575,580,585,590,595,600,605,610,615,620,625,630,635,640,645,650,655,660,665,670,675,680,685,690,695,700,705,710,715,720,725,730,735,740,745,750,755,760,765,770,775,780,785,790,795,800,805,810,815,820,825,830,835,840,845,850,855,860,865,870,875,880,885,890,895,900,905,910,915,920,925,930,935,940,945,950,955,960,965,970,975,980,985,990,995,1000]}]},{"kljuc":"bez-trave","opis":"verzija sheep-wolves (bez trave)","verzija":"sheep-wolves","promjena":{},"ishodi":{"obje":0,"vukovi":0,"ovce":0,"sve":6,"prekid":14},"t_vuk":{"min":182,"med":209,"max":547,"n":19},"t_ovca":{"min":137,"med":162,"max":345,"n":6},"pokretanja":[{"run":1,"ishod":"prekid","kraj":334,"t_vuk":206,"t_ovca":null},{"run":2,"ishod":"sve","kraj":547,"t_vuk":547,"t_ovca":340},{"run":3,"ishod":"sve","kraj":212,"t_vuk":212,"t_ovca":137},{"run":4,"ishod":"sve","kraj":197,"t_vuk":197,"t_ovca":163},{"run":5,"ishod":"prekid","kraj":393,"t_vuk":217,"t_ovca":null},{"run":6,"ishod":"prekid","kraj":371,"t_vuk":217,"t_ovca":null},{"run":7,"ishod":"sve","kraj":499,"t_vuk":499,"t_ovca":345},{"run":8,"ishod":"prekid","kraj":415,"t_vuk":205,"t_ovca":null},{"run":9,"ishod":"prekid","kraj":357,"t_vuk":197,"t_ovca":null},{"run":10,"ishod":"sve","kraj":209,"t_vuk":209,"t_ovca":142},{"run":11,"ishod":"prekid","kraj":344,"t_vuk":240,"t_ovca":null},{"run":12,"ishod":"prekid","kraj":303,"t_vuk":null,"t_ovca":null},{"run":13,"ishod":"prekid","kraj":512,"t_vuk":192,"t_ovca":null},{"run":14,"ishod":"prekid","kraj":411,"t_vuk":215,"t_ovca":null},{"run":15,"ishod":"sve","kraj":204,"t_vuk":204,"t_ovca":161},{"run":16,"ishod":"prekid","kraj":339,"t_vuk":222,"t_ovca":null},{"run":17,"ishod":"prekid","kraj":319,"t_vuk":199,"t_ovca":null},{"run":18,"ishod":"prekid","kraj":354,"t_vuk":182,"t_ovca":null},{"run":19,"ishod":"prekid","kraj":332,"t_vuk":220,"t_ovca":null},{"run":20,"ishod":"prekid","kraj":439,"t_vuk":205,"t_ovca":null}],"primjeri":[{"run":1,"ishod":"prekid","ovce":[100,112,125,143,157,164,182,204,219,243,256,290,307,334,357,393,399,401,399,356,327,277,226,187,128,89,54,32,19,15,15,10,13,12,12,15,18,19,22,27,33,39,43,48,57,65,83,96,120,148,185,238,280,330,397,476,574,706,864,1083,1347,1644,1982,2421,2948,3536,4311,5021],"vukovi":[50,55,54,59,50,58,47,54,56,63,64,66,73,81,90,103,120,151,170,211,241,278,328,360,396,411,406,387,334,277,242,152,105,68,49,34,22,17,16,6,3,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"trava":[2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601,2601],"t":[0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,105,110,115,120,125,130,135,140,145,150,155,160,165,170,175,180,185,190,195,200,205,210,215,220,225,230,235,240,245,250,255,260,265,270,275,280,285,290,295,300,305,310,315,320,325,330,334]}]}]};</script>
+<script>
+// Zajednički dio lekcija (isti kao u mini-prezentacijama blokova s vježbi 3): jedan slajd na ekranu ili svi jedan
+// ispod drugog (način „Čitanje“), strelice i prevlačenje, adresa #sN, zapamćen način prikaza.
+// Upotreba: Prezentacija("lekcija1", crtajVidljivo), gdje crtajVidljivo iscrta grafike na vidljivim slajdovima.
+window.Prezentacija = function (kljuc, crtajVidljivo) {
+  const $ = s => document.querySelector(s);
+  const main = $("#slajdovi"), slajdovi = [...document.querySelectorAll(".slajd")];
+  let tren = 0;
+  function prikazi(i, izHasha) {
+    tren = Math.max(0, Math.min(slajdovi.length - 1, i));
+    slajdovi.forEach((s, k) => s.classList.toggle("aktivan", k === tren));
+    $("#broj").textContent = `${tren + 1} / ${slajdovi.length}`;
+    $("#naslov-slajda").textContent = slajdovi[tren].dataset.naslov;
+    $("#napredak").style.width = `${((tren + 1) / slajdovi.length) * 100}%`;
+    $("#nazad").disabled = tren === 0; $("#naprijed").disabled = tren === slajdovi.length - 1;
+    if (!izHasha) { try { history.replaceState(null, "", "#" + slajdovi[tren].id); } catch (e) {} }
+    if (main.classList.contains("prezentacija")) window.scrollTo(0, 0);
+    crtajVidljivo();
+  }
+  $("#nazad").addEventListener("click", () => prikazi(tren - 1));
+  $("#naprijed").addEventListener("click", () => prikazi(tren + 1));
+  document.addEventListener("keydown", e => {
+    if (!main.classList.contains("prezentacija") || e.target.closest("input, textarea, select")) return;
+    if (["ArrowRight", "PageDown"].includes(e.key) || (e.key === " " && !e.target.closest("button"))) { e.preventDefault(); prikazi(tren + 1); }
+    if (["ArrowLeft", "PageUp"].includes(e.key)) { e.preventDefault(); prikazi(tren - 1); }
+    if (e.key === "Home") prikazi(0);
+    if (e.key === "End") prikazi(slajdovi.length - 1);
+  });
+  let dodirX = null;
+  main.addEventListener("touchstart", e => { dodirX = e.touches[0].clientX; }, { passive: true });
+  main.addEventListener("touchend", e => {
+    if (dodirX === null || !main.classList.contains("prezentacija")) return;
+    const dx = e.changedTouches[0].clientX - dodirX; dodirX = null;
+    if (e.target.closest("input, select, canvas, .interaktivno")) return;
+    if (Math.abs(dx) > 70) prikazi(tren + (dx < 0 ? 1 : -1));
+  });
+  function nacin(citanje) {
+    main.classList.toggle("citanje", citanje); main.classList.toggle("prezentacija", !citanje);
+    $("#nacin-citanje").setAttribute("aria-pressed", citanje); $("#nacin-prezentacija").setAttribute("aria-pressed", !citanje);
+    try { localStorage.setItem(kljuc + "-nacin", citanje ? "citanje" : "prezentacija"); } catch (e) {}
+    if (citanje) requestAnimationFrame(() => slajdovi[tren].scrollIntoView());
+    crtajVidljivo();
+  }
+  $("#nacin-citanje").addEventListener("click", () => nacin(true));
+  $("#nacin-prezentacija").addEventListener("click", () => nacin(false));
+  addEventListener("resize", () => crtajVidljivo());
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => crtajVidljivo());
+
+  let pocetni = 0;
+  const h = location.hash.replace("#", ""), k = slajdovi.findIndex(s => s.id === h); if (k >= 0) pocetni = k;
+  let sacuvano = null; try { sacuvano = localStorage.getItem(kljuc + "-nacin"); } catch (e) {}
+  if (sacuvano === "citanje") nacin(true);
+  prikazi(pocetni, true);
+  if (main.classList.contains("prezentacija")) setTimeout(() => window.scrollTo(0, 0), 0);
+  addEventListener("hashchange", () => {
+    const i = slajdovi.findIndex(s => s.id === location.hash.replace("#", ""));
+    if (i >= 0 && i !== tren) { prikazi(i, true); if (main.classList.contains("citanje")) slajdovi[i].scrollIntoView(); }
+  });
+  return { prikazi };
+};
+
+// Zajedničke pomoćne funkcije za grafike (SVG) i brojeve.
+window.Pomoc = (() => {
+  const SVG = "http://www.w3.org/2000/svg";
+  const el = (ime, atr = {}, tekst) => { const e = document.createElementNS(SVG, ime); for (const [k, v] of Object.entries(atr)) e.setAttribute(k, v); if (tekst !== undefined) e.textContent = tekst; return e; };
+  const zarez = (x, d = 2) => x.toFixed(d).replace(".", ",").replace("-", "−");
+  const pct = x => `${Math.round(x * 100)}%`;
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  // mulberry32: ponovljivi slučajni brojevi za ilustracije u web pregledniku
+  const rng = seed => () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  return { el, zarez, pct, css, rng };
+})();
+
+</script>
+<script>
+(() => {
+  const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+  const { el, zarez, pct, css, rng } = window.Pomoc;
+  const D = window.WS, U = Object.fromEntries(D.uslovi.map(u => [u.kljuc, u]));
+  const raspon = s => s.min === s.max ? `${s.min}` : `${s.min}–${s.max}`;
+  const od = (k, n) => `${k} od ${n}`;
+
+  // ---------------- model u web pregledniku (ista pravila kao Wolf Sheep Predation, NetLogo 7.0.4) ----------------
+  const MIN = -25, VEL = 51, NP = VEL * VEL, LIMIT = 1000, PRAG = 5000;
+  const P = { ovce: 100, vukovi: 50, hranaOvce: 4, ovceRepr: 4, vukoviRepr: 5 };
+  let ovce = [], vukovi = [], trava = new Uint8Array(NP), odbroj = new Int16Array(NP), tick = 0, slucaj = rng(1), tajmer = null, istorija = [], sTravom = true;
+  const rnd = n => Math.floor(slucaj() * n);
+  const omotaj = v => { v = (v - (MIN - 0.5)) % VEL; if (v < 0) v += VEL; return v + MIN - 0.5; };
+  const pi = t => { const x = ((Math.round(t.x) - MIN) % VEL + VEL) % VEL, y = ((Math.round(t.y) - MIN) % VEL + VEL) % VEL; return y * VEL + x; };
+  const naprijed = (t, d) => { t.x = omotaj(t.x + d * Math.sin(t.h * Math.PI / 180)); t.y = omotaj(t.y + d * Math.cos(t.h * Math.PI / 180)); };
+  const promijesaj = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = rnd(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const regrowth = () => +$("#k-trava").value, vukHrana = () => +$("#k-vuk").value;
+  const brojTrave = () => sTravom ? trava.reduce((a, b) => a + b, 0) : NP;
+  function setup() {
+    slucaj = rng(Math.floor(Math.random() * 1e9)); tick = 0; istorija = [];
+    sTravom = $("#m-verzija").value === "trava";
+    for (let i = 0; i < NP; i++) {
+      if (sTravom) { trava[i] = slucaj() < 0.5 ? 1 : 0; odbroj[i] = trava[i] ? regrowth() : rnd(regrowth()); }
+      else { trava[i] = 1; odbroj[i] = 0; }
+    }
+    const nova = e => ({ x: MIN - 0.5 + slucaj() * VEL, y: MIN - 0.5 + slucaj() * VEL, h: rnd(360), e, ziv: true });
+    ovce = Array.from({ length: P.ovce }, () => nova(rnd(2 * P.hranaOvce)));
+    vukovi = Array.from({ length: P.vukovi }, () => nova(rnd(2 * vukHrana())));
+    zapisi(); $("#m-stanje").textContent = ""; nacrtaj();
+  }
+  const kreni = t => { t.h = (t.h + rnd(50) - rnd(50) + 360) % 360; naprijed(t, 1); };
+  function izlegni(t, lista) { t.e /= 2; const c = { x: t.x, y: t.y, h: t.h, e: t.e, ziv: true }; c.h = (c.h + slucaj() * 360) % 360; naprijed(c, 1); lista.push(c); }
+  function korak() {
+    if (!ovce.length && !vukovi.length) return zaustavi("nema više turtles: model staje (stop)");
+    const noveOvce = [], noviVukovi = [];
+    for (const o of promijesaj(ovce)) {                                   // ask sheep
+      kreni(o);
+      if (sTravom) {
+        o.e -= 1;
+        const p = pi(o); if (trava[p]) { trava[p] = 0; o.e += P.hranaOvce; }   // eat-grass
+        if (o.e < 0) { o.ziv = false; continue; }                           // death
+      }
+      if (slucaj() * 100 < P.ovceRepr) izlegni(o, noveOvce);             // reproduce-sheep
+    }
+    ovce = ovce.filter(o => o.ziv).concat(noveOvce);
+    const naParceli = new Map();                                          // sheep-here
+    for (const o of ovce) { const p = pi(o); if (!naParceli.has(p)) naParceli.set(p, []); naParceli.get(p).push(o); }
+    for (const v of promijesaj(vukovi)) {                                 // ask wolves
+      kreni(v); v.e -= 1;
+      const tu = (naParceli.get(pi(v)) || []).filter(o => o.ziv);         // eat-sheep
+      if (tu.length) { tu[rnd(tu.length)].ziv = false; v.e += vukHrana(); }
+      if (v.e < 0) { v.ziv = false; continue; }
+      if (slucaj() * 100 < P.vukoviRepr) izlegni(v, noviVukovi);
+    }
+    ovce = ovce.filter(o => o.ziv); vukovi = vukovi.filter(v => v.ziv).concat(noviVukovi);
+    if (sTravom) for (let i = 0; i < NP; i++) if (!trava[i]) { if (odbroj[i] <= 0) { trava[i] = 1; odbroj[i] = regrowth(); } else odbroj[i]--; }   // grow-grass
+    tick++; zapisi(); nacrtaj();
+    if (!ovce.length && !vukovi.length) zaustavi(`tick ${tick}: izumrle su obje vrste`);
+    else if (ovce.length > PRAG) zaustavi(`tick ${tick}: ovaca je više od ${PRAG}, ilustracija je zaustavljena`);
+    else if (tick >= LIMIT) zaustavi(`tick ${LIMIT}: kraj ilustracije`);
+  }
+  function zapisi() {
+    istorija.push([ovce.length, vukovi.length, brojTrave()]);
+    if (!vukovi.length && !$("#m-stanje").dataset.vuk) { $("#m-stanje").dataset.vuk = 1; $("#m-stanje").textContent = `tick ${tick}: vukova više nema`; }
+  }
+  function zaustavi(poruka) {
+    clearInterval(tajmer); tajmer = null; $("#m-kreni").textContent = "Pokreni";
+    if (poruka) $("#m-stanje").textContent = poruka;
+  }
+  function nacrtaj() { nacrtajSvijet(); nacrtajGrafik(); }
+  function nacrtajSvijet() {
+    const c = $("#svijet"); if (!c || c.offsetParent === null) return;
+    const dpr = Math.min(devicePixelRatio || 1, 2), w = c.clientWidth || 300;
+    c.width = Math.round(w * dpr); c.height = Math.round(w * dpr);
+    const g = c.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const r = w / VEL;
+    for (let i = 0; i < NP; i++) {
+      g.fillStyle = trava[i] ? "#59b03c" : "#9d6e48";
+      g.fillRect((i % VEL) * r, (VEL - 1 - Math.floor(i / VEL)) * r, r + 0.6, r + 0.6);
+    }
+    const X = x => (x - MIN + 0.5) * r, Y = y => (VEL - (y - MIN + 0.5)) * r;
+    g.fillStyle = "#ffffff";
+    for (const o of ovce) { g.beginPath(); g.arc(X(o.x), Y(o.y), r * 0.55, 0, 2 * Math.PI); g.fill(); }
+    g.fillStyle = "#000000";
+    for (const v of vukovi) { g.beginPath(); g.arc(X(v.x), Y(v.y), r * 0.75, 0, 2 * Math.PI); g.fill(); }
+    $("#m-tick").textContent = tick; $("#m-ovce").textContent = ovce.length; $("#m-vukovi").textContent = vukovi.length;
+    $("#m-trava").textContent = sTravom ? brojTrave() : "—";
+  }
+  function nacrtajGrafik() {
+    const c = $("#zivi"); if (!c || c.offsetParent === null) return;
+    const dpr = Math.min(devicePixelRatio || 1, 2), w = c.clientWidth || 300, h = c.clientHeight || w;
+    c.width = Math.round(w * dpr); c.height = Math.round(h * dpr);
+    const g = c.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const L = 34, R = 16, T = 10, B = 20, tmax = Math.max(200, Math.ceil(istorija.length / 100) * 100);
+    const vrh = Math.max(100, ...istorija.map(z => Math.max(z[0], z[1], sTravom ? z[2] / 4 : 0)));
+    const ymax = Math.ceil(vrh / 100) * 100;
+    const x = t => L + (w - L - R) * t / tmax, y = v => T + (h - T - B) * (1 - v / ymax);
+    g.font = `11px ${css("--f-mono")}`; g.fillStyle = css("--siva"); g.strokeStyle = css("--linija"); g.lineWidth = 1;
+    for (const v of [0, ymax / 2, ymax]) { g.beginPath(); g.moveTo(L, y(v)); g.lineTo(w - R, y(v)); g.stroke(); g.textAlign = "right"; g.fillText(v, L - 4, y(v) + 4); }
+    g.textAlign = "center"; for (const t of [0, tmax / 2, tmax]) g.fillText(t, x(t), h - 5);
+    const linija = (k, boja, dijeli, crtkano) => {
+      g.strokeStyle = boja; g.lineWidth = 1.8; g.setLineDash(crtkano ? [5, 3] : []); g.beginPath();
+      istorija.forEach((z, t) => { const v = z[k] / dijeli; t ? g.lineTo(x(t), y(v)) : g.moveTo(x(t), y(v)); }); g.stroke(); g.setLineDash([]);
+    };
+    if (sTravom) linija(2, css("--trava"), 4, true);
+    linija(0, css("--ovce"), 1); linija(1, css("--vukovi"), 1);
+  }
+  $("#m-kreni").addEventListener("click", () => {
+    if (tajmer) { zaustavi(); return; }
+    if (tick >= LIMIT || (!ovce.length && !vukovi.length) || ovce.length > PRAG) { delete $("#m-stanje").dataset.vuk; setup(); }
+    tajmer = setInterval(korak, 45); $("#m-kreni").textContent = "Zaustavi";
+  });
+  $("#m-setup").addEventListener("click", () => { zaustavi(); delete $("#m-stanje").dataset.vuk; setup(); });
+  $("#m-verzija").addEventListener("change", () => { zaustavi(); delete $("#m-stanje").dataset.vuk; setup(); });
+  const klizaci = () => { $("#o-trava").textContent = $("#k-trava").value; $("#o-vuk").textContent = $("#k-vuk").value; };
+  for (const id of ["k-trava", "k-vuk"]) $("#" + id).addEventListener("input", klizaci);
+  klizaci(); setup();
+
+  // ---------------- tabela uslova (slajd 5) ----------------
+  $("#t-uslovi").innerHTML = D.uslovi.map(u => `<tr><td>${u.kljuc === "bez-trave" ? "verzija <code>sheep-wolves</code> (bez trave)" :
+    u.kljuc === "zadano" ? "zadani parametri, <code>sheep-wolves-grass</code>" : `<code>${u.opis}</code>`}</td><td>${D.n} × ${D.ticks} tickova</td></tr>`).join("");
+
+  // ---------------- jedno pokretanje (slajd 6) ----------------
+  const PRIMJERI = [];
+  for (const u of D.uslovi) for (const p of u.primjeri) PRIMJERI.push({ u, p });
+  const ime = ({ u, p }) => u.kljuc === "zadano" ? `zadano, pokretanje ${p.run}` : `${u.kljuc === "bez-trave" ? "bez trave" : u.opis}`;
+  const kratko = ({ u, p }) => u.kljuc === "zadano" ? `zadano ${p.run}` : u.kljuc === "bez-trave" ? "bez trave" : u.opis.replace("grass-regrowth-time", "regrowth").replace("wolf-gain-from-food", "wolf-gain");
+  function primjer(cilj, { u, p }) {
+    cilj.replaceChildren();
+    const W = 520, H = 290, L = 46, R = 14, T = 16, B = 40, tmax = D.ticks;
+    const sTr = u.verzija === "sheep-wolves-grass";
+    const vrh = Math.max(...p.ovce, ...p.vukovi, ...(sTr ? p.trava.map(v => v / 4) : [0]));
+    const korak = vrh > 2000 ? 1000 : vrh > 500 ? 200 : 100, ymax = Math.ceil(vrh / korak) * korak;
+    const x = t => L + (W - L - R) * t / tmax, y = v => T + (H - T - B) * (1 - v / ymax);
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, class: "grafik", role: "img", "aria-label": `Broj ovaca, vukova i parcela s travom kroz vrijeme, ${ime({ u, p })}` });
+    for (let v = 0; v <= ymax; v += korak) {
+      svg.append(el("line", { x1: L, x2: W - R, y1: y(v), y2: y(v), class: v === 0 ? "g-os" : "g-mreza" }));
+      svg.append(el("text", { x: L - 6, y: y(v) + 4, "text-anchor": "end", class: "g-oznaka" }, v));
+    }
+    for (const t of [0, 250, 500, 750, 1000]) svg.append(el("text", { x: x(t), y: H - B + 16, "text-anchor": "middle", class: "g-oznaka" }, t));
+    svg.append(el("text", { x: L + (W - L - R) / 2, y: H - 6, "text-anchor": "middle", class: "g-naslov-x" }, "tick"));
+    const crta = (vr, kl, d = 1) => svg.append(el("polyline", { points: vr.map((v, i) => `${x(p.t[i])},${y(v / d)}`).join(" "), class: kl, fill: "none", "stroke-width": 2 }));
+    if (sTr) crta(p.trava, "g-trava", 4);
+    crta(p.ovce, "g-ovce"); crta(p.vukovi, "g-vukovi");
+    const run = u.pokretanja.find(r => r.run === p.run);
+    const oznaci = (t, tekst) => {
+      svg.append(el("line", { x1: x(t), x2: x(t), y1: T, y2: y(0), class: "g-ref" }));
+      svg.append(el("text", { x: Math.min(x(t) + 5, W - R - 150), y: T + 12, class: "g-ref-tekst" }, tekst));
+    };
+    if (run.ishod === "prekid") oznaci(run.kraj, `tick ${run.kraj}: ovaca > ${D.prag_ovaca}, prekid`);
+    else if (run.t_vuk !== null) oznaci(run.t_vuk, `tick ${run.t_vuk}: vukova više nema`);
+    cilj.append(svg);
+    const opis = { obje: "obje vrste opstale su do ticka 1000", vukovi: `vukovi su izumrli u ticku ${run.t_vuk}, ovce su opstale`,
+      sve: `ovce su izumrle u ticku ${run.t_ovca}, vukovi u ticku ${run.t_vuk}`,
+      prekid: `${run.t_vuk !== null ? `vukovi su izumrli u ticku ${run.t_vuk}; ` : ""}ovaca je bilo više od ${D.prag_ovaca} u ticku ${run.kraj}, pa je pokretanje prekinuto` };
+    $("#p-primjer").innerHTML = `<b>Jedno pokretanje</b> (NetLogo, pokretanje ${p.run} od ${D.n}, ${u.kljuc === "zadano" ? "zadani parametri" : ime({ u, p })}): ${opis[run.ishod]}.` +
+      (u.kljuc === "bez-trave" ? " U verziji bez trave ovce ne troše energiju, pa trava nije prikazana." : "");
+  }
+  const izbor = $("#izbor-primjer");
+  PRIMJERI.forEach((pr, i) => {
+    const b = document.createElement("button"); b.textContent = kratko(pr); b.title = ime(pr); b.type = "button"; b.setAttribute("aria-pressed", i === 0);
+    b.addEventListener("click", () => { izbor.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); primjer($("#g-primjer"), pr); });
+    izbor.append(b);
+  });
+  primjer($("#g-primjer"), PRIMJERI[0]);
+  const Z = U.zadano;
+  $("#t-zadano-ishod").innerHTML = `<b>Ishod.</b> U ${od(Z.ishodi.obje, D.n)} pokretanja i ovce i vukovi postoje i u ticku ${D.ticks}.`;
+  const red = (n, s) => `<tr><td>${n}</td><td>${raspon(s)}</td><td>${s.med}</td></tr>`;
+  $("#t-zadano").innerHTML = red("prosječan broj ovaca", Z.ovce) + red("prosječan broj vukova", Z.vukovi) + red("prosječan broj parcela s travom", Z.trava) +
+    red("najmanje ovaca", Z.ovce_min) + red("najviše ovaca", Z.ovce_max) + red("najmanje vukova", Z.vukovi_min) + red("najviše vukova", Z.vukovi_max) +
+    red("period oscilacija (tickova)", Z.period) + red("kašnjenje vukova (tickova)", Z.kasnjenje);
+  $("#t-period").textContent = `Broj ovaca ima vrh otprilike svakih ${Z.period.med} tickova (raspon ${raspon(Z.period)} u ${Z.period.n} pokretanja). ` +
+    `Vrh broja vukova dolazi u prosjeku ${Z.kasnjenje.med} tickova poslije vrha ovaca (${raspon(Z.kasnjenje)}). Prosjeci se među pokretanjima malo razlikuju, ali najmanji broj vukova u pokretanju kreće se od ${Z.vukovi_min.min} do ${Z.vukovi_min.max}.`;
+
+  // ---------------- ishodi (slajd 7) ----------------
+  const ISHODI = [["obje", "obje vrste opstale", "i-obje"], ["vukovi", "vukovi izumrli, ovce opstale", "i-vukovi"], ["sve", "izumrle obje vrste", "i-sve"], ["prekid", `ovaca > ${D.prag_ovaca} (prekid)`, "i-prekid"]];
+  function ishodi(cilj) {
+    cilj.replaceChildren();
+    const W = 520, L = 170, R = 10, T = 22, red = 44, H = T + red * D.uslovi.length + 26, sir = (W - L - R) / D.n;
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, class: "grafik", role: "img", "aria-label": `Ishodi ${D.n} pokretanja po uslovu` });
+    for (const k of [0, D.n / 2, D.n]) {
+      svg.append(el("line", { x1: L + k * sir, x2: L + k * sir, y1: T - 6, y2: T + red * D.uslovi.length, class: "g-mreza" }));
+      svg.append(el("text", { x: L + k * sir, y: T - 9, "text-anchor": "middle", class: "g-oznaka" }, k));
+    }
+    D.uslovi.forEach((u, i) => {
+      const y0 = T + i * red + 8;
+      svg.append(el("text", { x: L - 8, y: y0 + 18, "text-anchor": "end", class: "g-oznaka" }, u.kljuc === "zadano" ? "zadano" : u.kljuc === "bez-trave" ? "bez trave" : u.opis.replace("grass-regrowth-time", "regrowth").replace("wolf-gain-from-food", "wolf-gain")));
+      let x0 = L;
+      for (const [k, , kl] of ISHODI) {
+        const n = u.ishodi[k]; if (!n) continue;
+        svg.append(el("rect", { x: x0, y: y0, width: n * sir - 1, height: 28, class: kl }));
+        if (n * sir > 18) svg.append(el("text", { x: x0 + n * sir / 2, y: y0 + 18, "text-anchor": "middle", class: "i-broj" }, n));
+        x0 += n * sir;
+      }
+    });
+    svg.append(el("text", { x: L + (W - L - R) / 2, y: H - 4, "text-anchor": "middle", class: "g-naslov-x" }, `broj pokretanja (od ${D.n})`));
+    cilj.append(svg);
+  }
+  ishodi($("#g-ishodi"));
+  $("#l-ishodi").innerHTML = ISHODI.map(([, t, kl]) => `<span><i style="background:var(--${kl})"></i>${t}</span>`).join("");
+  const V = U.vuk40, T15 = U.trava15, T60 = U.trava60;
+  $("#t-vuk40").innerHTML = `<b>wolf-gain-from-food 40.</b> Vuk dobija dvostruko više energije po ovci. Vukovi izumru u ${od(V.ishodi.vukovi, D.n)} pokretanja (tick ${raspon(V.t_vuk)}); ` +
+    `u ostalih ${V.ishodi.obje} obje vrste opstaju, ali s većim oscilacijama: najmanje ovaca od ticka 100 je ${raspon(V.ovce_min)}, a sa zadanim parametrima ${raspon(Z.ovce_min)}.`;
+  $("#t-trava").innerHTML = `<b>grass-regrowth-time.</b> Kad trava raste brže (15), vukovi izumru u ${od(T15.ishodi.vukovi, D.n)} pokretanja (tick ${raspon(T15.t_vuk)}); ` +
+    `kad raste sporije (60), vukovi izumru u ${od(T60.ishodi.vukovi, D.n)} (tick ${raspon(T60.t_vuk)}). Ovce u svim tim pokretanjima opstaju.`;
+  const BTu = U["bez-trave"], btVuk = BTu.pokretanja.filter(r => r.t_vuk !== null).length;
+  $("#t-bez").innerHTML = `<b>Bez trave.</b> Ovce ne troše energiju i nemaju ograničenje hrane. Ni u jednom od ${D.n} pokretanja obje vrste ne opstaju: vukovi izumru u ${btVuk}, ` +
+    `u ${BTu.ishodi.sve} izumru i ovce (prije vukova), a u ${BTu.ishodi.prekid} ovaca bude više od ${D.prag_ovaca}.`;
+  $("#t-slucaj").textContent = `Kod wolf-gain-from-food 40 isti kod i isti parametri daju dva različita ishoda: ${V.ishodi.vukovi} pokretanja s izumiranjem vukova i ${V.ishodi.obje} bez njega. ` +
+    `Zato se navodi u koliko od ${D.n} pokretanja se nešto desilo, a ne ishod jednog pokretanja.`;
+
+  // ---------------- tumačenje (slajd 8) ----------------
+  $("#c-ciklus").textContent = `period ${Z.period.med} tickova · vukovi kasne ${Z.kasnjenje.med} (medijan, ${Z.period.n} pokretanja)`;
+  $("#c-parametri").textContent = `Više hrane za ovce ne znači stabilniji sistem. Brži rast trave daje veće oscilacije (najviše ovaca od ticka 100: ${raspon(T15.ovce_max)} umjesto ${raspon(Z.ovce_max)}), ` +
+    `a poslije vrha ovaca slijedi dubok minimum (najmanje ovaca: ${raspon(T15.ovce_min)}), u kojem vukovi ostaju bez hrane. Kod sporijeg rasta (60) vukovi izumru u svih ${T60.ishodi.vukovi} pokretanja.`;
+  $("#c-slucaj").textContent = `Kretanje, izbor plijena, reprodukcija i početni raspored su slučajni. Kad je broj vukova mali (najmanje ${raspon(V.vukovi_min)} kod wolf-gain-from-food 40), ` +
+    `nekoliko neuspješnih tickova zaredom dovoljno je za izumiranje.`;
+  $("#c-csharp").textContent = "Prijevod modela u C# (20 pokretanja po 500 tickova) daje iste raspone kao NetLogo: prosječno 149–173 ovce i 67–80 vukova od ticka 100 (NetLogo: 156–174 i 71–79), " +
+    "vukovi kasne u prosjeku oko 55 tickova i ni u jednom pokretanju ne izumru.";
+  $("#t-izvor").textContent = `Brojke na slajdovima 6–8 su iz NetLoga 7.0.4 (headless, BehaviorSpace): ${D.uslovi.length} uslova × ${D.n} pokretanja, najviše ${D.ticks} tickova; ` +
+    "grafik na slajdu 6 je jedno pokretanje. Poređenje s C# je iz README projekta netlogo-kroz-csharp. Simulacija na slajdu 1 je ilustracija u web pregledniku. " +
+    "Model: Wilensky, U. (1997). NetLogo Wolf Sheep Predation model. Modeliranje i simulacije, FIT UNMO, 2026/27.";
+
+  Prezentacija("v02-mini-wolf-sheep", () => nacrtaj());
+})();
+</script>
+</body>
+</html>

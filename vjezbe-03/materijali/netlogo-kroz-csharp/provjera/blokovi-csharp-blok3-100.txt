@@ -1,0 +1,9 @@
+
+Blok 3, mreža poznanstava: 2 kuće medija (100 pokretanja po vrijednosti)
+  daleke veze   udio za, tick 150                      udio za, tick 500
+            0   sred 0.359, med 0.350 (0.160–0.725)    sred 0.455, med 0.440 (0.190–0.895)
+         0.05   sred 0.347, med 0.343 (0.150–0.750)    sred 0.506, med 0.495 (0.145–0.980)
+          0.2   sred 0.377, med 0.360 (0.170–0.785)    sred 0.728, med 0.778 (0.245–1.000)
+            1   sred 0.549, med 0.548 (0.085–0.980)    sred 0.922, med 0.955 (0.115–0.995)
+
+Ukupno 81.8 s; CSV u rezultati/blok1-csharp.csv … blok4-csharp.csv

@@ -1,0 +1,13 @@
+<Project>
+  <!-- Ako je projekat u OneDrive folderu, bin i obj idu u %LOCALAPPDATA%\VSBuild\<projekat>\,
+       da se build fajlovi (dll, exe, keš) ne šalju na OneDrive pri svakom pokretanju.
+       Izvan OneDrive-a sve ostaje kao obično: bin i obj pored projekta. -->
+  <PropertyGroup Condition="$(MSBuildProjectDirectory.Contains('OneDrive')) And '$(LOCALAPPDATA)' != ''">
+    <BaseOutputPath>$(LOCALAPPDATA)\VSBuild\$(MSBuildProjectName)\bin\</BaseOutputPath>
+    <BaseIntermediateOutputPath>$(LOCALAPPDATA)\VSBuild\$(MSBuildProjectName)\obj\</BaseIntermediateOutputPath>
+  </PropertyGroup>
+  <!-- stari bin i obj pored projekta (ako su ostali) ne ulaze u build -->
+  <PropertyGroup>
+    <DefaultItemExcludes>$(DefaultItemExcludes);bin\**;obj\**</DefaultItemExcludes>
+  </PropertyGroup>
+</Project>

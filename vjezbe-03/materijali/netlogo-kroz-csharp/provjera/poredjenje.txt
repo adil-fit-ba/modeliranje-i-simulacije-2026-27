@@ -1,0 +1,30 @@
+== rezultati-netlogo.csv: 20 pokretanja, zadnji tick 500–500; vrijednosti od ticka 100
+  vukovi kasne za ovcama (tickova): 38–90 (sredina 56)
+  prosjek ovaca po pokretanju : 156–174 (sredina 164)
+  prosjek vukova po pokretanju: 71–79 (sredina 76)
+  prosjek trave po pokretanju : 920–982 (sredina 953)
+  najviše ovaca               : 204–282 (sredina 237)
+  najmanje ovaca              : 95–134 (sredina 115)
+  najviše vukova              : 98–121 (sredina 109)
+  najmanje vukova             : 24–58 (sredina 44)
+  vukovi izumrli do kraja     : 0 od 20
+== rezultati-csharp.csv: 20 pokretanja, zadnji tick 500–500; vrijednosti od ticka 100
+  vukovi kasne za ovcama (tickova): 36–89 (sredina 54)
+  prosjek ovaca po pokretanju : 149–173 (sredina 162)
+  prosjek vukova po pokretanju: 67–80 (sredina 75)
+  prosjek trave po pokretanju : 912–1025 (sredina 963)
+  najviše ovaca               : 208–255 (sredina 226)
+  najmanje ovaca              : 75–130 (sredina 111)
+  najviše vukova              : 95–125 (sredina 111)
+  najmanje vukova             : 34–58 (sredina 43)
+  vukovi izumrli do kraja     : 0 od 20
+== rezultati-csharp-sinhrono.csv: 20 pokretanja, zadnji tick 500–500; vrijednosti od ticka 100
+  vukovi kasne za ovcama (tickova): 27–66 (sredina 48)
+  prosjek ovaca po pokretanju : 156–173 (sredina 163)
+  prosjek vukova po pokretanju: 77–87 (sredina 82)
+  prosjek trave po pokretanju : 921–992 (sredina 963)
+  najviše ovaca               : 199–281 (sredina 237)
+  najmanje ovaca              : 83–132 (sredina 111)
+  najviše vukova              : 109–143 (sredina 120)
+  najmanje vukova             : 30–59 (sredina 45)
+  vukovi izumrli do kraja     : 0 od 20

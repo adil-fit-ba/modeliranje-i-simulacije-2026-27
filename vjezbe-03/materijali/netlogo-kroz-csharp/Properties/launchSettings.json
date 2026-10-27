@@ -1,0 +1,29 @@
+{
+  "profiles": {
+    "pojmovi": {
+      "commandName": "Project",
+      "commandLineArgs": "pojmovi",
+      "workingDirectory": "$(ProjectDir)"
+    },
+    "model": {
+      "commandName": "Project",
+      "commandLineArgs": "model --seed 1 --ticks 500 --mapa 100",
+      "workingDirectory": "$(ProjectDir)"
+    },
+    "model sinhrono": {
+      "commandName": "Project",
+      "commandLineArgs": "model --seed 1 --ticks 500 --sinhrono",
+      "workingDirectory": "$(ProjectDir)"
+    },
+    "eksperiment": {
+      "commandName": "Project",
+      "commandLineArgs": "eksperiment --ponavljanja 20 --ticks 500",
+      "workingDirectory": "$(ProjectDir)"
+    },
+    "blokovi": {
+      "commandName": "Project",
+      "commandLineArgs": "blokovi",
+      "workingDirectory": "$(ProjectDir)"
+    }
+  }
+}

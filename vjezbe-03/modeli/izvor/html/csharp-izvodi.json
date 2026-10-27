@@ -1,0 +1,6 @@
+{
+  "1": {"fajl": "Blok1Povjerenje.cs", "metode": ["Razgovaraj", "SlusajMedije"]},
+  "2": {"fajl": "Blok2Prag.cs", "metode": ["Go", "UdioOkoMene"]},
+  "3": {"fajl": "Blok3Mreza.cs", "metode": ["NapraviMrezu", "Razgovaraj"]},
+  "4": {"fajl": "Blok4Preseljenje.cs", "metode": ["Go", "Procijeni", "PreseliSe"]}
+}

@@ -1,0 +1,868 @@
+<!--IZLAZ: blok3-mreza-poznanstava.html-->
+<title>Mreža poznanstava</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:wght@500;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Raspored: mini-prezentacija od 10 slajdova; jedan slajd na ekranu (strelice), ili svi jedan ispod
+   drugog (način „Čitanje“). Papir je svijetao, svijet i putanje su na tamnoj podlozi kao u NetLogu. */
+:root {
+  --papir: #eef1f4; --list: #ffffff; --tinta: #17212b; --siva: #56636f; --linija: #d3dae1;
+  --narandza: #b9531a; --narandza-meko: #f6dfd0; --margina: #e5a3a3; --svijet: #0b0d10;
+  --za: #345da9; --protiv: #d73229; --neodlucni: #8d8d8d;
+  --f-naslov: "Bitter", "Georgia", "Cambria", serif;
+  --f-tekst: "IBM Plex Sans", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "IBM Plex Mono", "Cascadia Mono", Consolas, "Courier New", monospace;
+  --t-0: 0.83rem; --t-1: 1rem; --t-2: 1.17rem; --t-3: 1.5rem; --t-4: 2.2rem; --t-5: 3.1rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --papir: #10161c; --list: #18212a; --tinta: #e3e9ee; --siva: #9ba8b4; --linija: #2a3540;
+    --narandza: #f0894a; --narandza-meko: #3a2416; --margina: #6b3535; --za: #5b86d6; --protiv: #e5574e; --neodlucni: #9a9a9a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --papir: #10161c; --list: #18212a; --tinta: #e3e9ee; --siva: #9ba8b4; --linija: #2a3540;
+  --narandza: #f0894a; --narandza-meko: #3a2416; --margina: #6b3535; --za: #5b86d6; --protiv: #e5574e; --neodlucni: #9a9a9a;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { font-size: 18px; }
+@media (max-width: 600px) { html { font-size: 16px; } }
+body { margin: 0; background: var(--papir); color: var(--tinta); font-family: var(--f-tekst); line-height: 1.55; }
+[hidden] { display: none !important; }
+a { color: var(--narandza); text-underline-offset: 0.15em; }
+:focus-visible { outline: 3px solid var(--narandza); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--f-naslov); text-wrap: balance; line-height: 1.18; margin: 0; }
+p { margin: 0; }
+code { font-family: var(--f-mono); font-size: 0.9em; }
+p code, li code, td code { background: var(--narandza-meko); padding: 0.05em 0.3em; border-radius: 3px; }
+.okvir { max-width: 1200px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.oznaka { font-family: var(--f-mono); font-size: var(--t-0); letter-spacing: 0.08em; text-transform: uppercase; color: var(--narandza); font-weight: 500; }
+.siva { color: var(--siva); }
+.mala { font-size: var(--t-0); }
+
+/* traka na vrhu */
+.vrh { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--papir); border-bottom: 1px solid var(--linija); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--papir); }
+.vrh .okvir { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem 1rem; padding-block: 0.55rem; flex-wrap: wrap; }
+.vrh b { font-family: var(--f-naslov); font-weight: 700; }
+.nacin { display: flex; gap: 0.3rem; }
+button { font: 500 var(--t-0) var(--f-mono); border-radius: 4px; padding: 0.4rem 0.8rem; cursor: pointer;
+  border: 1px solid var(--narandza); background: transparent; color: var(--narandza); }
+button[aria-pressed="true"], button.glavno { background: var(--narandza); color: var(--list); }
+button:disabled { opacity: 0.45; cursor: default; }
+
+/* slajdovi */
+.slajd { padding-block: 2rem 6rem; scroll-margin-top: 3.4rem; }
+main.prezentacija .slajd { display: none; min-height: calc(100svh - 3.2rem); }
+main.prezentacija .slajd.aktivan { display: block; }
+main.citanje .slajd { border-bottom: 1px solid var(--linija); padding-block: 2.5rem; }
+.glava { display: grid; gap: 0.35rem; margin-bottom: 1.4rem; }
+.glava h2 { font-size: var(--t-4); max-width: 30ch; }
+.glava .podnaslov { font-size: var(--t-2); color: var(--siva); max-width: 52rem; }
+.dvije { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2rem; align-items: start; }
+.dvije > * { min-width: 0; }
+@media (max-width: 900px) { .dvije { grid-template-columns: minmax(0, 1fr); } }
+.tekst { display: grid; gap: 1rem; }
+.tekst ul { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.35rem; }
+.panel { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 1rem; }
+.pitanje { background: var(--narandza-meko); border-radius: 4px; padding: 0.9rem 1rem; }
+.pitanje h3 { font-size: var(--t-1); margin-bottom: 0.25rem; }
+
+/* naslovni slajd */
+.naslovni { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 2.4rem; align-items: center; padding-top: 1rem; }
+.naslovni > * { min-width: 0; }
+.naslovni h1 { font-size: var(--t-5); letter-spacing: -0.01em; margin: 0.4rem 0 0.9rem; }
+.naslovni .teza { font-size: var(--t-3); font-family: var(--f-naslov); line-height: 1.3; }
+.naslovni .uvod { margin-top: 1rem; color: var(--siva); }
+@media (max-width: 900px) { .naslovni { grid-template-columns: minmax(0, 1fr); } }
+
+/* list papira: pravilo za model na papiru */
+.papir {
+  margin: 0; background-color: var(--list); border: 1px solid var(--linija); border-radius: 4px;
+  padding: 1rem 1.2rem 1.2rem 2.4rem; position: relative; line-height: 1.75rem;
+  background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(1.75rem - 1px), var(--linija) calc(1.75rem - 1px), var(--linija) 1.75rem);
+  background-position: 0 2.55rem;
+}
+.papir::before { content: ""; position: absolute; left: 1.5rem; top: 0; bottom: 0; width: 2px; background: var(--margina); }
+.papir figcaption { font-family: var(--f-mono); font-size: var(--t-0); color: var(--siva); letter-spacing: 0.04em; text-transform: uppercase; line-height: 1.75rem; }
+.papir p, .papir li { font-family: var(--f-naslov); font-size: 1.08rem; }
+.papir ul { list-style: none; margin: 0; padding: 0 0 0 1.2rem; }
+.papir li::before { content: "→ "; color: var(--narandza); font-family: var(--f-tekst); }
+.papir b { color: var(--narandza); }
+
+/* kartice (pojava, sastavni dijelovi, koraci) */
+.kartice { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); }
+.kartica { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 1rem; display: grid; gap: 0.6rem; align-content: start; }
+.kartica h3 { font-size: var(--t-2); }
+.kartica svg { width: 100%; height: auto; display: block; }
+.kartica ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.25rem; }
+.kartica .kod-cip { font-family: var(--f-mono); font-size: 0.78rem; color: var(--siva); border-top: 1px dashed var(--linija); padding-top: 0.5rem; }
+.korak-broj { font-family: var(--f-mono); font-weight: 500; color: var(--narandza); }
+
+/* SVG ilustracije: boje iz tokena */
+.il-osa { stroke: var(--siva); stroke-width: 1.5; }
+.il-tekst { fill: var(--siva); font: 13px var(--f-mono); }
+.il-tekst-veci { fill: var(--tinta); font: 600 15px var(--f-tekst); }
+.il-za { fill: var(--za); } .il-protiv { fill: var(--protiv); } .il-neo { fill: var(--neodlucni); }
+.il-prozor { fill: var(--narandza-meko); stroke: var(--narandza); stroke-dasharray: 4 3; }
+.il-strelica { stroke: var(--narandza); stroke-width: 2.5; fill: none; }
+.il-vrh { fill: var(--narandza); }
+.il-domet { fill: none; stroke: var(--narandza); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.il-svijet { fill: var(--svijet); }
+.il-kuca { fill: #eded2f; }
+.il-precrtano { stroke: var(--protiv); stroke-width: 3; }
+.il-oblak { fill: var(--list); stroke: var(--siva); stroke-width: 1.2; }
+
+/* kalkulator jednog susreta */
+.kalk { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 1.5rem; }
+.kalk > * { min-width: 0; }
+@media (max-width: 900px) { .kalk { grid-template-columns: minmax(0, 1fr); } }
+.klizaci { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem 1.2rem; }
+@media (max-width: 520px) { .klizaci { grid-template-columns: minmax(0, 1fr); } }
+.klizac { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+.klizac label { font-family: var(--f-mono); font-size: var(--t-0); }
+.klizac output { font-family: var(--f-mono); font-size: var(--t-0); font-variant-numeric: tabular-nums; }
+.klizac input { grid-column: 1 / -1; width: 100%; accent-color: var(--narandza); }
+.racun { font-family: var(--f-mono); font-size: 0.86rem; line-height: 1.7; background: var(--papir); border-radius: 4px; padding: 0.7rem 0.9rem; overflow-x: auto; white-space: pre; }
+.racun .da { color: var(--za); font-weight: 600; } .racun .ne { color: var(--protiv); font-weight: 600; }
+.dugmad { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+
+/* putanje stava */
+.putanje-okvir { background: var(--svijet); border-radius: 6px; padding: 0.6rem; }
+canvas.putanje { width: 100%; aspect-ratio: 2 / 1; display: block; }
+.izbor { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.6rem; }
+.izbor button { border-color: var(--linija); color: var(--siva); }
+.izbor button[aria-pressed="true"] { border-color: var(--narandza); color: var(--list); background: var(--narandza); }
+.legenda { display: flex; gap: 1rem; flex-wrap: wrap; font-size: var(--t-0); color: var(--siva); margin-top: 0.4rem; }
+.legenda i { display: inline-block; width: 0.8em; height: 0.8em; border-radius: 50%; margin-right: 0.35em; vertical-align: -0.05em; }
+.potpis { font-size: var(--t-0); color: var(--siva); margin-top: 0.4rem; }
+.potpis b { color: var(--tinta); font-weight: 600; }
+
+/* grafikoni iz mjerenja */
+svg.grafik { width: 100%; height: auto; display: block; overflow: visible; }
+.g-mreza { stroke: var(--linija); stroke-width: 1; } .g-os { stroke: var(--siva); stroke-width: 1; }
+.g-oznaka { fill: var(--siva); font: 12px var(--f-mono); } .g-naslov-x { fill: var(--siva); font: 12px var(--f-tekst); }
+.g-vrijednost { fill: var(--tinta); font: 500 12px var(--f-mono); }
+.g-raspon { stroke: var(--narandza); stroke-width: 3; stroke-linecap: round; opacity: 0.35; }
+.g-tacka { fill: var(--narandza); }
+.g-ref { stroke: var(--siva); stroke-width: 1.2; stroke-dasharray: 4 4; }
+.g-ref-tekst { fill: var(--siva); font: italic 12px var(--f-tekst); }
+
+/* kod */
+.kodovi { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; }
+.kodovi > * { min-width: 0; }
+@media (max-width: 900px) { .kodovi { grid-template-columns: minmax(0, 1fr); } }
+.kod { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; overflow: hidden; }
+.kod .jezik { font-family: var(--f-mono); font-size: var(--t-0); padding: 0.4rem 0.8rem; border-bottom: 1px solid var(--linija); color: var(--siva); }
+.kod pre { margin: 0; padding: 0.8rem; overflow-x: auto; }
+.kod code { font-size: 14px; line-height: 1.55; white-space: pre; }
+.kod .kom { color: var(--siva); font-style: italic; }
+.kod mark { background: var(--narandza-meko); color: inherit; border-radius: 2px; padding: 0 0.15em; }
+.kod mark b { color: var(--narandza); font-family: var(--f-tekst); }
+.oblacici { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: 1rem; margin-top: 1rem; }
+.oblacici div { border-left: 3px solid var(--narandza); padding-left: 0.8rem; }
+.oblacici b.br { font-family: var(--f-mono); color: var(--narandza); margin-right: 0.3rem; }
+
+/* probaj */
+.veze { display: grid; gap: 0.7rem; }
+.veze a { display: block; text-decoration: none; background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 0.8rem 1rem; color: var(--tinta); }
+.veze a:hover { border-color: var(--narandza); }
+.veze a b { color: var(--narandza); }
+.veze a span { display: block; color: var(--siva); font-size: var(--t-0); }
+.literatura { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.35rem; font-size: 0.92rem; }
+
+/* donja navigacija */
+.navigacija { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--papir); border-top: 1px solid var(--linija);
+  padding-bottom: env(safe-area-inset-bottom, 0px); }
+.navigacija .okvir { display: flex; align-items: center; gap: 0.8rem; padding-block: 0.5rem; }
+.navigacija .naslov-slajda { flex: 1; min-width: 0; font-size: var(--t-0); color: var(--siva); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.navigacija .broj { font-family: var(--f-mono); font-size: var(--t-0); font-variant-numeric: tabular-nums; }
+.napredak { position: absolute; top: -1px; left: 0; height: 2px; background: var(--narandza); transition: width 0.25s; }
+main.citanje ~ .navigacija { display: none; }
+@media (prefers-reduced-motion: reduce) { .napredak { transition: none; } }
+</style>
+<style>
+/* dodaci za blok 3: mreža na canvasu, reprodukcija, mala mreža u krugu */
+canvas.mreza { width: 100%; max-width: 560px; aspect-ratio: 1 / 1; display: block; margin-inline: auto; }
+.mreza-okvir { background: var(--svijet); border-radius: 6px; padding: 0.6rem; }
+.reprodukcija { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 0.6rem; align-items: center; margin-top: 0.6rem; }
+.reprodukcija input { width: 100%; accent-color: var(--narandza); }
+.reprodukcija output { font-family: var(--f-mono); font-size: var(--t-0); font-variant-numeric: tabular-nums; min-width: 8rem; text-align: right; }
+.prekidac { display: inline-flex; gap: 0.45rem; align-items: center; font-family: var(--f-mono); font-size: var(--t-0); }
+.prekidac input { accent-color: var(--narandza); width: 1.05rem; height: 1.05rem; }
+svg.krug { width: 100%; max-width: 440px; height: auto; display: block; margin-inline: auto; }
+svg.krug line { stroke: var(--siva); stroke-width: 1.4; opacity: 0.55; }
+svg.krug line.daleka { stroke: var(--narandza); opacity: 0.9; stroke-width: 2; }
+svg.krug circle { cursor: pointer; stroke: var(--list); stroke-width: 2; }
+svg.krug text { font: 600 10px var(--f-mono); fill: #fff; pointer-events: none; }
+</style>
+<!--TIJELO-->
+<header class="vrh">
+  <div class="okvir">
+    <span><span class="oznaka">Blok 3</span> &nbsp;<b>Mreža poznanstava</b></span>
+    <div class="nacin" role="group" aria-label="Način prikaza">
+      <button type="button" id="nacin-prezentacija" aria-pressed="true">Prezentacija</button>
+      <button type="button" id="nacin-citanje" aria-pressed="false">Čitanje</button>
+    </div>
+  </div>
+</header>
+
+<main class="prezentacija" id="slajdovi">
+
+<!-- 1 ============================================================ -->
+<section class="slajd" id="s1" data-naslov="Mreža poznanstava">
+  <div class="okvir naslovni">
+    <div>
+      <span class="oznaka">Modeliranje i simulacije · Vježbe 3 · Blok interakcije 3 od 6</span>
+      <h1>Mreža poznanstava</h1>
+      <p class="teza">Uticaj se prenosi preko poznanika, a ne preko slučajnih prolaznika.</p>
+      <p class="uvod">Model stava isti je kao na vježbama 2, ali ljudi su nepokretni i razgovaraju s poznanicima. Izbor veza dio je oblikovanja modela i određuje doseg širenja poruke.</p>
+      <p class="uvod mala">Za promjenu slajda koristite strelice ← → ili dugmad pri dnu. Opcija „Čitanje“ prikazuje sve slajdove na jednoj stranici.</p>
+    </div>
+    <figure style="margin:0">
+      <div class="mreza-okvir"><canvas class="mreza" id="mreza-naslov" aria-label="Mreža od 200 ljudi i dvije kuće medija nakon 500 sedmica"></canvas></div>
+      <figcaption class="potpis" id="mreza-naslov-potpis"></figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 2 ============================================================ -->
+<section class="slajd" id="s2" data-naslov="Pojava">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Pojava</span>
+      <h2>Na stav utiču poznanici, a ne slučajni prolaznici</h2>
+      <p class="podnaslov">Na vježbama 2 sagovornik je biran među ljudima u dometu. Ovdje je sagovornik poznanik: susjed, kolega ili rođak. Neki poznanici žive daleko.</p>
+    </div>
+    <div class="kartice">
+      <div class="kartica">
+        <svg viewBox="0 0 300 150" role="img" aria-label="Prolaznici: sagovornik je ko je u dometu">
+          <rect class="il-svijet" x="0" y="0" width="300" height="150" rx="6"/>
+          <circle class="il-domet" cx="140" cy="76" r="50"/>
+          <circle cx="140" cy="76" r="8" class="il-neo"/><circle cx="170" cy="56" r="7" class="il-za"/><circle cx="116" cy="104" r="7" class="il-protiv"/>
+          <circle cx="248" cy="40" r="7" class="il-za" opacity="0.6"/><circle cx="40" cy="120" r="7" class="il-neo" opacity="0.6"/>
+          <path class="il-strelica" d="M60 30 l 20 12"/><path class="il-strelica" d="M236 120 l -18 -10"/>
+        </svg>
+        <h3>Prolaznici (vježbe 2)</h3>
+        <p class="siva">Ljudi se kreću; sagovornik može biti bilo ko u dometu. S vremenom čovjek sretne mnogo različitih ljudi.</p>
+      </div>
+      <div class="kartica">
+        <svg viewBox="0 0 300 150" role="img" aria-label="Poznanici: veze s najbližim ljudima">
+          <rect class="il-svijet" x="0" y="0" width="300" height="150" rx="6"/>
+          <g stroke="#7f8790" stroke-width="1.6">
+            <line x1="60" y1="50" x2="96" y2="40"/><line x1="60" y1="50" x2="74" y2="90"/><line x1="96" y1="40" x2="74" y2="90"/>
+            <line x1="96" y1="40" x2="134" y2="64"/><line x1="134" y1="64" x2="74" y2="90"/>
+            <line x1="200" y1="70" x2="236" y2="50"/><line x1="200" y1="70" x2="226" y2="104"/><line x1="236" y1="50" x2="226" y2="104"/>
+          </g>
+          <g class="il-neo"><circle cx="60" cy="50" r="7"/><circle cx="96" cy="40" r="7"/><circle cx="74" cy="90" r="7"/><circle cx="134" cy="64" r="7"/></g>
+          <g class="il-za"><circle cx="200" cy="70" r="7"/><circle cx="236" cy="50" r="7"/><circle cx="226" cy="104" r="7"/></g>
+        </svg>
+        <h3>Poznanici</h3>
+        <p class="siva">Ljudi su nepokretni; svako se poveže sa 3 najbliža čovjeka, a dio veza zatim se preusmjeri na udaljene ljude. Razgovara se isključivo s poznanicima.</p>
+      </div>
+      <div class="kartica">
+        <svg viewBox="0 0 300 150" role="img" aria-label="Daleka veza povezuje dva udaljena dijela">
+          <rect class="il-svijet" x="0" y="0" width="300" height="150" rx="6"/>
+          <g stroke="#7f8790" stroke-width="1.6">
+            <line x1="60" y1="50" x2="96" y2="40"/><line x1="60" y1="50" x2="74" y2="90"/><line x1="96" y1="40" x2="74" y2="90"/>
+            <line x1="200" y1="70" x2="236" y2="50"/><line x1="200" y1="70" x2="226" y2="104"/><line x1="236" y1="50" x2="226" y2="104"/>
+          </g>
+          <path d="M96 40 Q 160 0 236 50" fill="none" stroke="#f0894a" stroke-width="2.5"/>
+          <g class="il-neo"><circle cx="60" cy="50" r="7"/><circle cx="74" cy="90" r="7"/></g>
+          <g class="il-za"><circle cx="96" cy="40" r="7"/><circle cx="200" cy="70" r="7"/><circle cx="236" cy="50" r="7"/><circle cx="226" cy="104" r="7"/></g>
+        </svg>
+        <h3>Daleka veza</h3>
+        <p class="siva">Poznanik na drugom kraju grada. Takva veza omogućava neposredan prijenos poruke preko velike prostorne udaljenosti.</p>
+      </div>
+    </div>
+    <div class="pitanje" style="margin-top:1.2rem">
+      <h3>Gdje se to javlja</h3>
+      <p>Prenošenje stava među članovima porodice, susjedima i kolegama umjesto slučajnim susretima; razlika između zatvorene sredine i sredine s brojnim vanjskim vezama.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 3 ============================================================ -->
+<section class="slajd" id="s3" data-naslov="Sastavni dijelovi">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Sastavni dijelovi</span>
+      <h2>Ljudi na stalnim mjestima, veze kao agenti, mediji i dva nova parametra</h2>
+      <p class="podnaslov">Stav, integritet i mediji su isti kao u modelu stava s vježbi 2. Nove su veze.</p>
+    </div>
+    <div class="kartice">
+      <div class="kartica">
+        <svg viewBox="0 0 260 110" role="img" aria-label="Čovjek koji stoji na svom mjestu">
+          <circle class="il-za" cx="40" cy="30" r="13"/><rect class="il-za" x="24" y="46" width="32" height="44" rx="12"/>
+          <defs><linearGradient id="g-stav3" x1="0" x2="1"><stop offset="0" stop-color="#d73229"/><stop offset="0.5" stop-color="#8d8d8d"/><stop offset="1" stop-color="#345da9"/></linearGradient></defs>
+          <text class="il-tekst" x="80" y="30">stav −1 … +1</text>
+          <rect x="80" y="40" width="160" height="10" rx="5" fill="url(#g-stav3)"/>
+          <text class="il-tekst" x="80" y="80">integritet 0 … 1</text>
+        </svg>
+        <h3>Ljudi · nepokretni</h3>
+        <ul>
+          <li>mjesto je stalno: kuća, posao</li>
+          <li><b>stav</b> i <b>integritet</b> kao u modelu stava</li>
+        </ul>
+        <div class="kod-cip">ljudi-own [ stav integritet ] · bez procedure kreni</div>
+      </div>
+      <div class="kartica">
+        <svg viewBox="0 0 260 110" role="img" aria-label="Veza između dva čovjeka">
+          <line x1="60" y1="56" x2="200" y2="56" stroke="#7f8790" stroke-width="3"/>
+          <circle cx="60" cy="56" r="14" class="il-neo"/><circle cx="200" cy="56" r="14" class="il-za"/>
+          <text class="il-tekst" x="44" y="96">end1</text><text class="il-tekst" x="184" y="96">end2</text>
+          <text class="il-tekst" x="104" y="44">link</text>
+        </svg>
+        <h3>Veze · links</h3>
+        <ul>
+          <li>veza je agent: ima krajnje tačke i boju te se može ukloniti (<code>die</code>)</li>
+          <li><b>broj-veza</b> = 3: svako se poveže sa svoja 3 najbliža</li>
+          <li>prosječno oko 3,7 poznanika po osobi: uz vlastita 3 izbora čovjek uspostavlja veze i s onima koji su izabrali njega, dok obostrani izbor stvara samo jednu vezu</li>
+        </ul>
+        <div class="kod-cip">create-links-with · link-neighbors · end1<br>C#: this.LinkNeighbors</div>
+      </div>
+      <div class="kartica">
+        <svg viewBox="0 0 260 110" role="img" aria-label="Kratke veze i jedna daleka">
+          <rect class="il-svijet" x="0" y="0" width="260" height="110" rx="6"/>
+          <g stroke="#7f8790" stroke-width="1.5"><line x1="30" y1="40" x2="60" y2="30"/><line x1="30" y1="40" x2="44" y2="76"/><line x1="200" y1="60" x2="230" y2="44"/></g>
+          <path d="M60 30 Q 130 0 200 60" fill="none" stroke="#f0894a" stroke-width="2.2"/>
+          <g class="il-neo"><circle cx="30" cy="40" r="6"/><circle cx="60" cy="30" r="6"/><circle cx="44" cy="76" r="6"/><circle cx="200" cy="60" r="6"/><circle cx="230" cy="44" r="6"/></g>
+        </svg>
+        <h3>Daleke veze</h3>
+        <ul>
+          <li><b>udio-dalekih-veza</b>: udio veza koje se preusmjere na ljude bilo gdje u prostoru modela (0 do 1)</li>
+        </ul>
+        <div class="kod-cip">ask links [ if random-float 1 &lt; udio-dalekih-veza [ … ] ]</div>
+      </div>
+      <div class="kartica">
+        <svg viewBox="0 0 260 110" role="img" aria-label="Kuća medija s dometom">
+          <rect class="il-svijet" x="0" y="0" width="260" height="110" rx="6"/>
+          <circle class="il-domet" cx="130" cy="58" r="40"/>
+          <path class="il-kuca" d="M114 58 L130 42 L146 58 Z"/><rect class="il-kuca" x="118" y="58" width="24" height="18"/>
+        </svg>
+        <h3>Mediji · dvije kuće</h3>
+        <ul>
+          <li>poruka +1, <code>domet-medija</code> = 5</li>
+          <li>čuju ih samo oni koji žive blizu kuće</li>
+          <li>mjera: <b>udio-za</b> (stav &gt; 0,2)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 ============================================================ -->
+<section class="slajd" id="s4" data-naslov="Kako nastaje mreža">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Interakcija</span>
+      <h2>Formiranje mreže i izbor sagovornika</h2>
+      <p class="podnaslov">Prva dva koraka izvršavaju se jednom, u <code>setup</code>. Preostala dva izvršavaju se svake sedmice, u <code>go</code>.</p>
+    </div>
+    <div class="kartice">
+      <div class="kartica">
+        <svg viewBox="0 0 240 150" role="img" aria-label="Čovjek se poveže s tri najbliža">
+          <rect class="il-svijet" x="0" y="0" width="240" height="150" rx="6"/>
+          <g stroke="#f0894a" stroke-width="2"><line x1="110" y1="76" x2="140" y2="56"/><line x1="110" y1="76" x2="88" y2="104"/><line x1="110" y1="76" x2="80" y2="58"/></g>
+          <circle cx="110" cy="76" r="9" class="il-neo"/>
+          <g class="il-neo"><circle cx="140" cy="56" r="7"/><circle cx="88" cy="104" r="7"/><circle cx="80" cy="58" r="7"/></g>
+          <g class="il-neo" opacity="0.5"><circle cx="196" cy="30" r="7"/><circle cx="206" cy="120" r="7"/><circle cx="30" cy="124" r="7"/></g>
+        </svg>
+        <h3><span class="korak-broj">1</span> Tri najbliža</h3>
+        <p class="siva">Svako stvori veze sa svoja 3 najbliža čovjeka.</p>
+        <div class="kod-cip">create-links-with min-n-of broj-veza other ljudi [ distance myself ]</div>
+      </div>
+      <div class="kartica">
+        <svg viewBox="0 0 240 150" role="img" aria-label="Jedna veza se prespoji na nekoga daleko">
+          <rect class="il-svijet" x="0" y="0" width="240" height="150" rx="6"/>
+          <line x1="70" y1="80" x2="100" y2="60" stroke="#7f8790" stroke-width="2" stroke-dasharray="4 4"/>
+          <path d="M70 80 Q 140 140 206 40" fill="none" stroke="#f0894a" stroke-width="2.5"/>
+          <g class="il-neo"><circle cx="70" cy="80" r="8"/><circle cx="100" cy="60" r="7" opacity="0.5"/><circle cx="206" cy="40" r="7"/></g>
+        </svg>
+        <h3><span class="korak-broj">2</span> Preusmjeravanje dijela veza</h3>
+        <p class="siva">S vjerovatnoćom jednakom <code>udio-dalekih-veza</code>, postojeća veza zamijeni se novom vezom s osobom bilo gdje u prostoru modela.</p>
+        <div class="kod-cip">let a end1 · ask a [ create-link-with novi ] · die</div>
+      </div>
+      <div class="kartica">
+        <svg viewBox="0 0 240 150" role="img" aria-label="Razgovor s jednim od poznanika">
+          <rect class="il-svijet" x="0" y="0" width="240" height="150" rx="6"/>
+          <g stroke="#7f8790" stroke-width="2"><line x1="110" y1="76" x2="80" y2="58"/><line x1="110" y1="76" x2="88" y2="104"/></g>
+          <line x1="110" y1="76" x2="200" y2="40" stroke="#f0894a" stroke-width="3"/>
+          <circle cx="110" cy="76" r="9" class="il-neo"/><circle cx="80" cy="58" r="7" class="il-neo"/><circle cx="88" cy="104" r="7" class="il-neo"/>
+          <circle cx="200" cy="40" r="8" class="il-za"/><circle cx="200" cy="40" r="14" fill="none" stroke="#f0894a" stroke-width="2"/>
+        </svg>
+        <h3><span class="korak-broj">3</span> Razgovor s poznanikom</h3>
+        <p class="siva">Sagovornik je jedan slučajno izabran poznanik, nezavisno od mjesta stanovanja.</p>
+        <div class="kod-cip">let sagovornik one-of link-neighbors</div>
+      </div>
+      <div class="kartica">
+        <svg viewBox="0 0 240 150" role="img" aria-label="Poruku medija čuju samo oni blizu kuće">
+          <rect class="il-svijet" x="0" y="0" width="240" height="150" rx="6"/>
+          <circle class="il-domet" cx="80" cy="76" r="44"/>
+          <path class="il-kuca" d="M66 76 L80 62 L94 76 Z"/><rect class="il-kuca" x="70" y="76" width="20" height="16"/>
+          <circle cx="110" cy="56" r="7" class="il-za"/><circle cx="196" cy="100" r="7" class="il-neo"/>
+        </svg>
+        <h3><span class="korak-broj">4</span> Mediji samo u blizini</h3>
+        <p class="siva">Poruku čuju samo ljudi koji žive u dometu kuće medija. Do ostalih može stići preko poznanika.</p>
+        <div class="kod-cip">if any? mediji in-radius domet-medija [ … ]</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 ============================================================ -->
+<section class="slajd" id="s5" data-naslov="Probajte: prečice">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Probajte</span>
+      <h2>Daleke veze skraćuju put između ljudi</h2>
+      <p class="podnaslov">Mala mreža za ilustraciju: 30 ljudi u krugu, svako povezan s po dva susjeda sa svake strane. Kliknite na čovjeka: boja pokazuje broj koraka (razgovora) potrebnih da njegova poruka stigne do svakog drugog čovjeka.</p>
+    </div>
+    <div class="kalk">
+      <div class="panel"><svg class="krug" id="krug" viewBox="0 0 400 400" role="img" aria-label="Mreža od 30 ljudi u krugu"></svg></div>
+      <div class="panel" style="display:grid;gap:0.8rem;align-content:start">
+        <div class="klizac"><label for="k-daleke">udio dalekih veza</label><output for="k-daleke"></output>
+          <input type="range" id="k-daleke" min="0" max="0.5" step="0.05" value="0"></div>
+        <div class="dugmad"><button type="button" id="krug-nova">Nova mreža</button></div>
+        <div class="racun" id="krug-racun" aria-live="polite"></div>
+        <p class="mala siva">Ovo nije mreža iz modela, nego pojednostavljen primjer: ljudi su raspoređeni u krug radi jasnijeg prikaza dužine puta. Isti princip opisali su Watts i Strogatz (1998): i mali udio dalekih veza znatno skraćuje put između ljudi.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 ============================================================ -->
+<section class="slajd" id="s6" data-naslov="Kod">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Kod</span>
+      <h2>Izbor sagovornika: <code>one-of link-neighbors</code></h2>
+      <p class="podnaslov">Lijevo je prikazan NetLogo kod, a desno odgovarajući C# kod (projekat <code>netlogo-kroz-csharp</code>).</p>
+    </div>
+    <div class="kodovi">
+      <div class="kod"><div class="jezik">NetLogo · v03-blok3-mreza.nlogox</div><pre><code>to napravi-mrezu
+  ask ljudi [
+    <mark><b>①</b> create-links-with</mark>
+      min-n-of broj-veza other ljudi [ distance myself ]
+  ]
+  <mark><b>②</b> ask links [</mark>
+    if random-float 1 &lt; udio-dalekih-veza [
+      let a end1
+      let novi one-of ljudi with
+        [ self != a and not link-neighbor? a ]
+      if novi != nobody [
+        ask a [ create-link-with novi ]
+        die
+      ]
+    ]
+  ]
+end
+
+to razgovaraj
+  <mark><b>③</b> let sagovornik one-of link-neighbors</mark>
+  if sagovornik != nobody [
+    let razlika ([ stav ] of sagovornik) - stav
+    set stav stav + razlika * (1 - integritet) * uticaj
+  ]
+end</code></pre></div>
+      <div class="kod"><div class="jezik">C# · Blokovi/Blok3Mreza.cs</div><pre><code>static void NapraviMrezu()            <span class="kom">// observer: nema this</span>
+{
+    World.Ask(ljudi, c =&gt;
+        <mark><b>①</b> c.CreateLinksWith(ljudi.Other(c)</mark>
+            .MinNOf(Globals.BrojVeza, d =&gt; d.Distance(c))));
+    <mark><b>②</b> World.Ask(World.Links, l =&gt;</mark>
+    {
+        if (World.RandomFloat(1) &lt; Globals.UdioDalekihVeza)
+        {
+            var a = l.End1;
+            var novi = ljudi.With(d =&gt; !ReferenceEquals(d, a)
+                                    &amp;&amp; !d.IsLinkNeighbor(a)).OneOf();
+            if (novi != null)
+            {
+                World.Ask(new[] { a }, x =&gt; x.CreateLinkWith(novi));
+                l.Die();
+            }
+        }
+    });
+}
+
+public void Razgovaraj()              <span class="kom">// metoda klase Covjek</span>
+{
+    <mark><b>③</b> var sagovornik = this.LinkNeighbors.OfType&lt;Covjek&gt;().OneOf();</mark>
+    if (sagovornik != null)
+    {
+        double razlika = sagovornik.Stav - this.Stav;
+        this.Stav += razlika * (1 - this.Integritet) * Globals.Uticaj;
+    }
+}</code></pre></div>
+    </div>
+    <div class="oblacici">
+      <div><b class="br">①</b>U <code>[ distance myself ]</code> izraz računa svaki kandidat, a <code>myself</code> je čovjek koji traži poznanike. U C#: kandidat je <code>d</code>, a <code>myself</code> je <code>c</code> iz vanjske lambde.</div>
+      <div><b class="br">②</b>Veze su agenti, pa i njima ide <code>ask</code>. Nova veza napravljena tokom <code>ask links</code> nije na redu: <code>ask</code> prolazi kroz kopiju skupa.</div>
+      <div><b class="br">③</b>Jedini red koji se razlikuje od modela stava. Umjesto <code>one-of other ljudi in-radius domet</code> sagovornik je poznanik.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 ============================================================ -->
+<section class="slajd" id="s7" data-naslov="Ishod">
+  <div class="okvir">
+    <div class="glava">
+      Ishod
+      <h2>Daleke veze proširuju doseg poruke medija</h2>
+      <p class="podnaslov">Dva pokretanja modela u NetLogu uz isti seed: isti ljudi, iste kuće i iste početne veze. Razlikuju se samo po preusmjeravanju dijela veza pri udjelu dalekih veza od 20%.</p>
+    </div>
+    <div class="dvije">
+      <figure style="margin:0">
+        <div class="izbor" role="group" aria-label="Pokretanje">
+          <button type="button" data-zapis="d0" aria-pressed="true">bez dalekih veza</button>
+          <button type="button" data-zapis="d02" aria-pressed="false">20% dalekih veza</button>
+        </div>
+        <div class="mreza-okvir"><canvas class="mreza" id="mreza-zapis" aria-label="Mreža i stav u izabranoj sedmici"></canvas></div>
+        <div class="reprodukcija">
+          <button type="button" id="zapis-play" aria-pressed="false">▶</button>
+          <input type="range" id="zapis-korak" min="0" max="100" value="100" aria-label="Sedmica">
+          <output id="zapis-izlaz"></output>
+        </div>
+        <label class="prekidac" style="margin-top:0.5rem"><input type="checkbox" id="zapis-veze" checked> prikaži veze</label>
+        <figcaption class="potpis" id="zapis-potpis"></figcaption>
+      </figure>
+      <div class="tekst">
+        <figure style="margin:0"><div id="g-tok"></div>
+          <figcaption class="potpis"><b>Udio „za“ tokom 500 sedmica</b> u dva pokretanja uz isti seed. Siva linija: bez dalekih veza; narandžasta: 20% dalekih veza.</figcaption></figure>
+        <p>U oba pokretanja ljudi u blizini kuća brzo usvajaju stav „za“. Bez dalekih veza poruka se širi samo među susjedima i ne doseže dijelove mreže nepovezane s kućama. Daleke veze omogućavaju prijenos poruke i u te dijelove.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 ============================================================ -->
+<section class="slajd" id="s8" data-naslov="Koliko je to sigurno">
+  <div class="okvir">
+    <div class="glava">
+      Ishod
+      <h2>Više dalekih veza povećava udio „za“, uz veliko rasipanje</h2>
+    </div>
+    <div class="dvije">
+      <figure style="margin:0"><div id="g-daleke"></div>
+        <figcaption class="potpis"><b>Udio „za“ na ticku 500</b> prema udjelu dalekih veza; dvije kuće medija, 20 pokretanja po
+          vrijednosti. Tačka je medijan, crta raspon. Isprekidano: medijan na početku.</figcaption></figure>
+      <div class="tekst">
+        <p id="b3-tekst"></p>
+        <p>Rasipanje je veliko, jer ishod zavisi i od toga gdje su kuće medija i kako su povezani ljudi oko njih.</p>
+        <div class="pitanje"><h3>Primjena u vlastitom modelu</h3>
+          <p>Odredite razgovaraju li ljudi u vašem modelu s prolaznicima (kretanje, kao na vježbama 2) ili s poznanicima (veze). Za opis veza potrebni su podaci o broju poznanika po osobi i broju poznanika izvan njene okoline.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 9 ============================================================ -->
+<section class="slajd" id="s9" data-naslov="U modelu na papiru">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Model na papiru</span>
+      <h2>Zapis bloka u modelu na papiru</h2>
+      <p class="podnaslov">Model se prvo opisuje na papiru, a zatim u kodu. Blok se zapisuje jednom rečenicom u polju „Interakcije“ i jednom u polju „Akteri“.</p>
+    </div>
+    <div class="dvije">
+      <figure class="papir">
+        <figcaption>Polje 8 · Interakcije</figcaption>
+        <p>Kada čovjek razgovara:</p>
+        <ul>
+          <li>sagovornik je jedan od njegovih <b>poznanika</b>, a ne slučajni prolaznik;</li>
+          <li>svoj stav približi stavu poznanika, zavisno od vlastitog integriteta.</li>
+        </ul>
+        <p>Poruku kampanje čuju samo ljudi koji žive blizu njenog izvora.</p>
+      </figure>
+      <div class="tekst">
+        <figure class="papir">
+          <figcaption>Polje 5 · Akteri</figcaption>
+          <ul>
+            <li>ljudi ostaju na mjestu; početne veze uspostavljaju se s 3 najbliža čovjeka;</li>
+            <li>dio veza povezuje ljude bilo gdje u prostoru modela (udio dalekih veza).</li>
+          </ul>
+        </figure>
+        <div class="panel"><h3 style="font-size:var(--t-1);margin-bottom:0.3rem">Podaci za koje treba navesti izvor</h3>
+          <p><b>Broj poznanika</b> po osobi i <b>udio poznanika izvan neposredne okoline</b>, npr. iz ankete o kontaktima.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 10 =========================================================== -->
+<section class="slajd" id="s10" data-naslov="Probajte u NetLogu">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Probajte</span>
+      <h2>Isti model u NetLogu</h2>
+    </div>
+    <div class="dvije">
+      <div class="veze">
+        <a href="../netlogo-web/v03-blok3-mreza.html" target="_blank" rel="noopener"><b>NetLogo Web ↗</b>
+          <span>Pravi NetLogo u web pregledniku: klizači, Command Center, kod. Bez instalacije i bez interneta.</span></a>
+        <a href="../modeli/v03-blok3-mreza.nlogox"><b>v03-blok3-mreza.nlogox</b>
+          <span>Za NetLogo 7.0.4 (File → Open). BehaviorSpace eksperiment: daleke-veze (500 tickova).</span></a>
+        <a href="../v03-blokovi-interakcije.html#blok3" target="_blank" rel="noopener"><b>Svi blokovi ↗</b>
+          <span>Stranica s blokovima: simulacija, mjerenja i kod u NetLogu i C#.</span></a>
+        <a><b>C#: dotnet run -- blokovi --blok 3</b>
+          <span>Projekat netlogo-kroz-csharp; ispiše iste mjere kao NetLogo.</span></a>
+      </div>
+      <div class="tekst">
+        <div class="panel"><h3 style="font-size:var(--t-1);margin-bottom:0.4rem">Zadaci za provjeru</h3>
+          <ul>
+            <li>Postavite udio dalekih veza redom na 0, 0,2 i 1; svaki put izvršite <code>repeat 500 [ go ]</code> i uporedite udio „za“.</li>
+            <li>Isključite <code>prikazi-veze?</code> i na osnovu boja utvrdite gdje se stav „za“ najprije pojavljuje.</li>
+            <li>U Command Centeru izvršite <code>show mean [ count link-neighbors ] of ljudi</code> i očitajte prosječan broj poznanika po osobi.</li>
+          </ul></div>
+        <div><h3 style="font-size:var(--t-1);margin-bottom:0.4rem">Literatura</h3>
+          <ol class="literatura">
+            <li>Watts, D. J., Strogatz, S. H. (1998). Collective dynamics of ‘small-world’ networks. <i>Nature</i>, 393, 440–442.</li>
+          </ol></div>
+        <p class="mala siva">Rezultati na ovoj stranici dobijeni su u NetLogu 7.0.4 (headless). Prikazi mreže potiču iz dva pokretanja uz seed (random-seed 2); grafikon na slajdu 8 prikazuje medijan i raspon 20 pokretanja. Mala mreža na slajdu 5 je ilustracija.
+          Modeliranje i simulacije, FIT UNMO, 2026/27.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<nav class="navigacija" aria-label="Slajdovi">
+  <div class="napredak" id="napredak"></div>
+  <div class="okvir">
+    <button type="button" id="nazad" aria-label="Prethodni slajd">←</button>
+    <span class="broj" id="broj">1 / 10</span>
+    <button type="button" id="naprijed" aria-label="Sljedeći slajd">→</button>
+    <span class="naslov-slajda" id="naslov-slajda"></span>
+  </div>
+</nav>
+
+<script>window.MREZA = {{JSON:mjerenja/podaci-b3.json}}; window.MJERENJA = {{MJERENJA:b3_udio_za_0,b3_udio_za_500,b3_poznanika}};</script>
+<script>
+(() => {
+  const $ = (s, el = document) => el.querySelector(s);
+  const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const zarez = (x, d = 2) => x.toFixed(d).replace(".", ",").replace("-", "−");
+  const pct = x => `${Math.round(x * 100)}%`;
+  const pct1 = x => `${(Math.round(x * 1000) / 10).toString().replace(".", ",")}%`;
+  const smanjeno = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // ---------------- slajdovi ----------------
+  const main = $("#slajdovi"), slajdovi = $$(".slajd");
+  let tren = 0;
+  function prikazi(i, izHasha) {
+    tren = Math.max(0, Math.min(slajdovi.length - 1, i));
+    slajdovi.forEach((s, k) => s.classList.toggle("aktivan", k === tren));
+    $("#broj").textContent = `${tren + 1} / ${slajdovi.length}`;
+    $("#naslov-slajda").textContent = slajdovi[tren].dataset.naslov;
+    $("#napredak").style.width = `${((tren + 1) / slajdovi.length) * 100}%`;
+    $("#nazad").disabled = tren === 0; $("#naprijed").disabled = tren === slajdovi.length - 1;
+    if (!izHasha) { try { history.replaceState(null, "", "#" + slajdovi[tren].id); } catch (e) {} }
+    if (main.classList.contains("prezentacija")) window.scrollTo(0, 0);
+    crtajVidljivo();
+  }
+  $("#nazad").addEventListener("click", () => prikazi(tren - 1));
+  $("#naprijed").addEventListener("click", () => prikazi(tren + 1));
+  document.addEventListener("keydown", e => {
+    if (!main.classList.contains("prezentacija") || e.target.closest("input, textarea")) return;
+    if (["ArrowRight", "PageDown"].includes(e.key) || (e.key === " " && !e.target.closest("button"))) { e.preventDefault(); prikazi(tren + 1); }
+    if (["ArrowLeft", "PageUp"].includes(e.key)) { e.preventDefault(); prikazi(tren - 1); }
+    if (e.key === "Home") prikazi(0);
+    if (e.key === "End") prikazi(slajdovi.length - 1);
+  });
+  let dodirX = null;
+  main.addEventListener("touchstart", e => { dodirX = e.touches[0].clientX; }, { passive: true });
+  main.addEventListener("touchend", e => {
+    if (dodirX === null || !main.classList.contains("prezentacija")) return;
+    const dx = e.changedTouches[0].clientX - dodirX; dodirX = null;
+    if (e.target.closest("input, canvas, svg, .kalk")) return;
+    if (Math.abs(dx) > 70) prikazi(tren + (dx < 0 ? 1 : -1));
+  });
+  function nacin(citanje) {
+    main.classList.toggle("citanje", citanje); main.classList.toggle("prezentacija", !citanje);
+    $("#nacin-citanje").setAttribute("aria-pressed", citanje); $("#nacin-prezentacija").setAttribute("aria-pressed", !citanje);
+    try { localStorage.setItem("blok3-nacin", citanje ? "citanje" : "prezentacija"); } catch (e) {}
+    if (citanje) requestAnimationFrame(() => slajdovi[tren].scrollIntoView());
+    crtajVidljivo();
+  }
+  $("#nacin-citanje").addEventListener("click", () => nacin(true));
+  $("#nacin-prezentacija").addEventListener("click", () => nacin(false));
+
+  // ---------------- mreža iz NetLoga ----------------
+  const Z = {}; for (const z of window.MREZA.zapisi) Z[z.kljuc] = z;
+  const VEL = 41, MIN = -20.5;
+  const boja = s => s > 20 ? "#5b86d6" : s < -20 ? "#e5574e" : "#9a9a9a";
+  function crtajMrezu(canvas, z, korak, veze) {
+    const dpr = Math.min(devicePixelRatio || 1, 2), w = canvas.clientWidth || 400;
+    canvas.width = Math.round(w * dpr); canvas.height = Math.round(w * dpr);
+    const g = canvas.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.fillStyle = "#0b0d10"; g.fillRect(0, 0, w, w);
+    const k = w / VEL, X = x => (x - MIN) * k, Y = y => (MIN + VEL - y) * k;
+    for (const [hx, hy] of z.mediji) {                       // domet kuće
+      g.strokeStyle = "rgba(240,137,74,0.55)"; g.setLineDash([4, 4]); g.lineWidth = 1;
+      g.beginPath(); g.arc(X(hx), Y(hy), 5 * k, 0, 2 * Math.PI); g.stroke(); g.setLineDash([]);
+    }
+    if (veze) {
+      g.strokeStyle = "rgba(160,168,176,0.32)"; g.lineWidth = 1; g.beginPath();
+      for (const [a, b] of z.veze) {
+        const pa = z.ljudi[a], pb = z.ljudi[b];
+        let dx = pb[0] - pa[0], dy = pb[1] - pa[1];
+        if (dx > VEL / 2) dx -= VEL; if (dx < -VEL / 2) dx += VEL;
+        if (dy > VEL / 2) dy -= VEL; if (dy < -VEL / 2) dy += VEL;
+        for (const [p, s] of [[pa, 1], [pb, -1]]) { g.moveTo(X(p[0]), Y(p[1])); g.lineTo(X(p[0]) + s * dx * k, Y(p[1]) - s * dy * k); }
+      }
+      g.stroke();
+    }
+    for (const [hx, hy] of z.mediji) {
+      const x = X(hx), y = Y(hy);
+      g.fillStyle = "#eded2f"; g.beginPath(); g.moveTo(x, y - k * 1.3); g.lineTo(x + k * 1.2, y - k * 0.2); g.lineTo(x - k * 1.2, y - k * 0.2); g.fill();
+      g.fillRect(x - k * 0.9, y - k * 0.2, k * 1.8, k * 1.2);
+    }
+    z.ljudi.forEach((p, i) => { g.fillStyle = boja(z.stav[i][korak]); g.beginPath(); g.arc(X(p[0]), Y(p[1]), Math.max(2.2, k * 0.42), 0, 2 * Math.PI); g.fill(); });
+  }
+  const opis = z => `NetLogo 7.0.4, jedno pokretanje (random-seed ${z.seed}), ${z.daleke ? "20% dalekih veza" : "bez dalekih veza"}, dvije kuće medija.`;
+  const cNaslov = $("#mreza-naslov");
+  function crtajNaslov() {
+    const z = Z.d02, n = z.ticks.length - 1; crtajMrezu(cNaslov, z, n, true);
+    $("#mreza-naslov-potpis").textContent = `${opis(z)} Sedmica ${z.ticks[n]}: udio „za“ ${pct1(z.udio_za[n])}.`;
+  }
+  let zapis = "d0", korak = null, svira = null;
+  const cZapis = $("#mreza-zapis"), kl = $("#zapis-korak");
+  function postaviZapis() {
+    const z = Z[zapis], n = z.ticks.length - 1;
+    if (korak === null) korak = n;
+    kl.max = n; kl.value = korak;
+    crtajMrezu(cZapis, z, korak, $("#zapis-veze").checked);
+    $("#zapis-izlaz").textContent = `sedmica ${z.ticks[korak]} · ${pct1(z.udio_za[korak])}`;
+    $("#zapis-potpis").textContent = `${opis(z)} Na kraju (sedmica 500) udio „za“ ${pct1(z.udio_za[n])}.`;
+  }
+  function stani() { if (svira) { clearInterval(svira); svira = null; } $("#zapis-play").textContent = "▶"; $("#zapis-play").setAttribute("aria-pressed", "false"); }
+  $("#zapis-play").addEventListener("click", () => {
+    if (svira) return stani();
+    const n = Z[zapis].ticks.length - 1; if (korak >= n) korak = 0;
+    $("#zapis-play").textContent = "❚❚"; $("#zapis-play").setAttribute("aria-pressed", "true");
+    svira = setInterval(() => { korak++; postaviZapis(); if (korak >= Z[zapis].ticks.length - 1) stani(); }, smanjeno ? 300 : 70);
+  });
+  kl.addEventListener("input", () => { stani(); korak = +kl.value; postaviZapis(); });
+  $("#zapis-veze").addEventListener("change", postaviZapis);
+  for (const b of $$("[data-zapis]")) b.addEventListener("click", () => {
+    stani(); $$("[data-zapis]").forEach(x => x.setAttribute("aria-pressed", x === b)); zapis = b.dataset.zapis; postaviZapis();
+  });
+
+  // ---------------- grafikoni ----------------
+  const SVG = "http://www.w3.org/2000/svg";
+  const el = (ime, atr = {}, tekst) => { const e = document.createElementNS(SVG, ime); for (const [k, v] of Object.entries(atr)) e.setAttribute(k, v); if (tekst !== undefined) e.textContent = tekst; return e; };
+  function grafikRaspona(cilj, naslov, kategorije, podaci, xNaslov, ref) {
+    const W = 460, H = 240, L = 46, R = 12, T = 14, B = 44;
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": naslov, class: "grafik" });
+    const n = kategorije.length, sir = (W - L - R) / n, x = i => L + sir * (i + 0.5), y = v => T + (H - T - B) * (1 - v);
+    for (const v of [0, 0.25, 0.5, 0.75, 1]) {
+      svg.append(el("line", { x1: L, x2: W - R, y1: y(v), y2: y(v), class: "g-mreza" }));
+      svg.append(el("text", { x: L - 6, y: y(v) + 4, "text-anchor": "end", class: "g-oznaka" }, pct(v)));
+    }
+    svg.append(el("line", { x1: L, x2: W - R, y1: y(ref), y2: y(ref), class: "g-ref" }));
+    svg.append(el("text", { x: W - R, y: y(ref) - 5, "text-anchor": "end", class: "g-ref-tekst" }, "na početku"));
+    podaci.forEach((d, i) => {
+      svg.append(el("line", { x1: x(i), x2: x(i), y1: y(d.min), y2: y(d.max), class: "g-raspon" }));
+      svg.append(el("circle", { cx: x(i), cy: y(d.med), r: 5, class: "g-tacka" }));
+      svg.append(el("text", { x: x(i) + 8, y: y(d.med) + 4, class: "g-vrijednost" }, pct(d.med)));
+      svg.append(el("text", { x: x(i), y: H - B + 18, "text-anchor": "middle", class: "g-oznaka" }, kategorije[i].replace(".", ",")));
+    });
+    svg.append(el("text", { x: L + (W - L - R) / 2, y: H - 6, "text-anchor": "middle", class: "g-naslov-x" }, xNaslov));
+    svg.append(el("line", { x1: L, x2: W - R, y1: y(0), y2: y(0), class: "g-os" }));
+    cilj.append(svg);
+  }
+  function grafikToka(cilj) {
+    const W = 460, H = 220, L = 46, R = 70, T = 12, B = 34;
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Udio za kroz vrijeme u dva pokretanja", class: "grafik" });
+    const x = t => L + (W - L - R) * t / 500, y = v => T + (H - T - B) * (1 - v);
+    for (const v of [0, 0.5, 1]) {
+      svg.append(el("line", { x1: L, x2: W - R, y1: y(v), y2: y(v), class: "g-mreza" }));
+      svg.append(el("text", { x: L - 6, y: y(v) + 4, "text-anchor": "end", class: "g-oznaka" }, pct(v)));
+    }
+    for (const t of [0, 100, 200, 300, 400, 500]) svg.append(el("text", { x: x(t), y: H - B + 16, "text-anchor": "middle", class: "g-oznaka" }, String(t)));
+    svg.append(el("text", { x: L + (W - L - R) / 2, y: H - 4, "text-anchor": "middle", class: "g-naslov-x" }, "sedmica"));
+    [["d0", "var(--siva)", "bez dalekih"], ["d02", "var(--narandza)", "20% dalekih"]].forEach(([k, boja, ime]) => {
+      const z = Z[k];
+      svg.append(el("polyline", { points: z.ticks.map((t, i) => `${x(t)},${y(z.udio_za[i])}`).join(" "), fill: "none", stroke: boja, "stroke-width": 2.5 }));
+      const n = z.ticks.length - 1;
+      svg.append(el("text", { x: x(500) + 6, y: y(z.udio_za[n]) + 4, class: "g-vrijednost", style: `fill:${boja}` }, pct(z.udio_za[n])));
+    });
+    cilj.append(svg);
+  }
+  const M = window.MJERENJA, DV = ["0", "0.05", "0.2", "1"];
+  grafikRaspona($("#g-daleke"), "Udio za na ticku 500 prema udjelu dalekih veza", DV, DV.map(k => M.b3_udio_za_500["udio-dalekih-veza=" + k]),
+    "udio dalekih veza", M.b3_udio_za_0["udio-dalekih-veza=0"].med);
+  grafikToka($("#g-tok"));
+  const u = k => M.b3_udio_za_500["udio-dalekih-veza=" + k];
+  $("#b3-tekst").textContent = `Na ticku 500 medijan udjela „za“ je ${pct(u("0").med)} bez dalekih veza (raspon ${pct(u("0").min)}–${pct(u("0").max)}), ` +
+    `${pct(u("0.05").med)} uz 5% dalekih veza, ${pct(u("0.2").med)} uz 20%, a ${pct(u("1").med)} kad su sve veze daleke ` +
+    `(${pct(u("1").min)}–${pct(u("1").max)}). Na početku je oko ${pct(M.b3_udio_za_0["udio-dalekih-veza=0"].med)}.`;
+
+  // ---------------- mala mreža u krugu (ilustracija) ----------------
+  function rng(seed) { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+  const NK = 30; let sjeme = 7, izvor = 0, rubovi = [];
+  function napraviKrug() {
+    const r = rng(sjeme), p = +$("#k-daleke").value, susjedi = Array.from({ length: NK }, () => new Set());
+    const veze = [];
+    for (let i = 0; i < NK; i++) for (const d of [1, 2]) { const j = (i + d) % NK; veze.push([i, j, false]); susjedi[i].add(j); susjedi[j].add(i); }
+    for (const v of veze) if (r() < p) {                     // prespajanje: kraj i ostaje, drugi kraj ide bilo gdje
+      const [a, b] = v, kandidati = [...Array(NK).keys()].filter(c => c !== a && !susjedi[a].has(c));
+      if (!kandidati.length) continue;
+      const c = kandidati[Math.floor(r() * kandidati.length)];
+      susjedi[a].delete(b); susjedi[b].delete(a); susjedi[a].add(c); susjedi[c].add(a); v[1] = c; v[2] = true;
+    }
+    rubovi = veze; return susjedi;
+  }
+  function bfs(susjedi, s) { const d = new Array(NK).fill(Infinity); d[s] = 0; const q = [s];
+    while (q.length) { const x = q.shift(); for (const y of susjedi[x]) if (d[y] === Infinity) { d[y] = d[x] + 1; q.push(y); } } return d; }
+  function crtajKrug() {
+    const susjedi = napraviKrug(), svg = $("#krug"); svg.replaceChildren();
+    const P = i => [200 + 165 * Math.cos(2 * Math.PI * i / NK - Math.PI / 2), 200 + 165 * Math.sin(2 * Math.PI * i / NK - Math.PI / 2)];
+    for (const [a, b, daleka] of rubovi) { const [x1, y1] = P(a), [x2, y2] = P(b); svg.append(el("line", { x1, y1, x2, y2, class: daleka ? "daleka" : "" })); }
+    const d = bfs(susjedi, izvor), maks = Math.max(...d.filter(Number.isFinite));
+    const skala = ["#b9531a", "#d06a2a", "#e08a45", "#e9a66a", "#efc08f", "#f3d6b4", "#d9dde2", "#c4cad0", "#aeb6be", "#98a2ac", "#838e99", "#6f7b87", "#5b6875", "#495663", "#384551", "#29343f"];
+    for (let i = 0; i < NK; i++) {
+      const [x, y] = P(i), di = d[i];
+      const c = el("circle", { cx: x, cy: y, r: i === izvor ? 15 : 12, fill: Number.isFinite(di) ? skala[Math.min(di, skala.length - 1)] : "#000" });
+      c.addEventListener("click", () => { izvor = i; crtajKrug(); });
+      svg.append(c); svg.append(el("text", { x, y: y + 3.5, "text-anchor": "middle" }, Number.isFinite(di) ? String(di) : "–"));
+    }
+    let zbir = 0, parova = 0, najvise = 0;
+    for (let s = 0; s < NK; s++) { const ds = bfs(susjedi, s); for (let t = 0; t < NK; t++) if (t !== s && Number.isFinite(ds[t])) { zbir += ds[t]; parova++; najvise = Math.max(najvise, ds[t]); } }
+    const daleke = rubovi.filter(v => v[2]).length;
+    $("#krug-racun").textContent = `veza: ${rubovi.length}, od toga dalekih: ${daleke}\n` +
+      `od izabranog čovjeka (${izvor + 1}): do najdaljeg ${maks} koraka\n` +
+      `prosječan put između dvoje ljudi: ${zarez(zbir / parova, 2)} koraka\n` +
+      `najduži put u mreži: ${najvise} koraka`;
+    $(`output[for="k-daleke"]`).textContent = zarez(+$("#k-daleke").value, 2);
+  }
+  $("#k-daleke").addEventListener("input", crtajKrug);
+  $("#krug-nova").addEventListener("click", () => { sjeme++; crtajKrug(); });
+  crtajKrug();
+
+  function crtajVidljivo() {
+    if (cNaslov.offsetParent !== null) crtajNaslov();
+    if (cZapis.offsetParent !== null) postaviZapis();
+  }
+  addEventListener("resize", () => crtajVidljivo());
+
+  // ---------------- početak ----------------
+  let pocetni = 0;
+  const h = location.hash.replace("#", ""); const k = slajdovi.findIndex(s => s.id === h); if (k >= 0) pocetni = k;
+  let sacuvano = null; try { sacuvano = localStorage.getItem("blok3-nacin"); } catch (e) {}
+  if (sacuvano === "citanje") nacin(true);
+  prikazi(pocetni, true);
+  if (main.classList.contains("prezentacija")) setTimeout(() => window.scrollTo(0, 0), 0);
+  addEventListener("hashchange", () => {
+    const i = slajdovi.findIndex(s => s.id === location.hash.replace("#", ""));
+    if (i >= 0 && i !== tren) { prikazi(i, true); if (main.classList.contains("citanje")) slajdovi[i].scrollIntoView(); }
+  });
+})();
+</script>

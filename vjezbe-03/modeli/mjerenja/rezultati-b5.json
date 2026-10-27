@@ -1,0 +1,2114 @@
+{
+ "b5_prosjecno-povjerenje_150": {
+  "razgovor?=false | udio-losih-iskustava=0": {
+   "n": 20,
+   "sred": 0.6501,
+   "med": 0.6506,
+   "min": 0.6238,
+   "max": 0.6778
+  },
+  "razgovor?=false | udio-losih-iskustava=0.1": {
+   "n": 20,
+   "sred": 0.6211,
+   "med": 0.6231,
+   "min": 0.5973,
+   "max": 0.6431
+  },
+  "razgovor?=false | udio-losih-iskustava=0.2": {
+   "n": 20,
+   "sred": 0.5851,
+   "med": 0.5873,
+   "min": 0.5583,
+   "max": 0.604
+  },
+  "razgovor?=false | udio-losih-iskustava=0.3": {
+   "n": 20,
+   "sred": 0.5683,
+   "med": 0.57,
+   "min": 0.5391,
+   "max": 0.5984
+  },
+  "razgovor?=false | udio-losih-iskustava=0.4": {
+   "n": 20,
+   "sred": 0.5284,
+   "med": 0.5288,
+   "min": 0.5016,
+   "max": 0.5508
+  },
+  "razgovor?=false | udio-losih-iskustava=0.5": {
+   "n": 20,
+   "sred": 0.5001,
+   "med": 0.5002,
+   "min": 0.4736,
+   "max": 0.5233
+  },
+  "razgovor?=false | udio-losih-iskustava=0.6": {
+   "n": 20,
+   "sred": 0.4675,
+   "med": 0.4646,
+   "min": 0.4483,
+   "max": 0.502
+  },
+  "razgovor?=false | udio-losih-iskustava=0.7": {
+   "n": 20,
+   "sred": 0.4434,
+   "med": 0.4447,
+   "min": 0.4213,
+   "max": 0.4554
+  },
+  "razgovor?=false | udio-losih-iskustava=0.8": {
+   "n": 20,
+   "sred": 0.4049,
+   "med": 0.4044,
+   "min": 0.3875,
+   "max": 0.4186
+  },
+  "razgovor?=false | udio-losih-iskustava=0.9": {
+   "n": 20,
+   "sred": 0.3803,
+   "med": 0.3806,
+   "min": 0.3563,
+   "max": 0.4043
+  },
+  "razgovor?=false | udio-losih-iskustava=1": {
+   "n": 20,
+   "sred": 0.3437,
+   "med": 0.3449,
+   "min": 0.3169,
+   "max": 0.3638
+  },
+  "razgovor?=true | udio-losih-iskustava=0": {
+   "n": 20,
+   "sred": 0.6022,
+   "med": 0.6033,
+   "min": 0.5826,
+   "max": 0.6159
+  },
+  "razgovor?=true | udio-losih-iskustava=0.1": {
+   "n": 20,
+   "sred": 0.5813,
+   "med": 0.5816,
+   "min": 0.5526,
+   "max": 0.6054
+  },
+  "razgovor?=true | udio-losih-iskustava=0.2": {
+   "n": 20,
+   "sred": 0.557,
+   "med": 0.5586,
+   "min": 0.5387,
+   "max": 0.5711
+  },
+  "razgovor?=true | udio-losih-iskustava=0.3": {
+   "n": 20,
+   "sred": 0.5414,
+   "med": 0.5412,
+   "min": 0.5323,
+   "max": 0.5517
+  },
+  "razgovor?=true | udio-losih-iskustava=0.4": {
+   "n": 20,
+   "sred": 0.5194,
+   "med": 0.5211,
+   "min": 0.5011,
+   "max": 0.5416
+  },
+  "razgovor?=true | udio-losih-iskustava=0.5": {
+   "n": 20,
+   "sred": 0.4997,
+   "med": 0.4975,
+   "min": 0.486,
+   "max": 0.5124
+  },
+  "razgovor?=true | udio-losih-iskustava=0.6": {
+   "n": 20,
+   "sred": 0.4778,
+   "med": 0.4766,
+   "min": 0.469,
+   "max": 0.4951
+  },
+  "razgovor?=true | udio-losih-iskustava=0.7": {
+   "n": 20,
+   "sred": 0.4589,
+   "med": 0.4583,
+   "min": 0.4431,
+   "max": 0.4702
+  },
+  "razgovor?=true | udio-losih-iskustava=0.8": {
+   "n": 20,
+   "sred": 0.4386,
+   "med": 0.4398,
+   "min": 0.4177,
+   "max": 0.4535
+  },
+  "razgovor?=true | udio-losih-iskustava=0.9": {
+   "n": 20,
+   "sred": 0.418,
+   "med": 0.4173,
+   "min": 0.4017,
+   "max": 0.4321
+  },
+  "razgovor?=true | udio-losih-iskustava=1": {
+   "n": 20,
+   "sred": 0.3989,
+   "med": 0.4006,
+   "min": 0.3863,
+   "max": 0.4167
+  }
+ },
+ "b5_udio-povjerljivih_150": {
+  "razgovor?=false | udio-losih-iskustava=0": {
+   "n": 20,
+   "sred": 0.4733,
+   "med": 0.47,
+   "min": 0.405,
+   "max": 0.585
+  },
+  "razgovor?=false | udio-losih-iskustava=0.1": {
+   "n": 20,
+   "sred": 0.412,
+   "med": 0.41,
+   "min": 0.345,
+   "max": 0.47
+  },
+  "razgovor?=false | udio-losih-iskustava=0.2": {
+   "n": 20,
+   "sred": 0.332,
+   "med": 0.34,
+   "min": 0.235,
+   "max": 0.395
+  },
+  "razgovor?=false | udio-losih-iskustava=0.3": {
+   "n": 20,
+   "sred": 0.3008,
+   "med": 0.305,
+   "min": 0.225,
+   "max": 0.37
+  },
+  "razgovor?=false | udio-losih-iskustava=0.4": {
+   "n": 20,
+   "sred": 0.2142,
+   "med": 0.21,
+   "min": 0.145,
+   "max": 0.265
+  },
+  "razgovor?=false | udio-losih-iskustava=0.5": {
+   "n": 20,
+   "sred": 0.1725,
+   "med": 0.175,
+   "min": 0.11,
+   "max": 0.23
+  },
+  "razgovor?=false | udio-losih-iskustava=0.6": {
+   "n": 20,
+   "sred": 0.1295,
+   "med": 0.125,
+   "min": 0.08,
+   "max": 0.185
+  },
+  "razgovor?=false | udio-losih-iskustava=0.7": {
+   "n": 20,
+   "sred": 0.0823,
+   "med": 0.0825,
+   "min": 0.055,
+   "max": 0.105
+  },
+  "razgovor?=false | udio-losih-iskustava=0.8": {
+   "n": 20,
+   "sred": 0.0403,
+   "med": 0.04,
+   "min": 0.02,
+   "max": 0.075
+  },
+  "razgovor?=false | udio-losih-iskustava=0.9": {
+   "n": 20,
+   "sred": 0.0187,
+   "med": 0.02,
+   "min": 0.005,
+   "max": 0.035
+  },
+  "razgovor?=false | udio-losih-iskustava=1": {
+   "n": 20,
+   "sred": 0.0,
+   "med": 0.0,
+   "min": 0.0,
+   "max": 0.0
+  },
+  "razgovor?=true | udio-losih-iskustava=0": {
+   "n": 20,
+   "sred": 0.4323,
+   "med": 0.4575,
+   "min": 0.27,
+   "max": 0.545
+  },
+  "razgovor?=true | udio-losih-iskustava=0.1": {
+   "n": 20,
+   "sred": 0.27,
+   "med": 0.2625,
+   "min": 0.12,
+   "max": 0.455
+  },
+  "razgovor?=true | udio-losih-iskustava=0.2": {
+   "n": 20,
+   "sred": 0.129,
+   "med": 0.125,
+   "min": 0.03,
+   "max": 0.28
+  },
+  "razgovor?=true | udio-losih-iskustava=0.3": {
+   "n": 20,
+   "sred": 0.064,
+   "med": 0.0625,
+   "min": 0.03,
+   "max": 0.11
+  },
+  "razgovor?=true | udio-losih-iskustava=0.4": {
+   "n": 20,
+   "sred": 0.031,
+   "med": 0.0275,
+   "min": 0.01,
+   "max": 0.08
+  },
+  "razgovor?=true | udio-losih-iskustava=0.5": {
+   "n": 20,
+   "sred": 0.0205,
+   "med": 0.02,
+   "min": 0.0,
+   "max": 0.045
+  },
+  "razgovor?=true | udio-losih-iskustava=0.6": {
+   "n": 20,
+   "sred": 0.0073,
+   "med": 0.005,
+   "min": 0.0,
+   "max": 0.035
+  },
+  "razgovor?=true | udio-losih-iskustava=0.7": {
+   "n": 20,
+   "sred": 0.0045,
+   "med": 0.0025,
+   "min": 0.0,
+   "max": 0.02
+  },
+  "razgovor?=true | udio-losih-iskustava=0.8": {
+   "n": 20,
+   "sred": 0.0027,
+   "med": 0.0025,
+   "min": 0.0,
+   "max": 0.01
+  },
+  "razgovor?=true | udio-losih-iskustava=0.9": {
+   "n": 20,
+   "sred": 0.0013,
+   "med": 0.0,
+   "min": 0.0,
+   "max": 0.01
+  },
+  "razgovor?=true | udio-losih-iskustava=1": {
+   "n": 20,
+   "sred": 0.0,
+   "med": 0.0,
+   "min": 0.0,
+   "max": 0.0
+  }
+ },
+ "b5_udio-posjetilaca_150": {
+  "razgovor?=false | udio-losih-iskustava=0": {
+   "n": 20,
+   "sred": 0.5753,
+   "med": 0.575,
+   "min": 0.485,
+   "max": 0.685
+  },
+  "razgovor?=false | udio-losih-iskustava=0.1": {
+   "n": 20,
+   "sred": 0.5667,
+   "med": 0.565,
+   "min": 0.48,
+   "max": 0.635
+  },
+  "razgovor?=false | udio-losih-iskustava=0.2": {
+   "n": 20,
+   "sred": 0.5487,
+   "med": 0.5525,
+   "min": 0.49,
+   "max": 0.615
+  },
+  "razgovor?=false | udio-losih-iskustava=0.3": {
+   "n": 20,
+   "sred": 0.579,
+   "med": 0.58,
+   "min": 0.525,
+   "max": 0.66
+  },
+  "razgovor?=false | udio-losih-iskustava=0.4": {
+   "n": 20,
+   "sred": 0.5615,
+   "med": 0.56,
+   "min": 0.45,
+   "max": 0.655
+  },
+  "razgovor?=false | udio-losih-iskustava=0.5": {
+   "n": 20,
+   "sred": 0.594,
+   "med": 0.585,
+   "min": 0.51,
+   "max": 0.675
+  },
+  "razgovor?=false | udio-losih-iskustava=0.6": {
+   "n": 20,
+   "sred": 0.5933,
+   "med": 0.6025,
+   "min": 0.525,
+   "max": 0.68
+  },
+  "razgovor?=false | udio-losih-iskustava=0.7": {
+   "n": 20,
+   "sred": 0.5767,
+   "med": 0.5725,
+   "min": 0.49,
+   "max": 0.66
+  },
+  "razgovor?=false | udio-losih-iskustava=0.8": {
+   "n": 20,
+   "sred": 0.5795,
+   "med": 0.5725,
+   "min": 0.515,
+   "max": 0.645
+  },
+  "razgovor?=false | udio-losih-iskustava=0.9": {
+   "n": 20,
+   "sred": 0.5705,
+   "med": 0.5725,
+   "min": 0.505,
+   "max": 0.65
+  },
+  "razgovor?=false | udio-losih-iskustava=1": {
+   "n": 20,
+   "sred": 0.5735,
+   "med": 0.575,
+   "min": 0.515,
+   "max": 0.66
+  },
+  "razgovor?=true | udio-losih-iskustava=0": {
+   "n": 20,
+   "sred": 0.5697,
+   "med": 0.5625,
+   "min": 0.485,
+   "max": 0.64
+  },
+  "razgovor?=true | udio-losih-iskustava=0.1": {
+   "n": 20,
+   "sred": 0.5713,
+   "med": 0.5725,
+   "min": 0.5,
+   "max": 0.685
+  },
+  "razgovor?=true | udio-losih-iskustava=0.2": {
+   "n": 20,
+   "sred": 0.5745,
+   "med": 0.595,
+   "min": 0.495,
+   "max": 0.645
+  },
+  "razgovor?=true | udio-losih-iskustava=0.3": {
+   "n": 20,
+   "sred": 0.592,
+   "med": 0.5875,
+   "min": 0.545,
+   "max": 0.645
+  },
+  "razgovor?=true | udio-losih-iskustava=0.4": {
+   "n": 20,
+   "sred": 0.5948,
+   "med": 0.585,
+   "min": 0.485,
+   "max": 0.715
+  },
+  "razgovor?=true | udio-losih-iskustava=0.5": {
+   "n": 20,
+   "sred": 0.5793,
+   "med": 0.58,
+   "min": 0.5,
+   "max": 0.655
+  },
+  "razgovor?=true | udio-losih-iskustava=0.6": {
+   "n": 20,
+   "sred": 0.6,
+   "med": 0.6075,
+   "min": 0.515,
+   "max": 0.66
+  },
+  "razgovor?=true | udio-losih-iskustava=0.7": {
+   "n": 20,
+   "sred": 0.5647,
+   "med": 0.56,
+   "min": 0.445,
+   "max": 0.69
+  },
+  "razgovor?=true | udio-losih-iskustava=0.8": {
+   "n": 20,
+   "sred": 0.581,
+   "med": 0.5725,
+   "min": 0.515,
+   "max": 0.66
+  },
+  "razgovor?=true | udio-losih-iskustava=0.9": {
+   "n": 20,
+   "sred": 0.5743,
+   "med": 0.5775,
+   "min": 0.5,
+   "max": 0.665
+  },
+  "razgovor?=true | udio-losih-iskustava=1": {
+   "n": 20,
+   "sred": 0.5757,
+   "med": 0.5825,
+   "min": 0.47,
+   "max": 0.675
+  }
+ },
+ "b5_povjerenje-posjetilaca_150": {
+  "razgovor?=false | udio-losih-iskustava=0": {
+   "n": 20,
+   "sred": 0.7611,
+   "med": 0.7625,
+   "min": 0.7287,
+   "max": 0.7807
+  },
+  "razgovor?=false | udio-losih-iskustava=0.1": {
+   "n": 20,
+   "sred": 0.7136,
+   "med": 0.7132,
+   "min": 0.6838,
+   "max": 0.7425
+  },
+  "razgovor?=false | udio-losih-iskustava=0.2": {
+   "n": 20,
+   "sred": 0.6548,
+   "med": 0.6586,
+   "min": 0.6087,
+   "max": 0.6824
+  },
+  "razgovor?=false | udio-losih-iskustava=0.3": {
+   "n": 20,
+   "sred": 0.6171,
+   "med": 0.6225,
+   "min": 0.5717,
+   "max": 0.6491
+  },
+  "razgovor?=false | udio-losih-iskustava=0.4": {
+   "n": 20,
+   "sred": 0.5504,
+   "med": 0.5503,
+   "min": 0.5029,
+   "max": 0.5907
+  },
+  "razgovor?=false | udio-losih-iskustava=0.5": {
+   "n": 20,
+   "sred": 0.5005,
+   "med": 0.5004,
+   "min": 0.4532,
+   "max": 0.5452
+  },
+  "razgovor?=false | udio-losih-iskustava=0.6": {
+   "n": 20,
+   "sred": 0.4446,
+   "med": 0.4412,
+   "min": 0.4015,
+   "max": 0.5033
+  },
+  "razgovor?=false | udio-losih-iskustava=0.7": {
+   "n": 20,
+   "sred": 0.402,
+   "med": 0.404,
+   "min": 0.3808,
+   "max": 0.4173
+  },
+  "razgovor?=false | udio-losih-iskustava=0.8": {
+   "n": 20,
+   "sred": 0.3356,
+   "med": 0.3362,
+   "min": 0.2992,
+   "max": 0.357
+  },
+  "razgovor?=false | udio-losih-iskustava=0.9": {
+   "n": 20,
+   "sred": 0.2901,
+   "med": 0.2929,
+   "min": 0.2684,
+   "max": 0.3106
+  },
+  "razgovor?=false | udio-losih-iskustava=1": {
+   "n": 20,
+   "sred": 0.2272,
+   "med": 0.2233,
+   "min": 0.2002,
+   "max": 0.2502
+  },
+  "razgovor?=true | udio-losih-iskustava=0": {
+   "n": 20,
+   "sred": 0.6217,
+   "med": 0.6232,
+   "min": 0.5981,
+   "max": 0.6372
+  },
+  "razgovor?=true | udio-losih-iskustava=0.1": {
+   "n": 20,
+   "sred": 0.5971,
+   "med": 0.5972,
+   "min": 0.5676,
+   "max": 0.6205
+  },
+  "razgovor?=true | udio-losih-iskustava=0.2": {
+   "n": 20,
+   "sred": 0.5689,
+   "med": 0.5706,
+   "min": 0.55,
+   "max": 0.5866
+  },
+  "razgovor?=true | udio-losih-iskustava=0.3": {
+   "n": 20,
+   "sred": 0.5491,
+   "med": 0.5487,
+   "min": 0.5399,
+   "max": 0.5618
+  },
+  "razgovor?=true | udio-losih-iskustava=0.4": {
+   "n": 20,
+   "sred": 0.5227,
+   "med": 0.5235,
+   "min": 0.4988,
+   "max": 0.5494
+  },
+  "razgovor?=true | udio-losih-iskustava=0.5": {
+   "n": 20,
+   "sred": 0.4999,
+   "med": 0.4977,
+   "min": 0.4825,
+   "max": 0.5181
+  },
+  "razgovor?=true | udio-losih-iskustava=0.6": {
+   "n": 20,
+   "sred": 0.474,
+   "med": 0.4734,
+   "min": 0.4658,
+   "max": 0.4964
+  },
+  "razgovor?=true | udio-losih-iskustava=0.7": {
+   "n": 20,
+   "sred": 0.4503,
+   "med": 0.4517,
+   "min": 0.4245,
+   "max": 0.4631
+  },
+  "razgovor?=true | udio-losih-iskustava=0.8": {
+   "n": 20,
+   "sred": 0.4267,
+   "med": 0.4287,
+   "min": 0.4027,
+   "max": 0.4447
+  },
+  "razgovor?=true | udio-losih-iskustava=0.9": {
+   "n": 20,
+   "sred": 0.4015,
+   "med": 0.4017,
+   "min": 0.3833,
+   "max": 0.4181
+  },
+  "razgovor?=true | udio-losih-iskustava=1": {
+   "n": 20,
+   "sred": 0.3786,
+   "med": 0.3811,
+   "min": 0.3556,
+   "max": 0.3965
+  }
+ },
+ "b5_povjerenje-ostalih_150": {
+  "razgovor?=false | udio-losih-iskustava=0": {
+   "n": 20,
+   "sred": 0.5,
+   "med": 0.5,
+   "min": 0.5,
+   "max": 0.5
+  },
+  "razgovor?=false | udio-losih-iskustava=0.1": {
+   "n": 20,
+   "sred": 0.5,
+   "med": 0.5,
+   "min": 0.5,
+   "max": 0.5
+  },
+  "razgovor?=false | udio-losih-iskustava=0.2": {
+   "n": 20,
+   "sred": 0.5,
+   "med": 0.5,
+   "min": 0.5,
+   "max": 0.5
+  },
+  "razgovor?=false | udio-losih-iskustava=0.3": {
+   "n": 20,
+   "sred": 0.5,
+   "med": 0.5,
+   "min": 0.5,
+   "max": 0.5
+  },
+  "razgovor?=false | udio-losih-iskustava=0.4": {
+   "n": 20,
+   "sred": 0.5,
+   "med": 0.5,
+   "min": 0.5,
+   "max": 0.5
+  },
+  "razgovor?=false | udio-losih-iskustava=0.5": {
+   "n": 20,
+   "sred": 0.5,
+   "med": 0.5,
+   "min": 0.5,
+   "max": 0.5
+  },
+  "razgovor?=false | udio-losih-iskustava=0.6": {
+   "n": 20,
+   "sred": 0.5,
+   "med": 0.5,
+   "min": 0.5,
+   "max": 0.5
+  },
+  "razgovor?=false | udio-losih-iskustava=0.7": {
+   "n": 20,
+   "sred": 0.5,
+   "med": 0.5,
+   "min": 0.5,
+   "max": 0.5
+  },
+  "razgovor?=false | udio-losih-iskustava=0.8": {
+   "n": 20,
+   "sred": 0.5,
+   "med": 0.5,
+   "min": 0.5,
+   "max": 0.5
+  },
+  "razgovor?=false | udio-losih-iskustava=0.9": {
+   "n": 20,
+   "sred": 0.5,
+   "med": 0.5,
+   "min": 0.5,
+   "max": 0.5
+  },
+  "razgovor?=false | udio-losih-iskustava=1": {
+   "n": 20,
+   "sred": 0.5,
+   "med": 0.5,
+   "min": 0.5,
+   "max": 0.5
+  },
+  "razgovor?=true | udio-losih-iskustava=0": {
+   "n": 20,
+   "sred": 0.5768,
+   "med": 0.5796,
+   "min": 0.5562,
+   "max": 0.5941
+  },
+  "razgovor?=true | udio-losih-iskustava=0.1": {
+   "n": 20,
+   "sred": 0.5605,
+   "med": 0.5641,
+   "min": 0.5354,
+   "max": 0.5837
+  },
+  "razgovor?=true | udio-losih-iskustava=0.2": {
+   "n": 20,
+   "sred": 0.541,
+   "med": 0.5422,
+   "min": 0.5265,
+   "max": 0.5575
+  },
+  "razgovor?=true | udio-losih-iskustava=0.3": {
+   "n": 20,
+   "sred": 0.5304,
+   "med": 0.5308,
+   "min": 0.5222,
+   "max": 0.5387
+  },
+  "razgovor?=true | udio-losih-iskustava=0.4": {
+   "n": 20,
+   "sred": 0.5146,
+   "med": 0.5143,
+   "min": 0.5021,
+   "max": 0.5283
+  },
+  "razgovor?=true | udio-losih-iskustava=0.5": {
+   "n": 20,
+   "sred": 0.4995,
+   "med": 0.4989,
+   "min": 0.4908,
+   "max": 0.5077
+  },
+  "razgovor?=true | udio-losih-iskustava=0.6": {
+   "n": 20,
+   "sred": 0.4833,
+   "med": 0.4836,
+   "min": 0.4733,
+   "max": 0.4929
+  },
+  "razgovor?=true | udio-losih-iskustava=0.7": {
+   "n": 20,
+   "sred": 0.47,
+   "med": 0.4705,
+   "min": 0.4638,
+   "max": 0.4778
+  },
+  "razgovor?=true | udio-losih-iskustava=0.8": {
+   "n": 20,
+   "sred": 0.4548,
+   "med": 0.4557,
+   "min": 0.4339,
+   "max": 0.4672
+  },
+  "razgovor?=true | udio-losih-iskustava=0.9": {
+   "n": 20,
+   "sred": 0.4403,
+   "med": 0.4397,
+   "min": 0.4257,
+   "max": 0.4502
+  },
+  "razgovor?=true | udio-losih-iskustava=1": {
+   "n": 20,
+   "sred": 0.4253,
+   "med": 0.4223,
+   "min": 0.4115,
+   "max": 0.443
+  }
+ },
+ "b5_prosjecno-povjerenje_50": {
+  "razgovor?=false | udio-losih-iskustava=0": {
+   "n": 20,
+   "sred": 0.5612,
+   "med": 0.5622,
+   "min": 0.5474,
+   "max": 0.5747
+  },
+  "razgovor?=false | udio-losih-iskustava=0.1": {
+   "n": 20,
+   "sred": 0.5498,
+   "med": 0.5514,
+   "min": 0.5346,
+   "max": 0.5671
+  },
+  "razgovor?=false | udio-losih-iskustava=0.2": {
+   "n": 20,
+   "sred": 0.5358,
+   "med": 0.538,
+   "min": 0.5188,
+   "max": 0.5497
+  },
+  "razgovor?=false | udio-losih-iskustava=0.3": {
+   "n": 20,
+   "sred": 0.5281,
+   "med": 0.5298,
+   "min": 0.5096,
+   "max": 0.5401
+  },
+  "razgovor?=false | udio-losih-iskustava=0.4": {
+   "n": 20,
+   "sred": 0.5131,
+   "med": 0.5129,
+   "min": 0.5048,
+   "max": 0.5252
+  },
+  "razgovor?=false | udio-losih-iskustava=0.5": {
+   "n": 20,
+   "sred": 0.4995,
+   "med": 0.4987,
+   "min": 0.4885,
+   "max": 0.5121
+  },
+  "razgovor?=false | udio-losih-iskustava=0.6": {
+   "n": 20,
+   "sred": 0.4869,
+   "med": 0.4859,
+   "min": 0.477,
+   "max": 0.5045
+  },
+  "razgovor?=false | udio-losih-iskustava=0.7": {
+   "n": 20,
+   "sred": 0.4748,
+   "med": 0.4738,
+   "min": 0.4625,
+   "max": 0.4889
+  },
+  "razgovor?=false | udio-losih-iskustava=0.8": {
+   "n": 20,
+   "sred": 0.459,
+   "med": 0.4601,
+   "min": 0.446,
+   "max": 0.4757
+  },
+  "razgovor?=false | udio-losih-iskustava=0.9": {
+   "n": 20,
+   "sred": 0.4502,
+   "med": 0.4512,
+   "min": 0.4391,
+   "max": 0.4631
+  },
+  "razgovor?=false | udio-losih-iskustava=1": {
+   "n": 20,
+   "sred": 0.4357,
+   "med": 0.4365,
+   "min": 0.4091,
+   "max": 0.4447
+  },
+  "razgovor?=true | udio-losih-iskustava=0": {
+   "n": 20,
+   "sred": 0.5467,
+   "med": 0.5461,
+   "min": 0.5284,
+   "max": 0.5628
+  },
+  "razgovor?=true | udio-losih-iskustava=0.1": {
+   "n": 20,
+   "sred": 0.5385,
+   "med": 0.5374,
+   "min": 0.5304,
+   "max": 0.548
+  },
+  "razgovor?=true | udio-losih-iskustava=0.2": {
+   "n": 20,
+   "sred": 0.5259,
+   "med": 0.5267,
+   "min": 0.5174,
+   "max": 0.5358
+  },
+  "razgovor?=true | udio-losih-iskustava=0.3": {
+   "n": 20,
+   "sred": 0.5175,
+   "med": 0.5176,
+   "min": 0.5106,
+   "max": 0.5265
+  },
+  "razgovor?=true | udio-losih-iskustava=0.4": {
+   "n": 20,
+   "sred": 0.5079,
+   "med": 0.5086,
+   "min": 0.4953,
+   "max": 0.5164
+  },
+  "razgovor?=true | udio-losih-iskustava=0.5": {
+   "n": 20,
+   "sred": 0.4997,
+   "med": 0.4991,
+   "min": 0.4862,
+   "max": 0.5117
+  },
+  "razgovor?=true | udio-losih-iskustava=0.6": {
+   "n": 20,
+   "sred": 0.4901,
+   "med": 0.4903,
+   "min": 0.4812,
+   "max": 0.498
+  },
+  "razgovor?=true | udio-losih-iskustava=0.7": {
+   "n": 20,
+   "sred": 0.4802,
+   "med": 0.4797,
+   "min": 0.4714,
+   "max": 0.4876
+  },
+  "razgovor?=true | udio-losih-iskustava=0.8": {
+   "n": 20,
+   "sred": 0.4718,
+   "med": 0.4721,
+   "min": 0.4636,
+   "max": 0.4813
+  },
+  "razgovor?=true | udio-losih-iskustava=0.9": {
+   "n": 20,
+   "sred": 0.4617,
+   "med": 0.462,
+   "min": 0.4478,
+   "max": 0.4699
+  },
+  "razgovor?=true | udio-losih-iskustava=1": {
+   "n": 20,
+   "sred": 0.4542,
+   "med": 0.4586,
+   "min": 0.4403,
+   "max": 0.4638
+  }
+ },
+ "b5_tok_07": {
+  "false|prosjecno-povjerenje": [
+   [
+    0,
+    0.5
+   ],
+   [
+    5,
+    0.4966
+   ],
+   [
+    10,
+    0.4936
+   ],
+   [
+    15,
+    0.4897
+   ],
+   [
+    20,
+    0.4878
+   ],
+   [
+    25,
+    0.4866
+   ],
+   [
+    30,
+    0.4837
+   ],
+   [
+    35,
+    0.4821
+   ],
+   [
+    40,
+    0.48
+   ],
+   [
+    45,
+    0.4773
+   ],
+   [
+    50,
+    0.4748
+   ],
+   [
+    55,
+    0.4728
+   ],
+   [
+    60,
+    0.4704
+   ],
+   [
+    65,
+    0.469
+   ],
+   [
+    70,
+    0.4671
+   ],
+   [
+    75,
+    0.4662
+   ],
+   [
+    80,
+    0.4643
+   ],
+   [
+    85,
+    0.4623
+   ],
+   [
+    90,
+    0.4599
+   ],
+   [
+    95,
+    0.4598
+   ],
+   [
+    100,
+    0.4585
+   ],
+   [
+    105,
+    0.457
+   ],
+   [
+    110,
+    0.4552
+   ],
+   [
+    115,
+    0.4546
+   ],
+   [
+    120,
+    0.4519
+   ],
+   [
+    125,
+    0.4496
+   ],
+   [
+    130,
+    0.4479
+   ],
+   [
+    135,
+    0.4469
+   ],
+   [
+    140,
+    0.4462
+   ],
+   [
+    145,
+    0.4446
+   ],
+   [
+    150,
+    0.4434
+   ]
+  ],
+  "false|povjerenje-ostalih": [
+   [
+    0,
+    0.5
+   ],
+   [
+    5,
+    0.5
+   ],
+   [
+    10,
+    0.5
+   ],
+   [
+    15,
+    0.5
+   ],
+   [
+    20,
+    0.5
+   ],
+   [
+    25,
+    0.5
+   ],
+   [
+    30,
+    0.5
+   ],
+   [
+    35,
+    0.5
+   ],
+   [
+    40,
+    0.5
+   ],
+   [
+    45,
+    0.5
+   ],
+   [
+    50,
+    0.5
+   ],
+   [
+    55,
+    0.5
+   ],
+   [
+    60,
+    0.5
+   ],
+   [
+    65,
+    0.5
+   ],
+   [
+    70,
+    0.5
+   ],
+   [
+    75,
+    0.5
+   ],
+   [
+    80,
+    0.5
+   ],
+   [
+    85,
+    0.5
+   ],
+   [
+    90,
+    0.5
+   ],
+   [
+    95,
+    0.5
+   ],
+   [
+    100,
+    0.5
+   ],
+   [
+    105,
+    0.5
+   ],
+   [
+    110,
+    0.5
+   ],
+   [
+    115,
+    0.5
+   ],
+   [
+    120,
+    0.5
+   ],
+   [
+    125,
+    0.5
+   ],
+   [
+    130,
+    0.5
+   ],
+   [
+    135,
+    0.5
+   ],
+   [
+    140,
+    0.5
+   ],
+   [
+    145,
+    0.5
+   ],
+   [
+    150,
+    0.5
+   ]
+  ],
+  "false|udio-posjetilaca": [
+   [
+    0,
+    0.0
+   ],
+   [
+    5,
+    0.0465
+   ],
+   [
+    10,
+    0.085
+   ],
+   [
+    15,
+    0.1168
+   ],
+   [
+    20,
+    0.1427
+   ],
+   [
+    25,
+    0.1707
+   ],
+   [
+    30,
+    0.1925
+   ],
+   [
+    35,
+    0.2147
+   ],
+   [
+    40,
+    0.2407
+   ],
+   [
+    45,
+    0.264
+   ],
+   [
+    50,
+    0.2858
+   ],
+   [
+    55,
+    0.3083
+   ],
+   [
+    60,
+    0.3297
+   ],
+   [
+    65,
+    0.346
+   ],
+   [
+    70,
+    0.362
+   ],
+   [
+    75,
+    0.3785
+   ],
+   [
+    80,
+    0.396
+   ],
+   [
+    85,
+    0.4118
+   ],
+   [
+    90,
+    0.4248
+   ],
+   [
+    95,
+    0.4382
+   ],
+   [
+    100,
+    0.4532
+   ],
+   [
+    105,
+    0.4695
+   ],
+   [
+    110,
+    0.4813
+   ],
+   [
+    115,
+    0.4958
+   ],
+   [
+    120,
+    0.508
+   ],
+   [
+    125,
+    0.5202
+   ],
+   [
+    130,
+    0.5335
+   ],
+   [
+    135,
+    0.544
+   ],
+   [
+    140,
+    0.555
+   ],
+   [
+    145,
+    0.5663
+   ],
+   [
+    150,
+    0.5767
+   ]
+  ],
+  "false|povjerenje-posjetilaca": [
+   [
+    5,
+    0.421
+   ],
+   [
+    10,
+    0.4239
+   ],
+   [
+    15,
+    0.4116
+   ],
+   [
+    20,
+    0.4149
+   ],
+   [
+    25,
+    0.4213
+   ],
+   [
+    30,
+    0.4156
+   ],
+   [
+    35,
+    0.417
+   ],
+   [
+    40,
+    0.4176
+   ],
+   [
+    45,
+    0.4148
+   ],
+   [
+    50,
+    0.4117
+   ],
+   [
+    55,
+    0.4115
+   ],
+   [
+    60,
+    0.4106
+   ],
+   [
+    65,
+    0.4109
+   ],
+   [
+    70,
+    0.4096
+   ],
+   [
+    75,
+    0.4111
+   ],
+   [
+    80,
+    0.41
+   ],
+   [
+    85,
+    0.4086
+   ],
+   [
+    90,
+    0.4057
+   ],
+   [
+    95,
+    0.4085
+   ],
+   [
+    100,
+    0.4088
+   ],
+   [
+    105,
+    0.4087
+   ],
+   [
+    110,
+    0.4071
+   ],
+   [
+    115,
+    0.4084
+   ],
+   [
+    120,
+    0.4055
+   ],
+   [
+    125,
+    0.4031
+   ],
+   [
+    130,
+    0.4026
+   ],
+   [
+    135,
+    0.4024
+   ],
+   [
+    140,
+    0.4032
+   ],
+   [
+    145,
+    0.4023
+   ],
+   [
+    150,
+    0.402
+   ]
+  ],
+  "true|prosjecno-povjerenje": [
+   [
+    0,
+    0.5
+   ],
+   [
+    5,
+    0.497
+   ],
+   [
+    10,
+    0.4956
+   ],
+   [
+    15,
+    0.4926
+   ],
+   [
+    20,
+    0.4911
+   ],
+   [
+    25,
+    0.4892
+   ],
+   [
+    30,
+    0.487
+   ],
+   [
+    35,
+    0.4847
+   ],
+   [
+    40,
+    0.4835
+   ],
+   [
+    45,
+    0.482
+   ],
+   [
+    50,
+    0.4802
+   ],
+   [
+    55,
+    0.48
+   ],
+   [
+    60,
+    0.4784
+   ],
+   [
+    65,
+    0.4776
+   ],
+   [
+    70,
+    0.4761
+   ],
+   [
+    75,
+    0.4754
+   ],
+   [
+    80,
+    0.4745
+   ],
+   [
+    85,
+    0.4733
+   ],
+   [
+    90,
+    0.4719
+   ],
+   [
+    95,
+    0.4708
+   ],
+   [
+    100,
+    0.4691
+   ],
+   [
+    105,
+    0.4686
+   ],
+   [
+    110,
+    0.4671
+   ],
+   [
+    115,
+    0.4669
+   ],
+   [
+    120,
+    0.4647
+   ],
+   [
+    125,
+    0.4634
+   ],
+   [
+    130,
+    0.462
+   ],
+   [
+    135,
+    0.4604
+   ],
+   [
+    140,
+    0.4594
+   ],
+   [
+    145,
+    0.4592
+   ],
+   [
+    150,
+    0.4589
+   ]
+  ],
+  "true|povjerenje-ostalih": [
+   [
+    0,
+    0.5
+   ],
+   [
+    5,
+    0.4995
+   ],
+   [
+    10,
+    0.4986
+   ],
+   [
+    15,
+    0.4972
+   ],
+   [
+    20,
+    0.4958
+   ],
+   [
+    25,
+    0.4944
+   ],
+   [
+    30,
+    0.4936
+   ],
+   [
+    35,
+    0.4923
+   ],
+   [
+    40,
+    0.4911
+   ],
+   [
+    45,
+    0.4902
+   ],
+   [
+    50,
+    0.4892
+   ],
+   [
+    55,
+    0.4884
+   ],
+   [
+    60,
+    0.4874
+   ],
+   [
+    65,
+    0.4863
+   ],
+   [
+    70,
+    0.4854
+   ],
+   [
+    75,
+    0.4844
+   ],
+   [
+    80,
+    0.4836
+   ],
+   [
+    85,
+    0.483
+   ],
+   [
+    90,
+    0.4821
+   ],
+   [
+    95,
+    0.4808
+   ],
+   [
+    100,
+    0.4795
+   ],
+   [
+    105,
+    0.4786
+   ],
+   [
+    110,
+    0.4777
+   ],
+   [
+    115,
+    0.477
+   ],
+   [
+    120,
+    0.4761
+   ],
+   [
+    125,
+    0.4747
+   ],
+   [
+    130,
+    0.4733
+   ],
+   [
+    135,
+    0.4723
+   ],
+   [
+    140,
+    0.4714
+   ],
+   [
+    145,
+    0.4706
+   ],
+   [
+    150,
+    0.47
+   ]
+  ],
+  "true|udio-posjetilaca": [
+   [
+    0,
+    0.0
+   ],
+   [
+    5,
+    0.0505
+   ],
+   [
+    10,
+    0.082
+   ],
+   [
+    15,
+    0.1172
+   ],
+   [
+    20,
+    0.143
+   ],
+   [
+    25,
+    0.1675
+   ],
+   [
+    30,
+    0.192
+   ],
+   [
+    35,
+    0.2157
+   ],
+   [
+    40,
+    0.2407
+   ],
+   [
+    45,
+    0.2627
+   ],
+   [
+    50,
+    0.2825
+   ],
+   [
+    55,
+    0.304
+   ],
+   [
+    60,
+    0.3212
+   ],
+   [
+    65,
+    0.3385
+   ],
+   [
+    70,
+    0.355
+   ],
+   [
+    75,
+    0.3737
+   ],
+   [
+    80,
+    0.387
+   ],
+   [
+    85,
+    0.4047
+   ],
+   [
+    90,
+    0.419
+   ],
+   [
+    95,
+    0.4313
+   ],
+   [
+    100,
+    0.446
+   ],
+   [
+    105,
+    0.4612
+   ],
+   [
+    110,
+    0.4768
+   ],
+   [
+    115,
+    0.4898
+   ],
+   [
+    120,
+    0.5032
+   ],
+   [
+    125,
+    0.5125
+   ],
+   [
+    130,
+    0.5238
+   ],
+   [
+    135,
+    0.5345
+   ],
+   [
+    140,
+    0.546
+   ],
+   [
+    145,
+    0.5537
+   ],
+   [
+    150,
+    0.5647
+   ]
+  ],
+  "true|povjerenje-posjetilaca": [
+   [
+    5,
+    0.446
+   ],
+   [
+    10,
+    0.46
+   ],
+   [
+    15,
+    0.4559
+   ],
+   [
+    20,
+    0.4627
+   ],
+   [
+    25,
+    0.4623
+   ],
+   [
+    30,
+    0.4585
+   ],
+   [
+    35,
+    0.4566
+   ],
+   [
+    40,
+    0.4592
+   ],
+   [
+    45,
+    0.459
+   ],
+   [
+    50,
+    0.4573
+   ],
+   [
+    55,
+    0.4608
+   ],
+   [
+    60,
+    0.4591
+   ],
+   [
+    65,
+    0.4603
+   ],
+   [
+    70,
+    0.4589
+   ],
+   [
+    75,
+    0.4598
+   ],
+   [
+    80,
+    0.4599
+   ],
+   [
+    85,
+    0.4587
+   ],
+   [
+    90,
+    0.4573
+   ],
+   [
+    95,
+    0.4571
+   ],
+   [
+    100,
+    0.4559
+   ],
+   [
+    105,
+    0.4567
+   ],
+   [
+    110,
+    0.4554
+   ],
+   [
+    115,
+    0.4564
+   ],
+   [
+    120,
+    0.4533
+   ],
+   [
+    125,
+    0.4525
+   ],
+   [
+    130,
+    0.4518
+   ],
+   [
+    135,
+    0.4499
+   ],
+   [
+    140,
+    0.4494
+   ],
+   [
+    145,
+    0.45
+   ],
+   [
+    150,
+    0.4503
+   ]
+  ]
+ },
+ "b5_ustanove_udio-posjetilaca": {
+  "razgovor?=false | broj-ustanova=10": {
+   "n": 20,
+   "sred": 0.3375,
+   "med": 0.34,
+   "min": 0.285,
+   "max": 0.39
+  },
+  "razgovor?=false | broj-ustanova=20": {
+   "n": 20,
+   "sred": 0.58,
+   "med": 0.5825,
+   "min": 0.495,
+   "max": 0.67
+  },
+  "razgovor?=false | broj-ustanova=40": {
+   "n": 20,
+   "sred": 0.813,
+   "med": 0.81,
+   "min": 0.74,
+   "max": 0.88
+  },
+  "razgovor?=false | broj-ustanova=5": {
+   "n": 20,
+   "sred": 0.183,
+   "med": 0.185,
+   "min": 0.105,
+   "max": 0.265
+  },
+  "razgovor?=true | broj-ustanova=10": {
+   "n": 20,
+   "sred": 0.3367,
+   "med": 0.34,
+   "min": 0.245,
+   "max": 0.38
+  },
+  "razgovor?=true | broj-ustanova=20": {
+   "n": 20,
+   "sred": 0.573,
+   "med": 0.5725,
+   "min": 0.49,
+   "max": 0.64
+  },
+  "razgovor?=true | broj-ustanova=40": {
+   "n": 20,
+   "sred": 0.8325,
+   "med": 0.835,
+   "min": 0.76,
+   "max": 0.905
+  },
+  "razgovor?=true | broj-ustanova=5": {
+   "n": 20,
+   "sred": 0.1923,
+   "med": 0.195,
+   "min": 0.15,
+   "max": 0.235
+  }
+ },
+ "b5_ustanove_prosjecno-povjerenje": {
+  "razgovor?=false | broj-ustanova=10": {
+   "n": 20,
+   "sred": 0.4698,
+   "med": 0.47,
+   "min": 0.4533,
+   "max": 0.4847
+  },
+  "razgovor?=false | broj-ustanova=20": {
+   "n": 20,
+   "sred": 0.44,
+   "med": 0.4384,
+   "min": 0.4292,
+   "max": 0.4595
+  },
+  "razgovor?=false | broj-ustanova=40": {
+   "n": 20,
+   "sred": 0.4029,
+   "med": 0.4038,
+   "min": 0.3766,
+   "max": 0.4275
+  },
+  "razgovor?=false | broj-ustanova=5": {
+   "n": 20,
+   "sred": 0.4844,
+   "med": 0.4844,
+   "min": 0.4728,
+   "max": 0.4956
+  },
+  "razgovor?=true | broj-ustanova=10": {
+   "n": 20,
+   "sred": 0.4779,
+   "med": 0.4783,
+   "min": 0.4716,
+   "max": 0.4846
+  },
+  "razgovor?=true | broj-ustanova=20": {
+   "n": 20,
+   "sred": 0.4571,
+   "med": 0.4564,
+   "min": 0.4425,
+   "max": 0.4744
+  },
+  "razgovor?=true | broj-ustanova=40": {
+   "n": 20,
+   "sred": 0.4257,
+   "med": 0.4253,
+   "min": 0.4084,
+   "max": 0.4436
+  },
+  "razgovor?=true | broj-ustanova=5": {
+   "n": 20,
+   "sred": 0.4883,
+   "med": 0.4866,
+   "min": 0.4835,
+   "max": 0.4956
+  }
+ },
+ "b5_ustanove_povjerenje-ostalih": {
+  "razgovor?=false | broj-ustanova=10": {
+   "n": 20,
+   "sred": 0.5,
+   "med": 0.5,
+   "min": 0.5,
+   "max": 0.5
+  },
+  "razgovor?=false | broj-ustanova=20": {
+   "n": 20,
+   "sred": 0.5,
+   "med": 0.5,
+   "min": 0.5,
+   "max": 0.5
+  },
+  "razgovor?=false | broj-ustanova=40": {
+   "n": 20,
+   "sred": 0.5,
+   "med": 0.5,
+   "min": 0.5,
+   "max": 0.5
+  },
+  "razgovor?=false | broj-ustanova=5": {
+   "n": 20,
+   "sred": 0.5,
+   "med": 0.5,
+   "min": 0.5,
+   "max": 0.5
+  },
+  "razgovor?=true | broj-ustanova=10": {
+   "n": 20,
+   "sred": 0.4835,
+   "med": 0.4835,
+   "min": 0.4754,
+   "max": 0.4918
+  },
+  "razgovor?=true | broj-ustanova=20": {
+   "n": 20,
+   "sred": 0.4689,
+   "med": 0.4688,
+   "min": 0.4577,
+   "max": 0.4829
+  },
+  "razgovor?=true | broj-ustanova=40": {
+   "n": 20,
+   "sred": 0.4429,
+   "med": 0.4456,
+   "min": 0.4242,
+   "max": 0.4499
+  },
+  "razgovor?=true | broj-ustanova=5": {
+   "n": 20,
+   "sred": 0.4911,
+   "med": 0.4905,
+   "min": 0.4875,
+   "max": 0.497
+  }
+ }
+}

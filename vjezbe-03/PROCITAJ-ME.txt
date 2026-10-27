@@ -1,0 +1,31 @@
+﻿Modeliranje i simulacije, vježbe 3 (24.10.2026.): interakcije
+==============================================================
+Verzija 3 (27.10.2026.):
+- prezentacija s vježbi i kao web stranica: prezentacije/v03-interakcije.html (krive u dijelu
+  „Rezultat“ su sada prosjek 20 pokretanja, umjesto 5);
+- ujednačen izraz „web preglednik“ u tekstu stranica.
+
+Verzija 2 (27.10.2026.), s ispravkama nakon časa:
+- primjer „Jedno susjedstvo, s brojevima“ u bloku 4 sada radi;
+- obrazac „Model na papiru“ na stranici v03-blokovi-interakcije.html ispravno je prikazan;
+- tekst stranica jezički je dotjeran;
+- raspored je jednostavniji: modeli s vježbi 2 su u mapi modeli/, uz modele vježbi 3.
+
+ZIP treba raspakovati prije otvaranja; linkovi između stranica rade samo kad su fajlovi u ovim mapama.
+
+- prezentacije/v03-interakcije.html: prezentacija s vježbi kao web stranica (strelice, „Čitanje“,
+  cijeli ekran tipkom F); v03-interakcije.pdf i .pptx su ista prezentacija u ranijem obliku.
+- v03-blokovi-interakcije.html: šest blokova interakcije sa simulacijama, mjerenjima, kodom u NetLogu
+  i C# i obrascem za model na papiru. Otvara se dvoklikom i radi bez interneta.
+- blokovi/: kratka prezentacija za svaki blok. Kroz slajdove se ide strelicama ili prevlačenjem;
+  „Čitanje“ prikazuje sve slajdove jedan ispod drugog.
+- netlogo-web/: isti modeli u NetLogo Webu, pravom NetLogu u web pregledniku, bez instalacije i bez
+  interneta. Fajl ima oko 5 MB, pa se otvara nekoliko sekundi.
+- modeli/: modeli za NetLogo 7.0.4 (.nlogox) s BehaviorSpace eksperimentima, uz model stava
+  (v02-model-stav.nlogox) i zadatak (v02-zadatak.nlogox) s vježbi 2. U modeli/mjerenja/ su sva mjerenja
+  iz materijala, a u modeli/izvor/ skripte kojima su napravljeni modeli, mjerenja i stranice.
+- materijali/netlogo-kroz-csharp/: C# projekat koji pokazuje kako NetLogo radi „ispod haube“. Treba
+  .NET SDK 8 ili noviji; upute su u README.md.
+
+Simulacije na stranicama su ilustracija: isti kod je prepisan u JavaScript. Brojke u tekstu i na
+grafikonima su iz NetLoga, 10–200 pokretanja po vrijednosti.

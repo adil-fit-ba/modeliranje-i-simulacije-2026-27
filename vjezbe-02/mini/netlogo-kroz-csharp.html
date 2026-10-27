@@ -1,0 +1,982 @@
+<!doctype html>
+<html lang="bs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NetLogo kroz C#</title>
+<meta name="description" content="Mini-prezentacija vježbi 2: sedam pojmova NetLoga prikazanih uz C# kod i provjerenih u NetLogu 7.0.4.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:wght@500;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Raspored: mini-prezentacija od 10 slajdova; jedan slajd na ekranu (strelice), ili svi jedan ispod
+   drugog (način „Čitanje“). Papir je svijetao, svijet i putanje su na tamnoj podlozi kao u NetLogu. */
+:root {
+  --papir: #eef1f4; --list: #ffffff; --tinta: #17212b; --siva: #56636f; --linija: #d3dae1;
+  --narandza: #b9531a; --narandza-meko: #f6dfd0; --margina: #e5a3a3; --svijet: #0b0d10;
+  --za: #345da9; --protiv: #d73229; --neodlucni: #8d8d8d;
+  --f-naslov: "Bitter", "Georgia", "Cambria", serif;
+  --f-tekst: "IBM Plex Sans", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "IBM Plex Mono", "Cascadia Mono", Consolas, "Courier New", monospace;
+  --t-0: 0.83rem; --t-1: 1rem; --t-2: 1.17rem; --t-3: 1.5rem; --t-4: 2.2rem; --t-5: 3.1rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --papir: #10161c; --list: #18212a; --tinta: #e3e9ee; --siva: #9ba8b4; --linija: #2a3540;
+    --narandza: #f0894a; --narandza-meko: #3a2416; --margina: #6b3535; --za: #5b86d6; --protiv: #e5574e; --neodlucni: #9a9a9a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --papir: #10161c; --list: #18212a; --tinta: #e3e9ee; --siva: #9ba8b4; --linija: #2a3540;
+  --narandza: #f0894a; --narandza-meko: #3a2416; --margina: #6b3535; --za: #5b86d6; --protiv: #e5574e; --neodlucni: #9a9a9a;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { font-size: 18px; }
+@media (max-width: 600px) { html { font-size: 16px; } }
+body { margin: 0; background: var(--papir); color: var(--tinta); font-family: var(--f-tekst); line-height: 1.55; }
+[hidden] { display: none !important; }
+a { color: var(--narandza); text-underline-offset: 0.15em; }
+:focus-visible { outline: 3px solid var(--narandza); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--f-naslov); text-wrap: balance; line-height: 1.18; margin: 0; }
+p { margin: 0; }
+code { font-family: var(--f-mono); font-size: 0.9em; }
+p code, li code, td code { background: var(--narandza-meko); padding: 0.05em 0.3em; border-radius: 3px; }
+.okvir { max-width: 1200px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.oznaka { font-family: var(--f-mono); font-size: var(--t-0); letter-spacing: 0.08em; text-transform: uppercase; color: var(--narandza); font-weight: 500; }
+.siva { color: var(--siva); }
+.mala { font-size: var(--t-0); }
+
+/* traka na vrhu */
+.vrh { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--papir); border-bottom: 1px solid var(--linija); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--papir); }
+.vrh .okvir { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem 1rem; padding-block: 0.55rem; flex-wrap: wrap; }
+.vrh b { font-family: var(--f-naslov); font-weight: 700; }
+.nacin { display: flex; gap: 0.3rem; }
+button { font: 500 var(--t-0) var(--f-mono); border-radius: 4px; padding: 0.4rem 0.8rem; cursor: pointer;
+  border: 1px solid var(--narandza); background: transparent; color: var(--narandza); }
+button[aria-pressed="true"], button.glavno { background: var(--narandza); color: var(--list); }
+button:disabled { opacity: 0.45; cursor: default; }
+
+/* slajdovi */
+.slajd { padding-block: 2rem 6rem; scroll-margin-top: 3.4rem; }
+main.prezentacija .slajd { display: none; min-height: calc(100svh - 3.2rem); }
+main.prezentacija .slajd.aktivan { display: block; }
+main.citanje .slajd { border-bottom: 1px solid var(--linija); padding-block: 2.5rem; }
+.glava { display: grid; gap: 0.35rem; margin-bottom: 1.4rem; }
+.glava h2 { font-size: var(--t-4); max-width: 30ch; }
+.glava .podnaslov { font-size: var(--t-2); color: var(--siva); max-width: 52rem; }
+.dvije { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2rem; align-items: start; }
+.dvije > * { min-width: 0; }
+@media (max-width: 900px) { .dvije { grid-template-columns: minmax(0, 1fr); } }
+.tekst { display: grid; gap: 1rem; }
+.tekst ul { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.35rem; }
+.panel { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 1rem; }
+.pitanje { background: var(--narandza-meko); border-radius: 4px; padding: 0.9rem 1rem; }
+.pitanje h3 { font-size: var(--t-1); margin-bottom: 0.25rem; }
+
+/* naslovni slajd */
+.naslovni { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 2.4rem; align-items: center; padding-top: 1rem; }
+.naslovni > * { min-width: 0; }
+.naslovni h1 { font-size: var(--t-5); letter-spacing: -0.01em; margin: 0.4rem 0 0.9rem; }
+.naslovni .teza { font-size: var(--t-3); font-family: var(--f-naslov); line-height: 1.3; }
+.naslovni .uvod { margin-top: 1rem; color: var(--siva); }
+@media (max-width: 900px) { .naslovni { grid-template-columns: minmax(0, 1fr); } }
+
+/* list papira: pravilo za model na papiru */
+.papir {
+  margin: 0; background-color: var(--list); border: 1px solid var(--linija); border-radius: 4px;
+  padding: 1rem 1.2rem 1.2rem 2.4rem; position: relative; line-height: 1.75rem;
+  background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(1.75rem - 1px), var(--linija) calc(1.75rem - 1px), var(--linija) 1.75rem);
+  background-position: 0 2.55rem;
+}
+.papir::before { content: ""; position: absolute; left: 1.5rem; top: 0; bottom: 0; width: 2px; background: var(--margina); }
+.papir figcaption { font-family: var(--f-mono); font-size: var(--t-0); color: var(--siva); letter-spacing: 0.04em; text-transform: uppercase; line-height: 1.75rem; }
+.papir p, .papir li { font-family: var(--f-naslov); font-size: 1.08rem; }
+.papir ul { list-style: none; margin: 0; padding: 0 0 0 1.2rem; }
+.papir li::before { content: "→ "; color: var(--narandza); font-family: var(--f-tekst); }
+.papir b { color: var(--narandza); }
+
+/* kartice (pojava, sastavni dijelovi, koraci) */
+.kartice { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); }
+.kartica { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 1rem; display: grid; gap: 0.6rem; align-content: start; }
+.kartica h3 { font-size: var(--t-2); }
+.kartica svg { width: 100%; height: auto; display: block; }
+.kartica ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.25rem; }
+.kartica .kod-cip { font-family: var(--f-mono); font-size: 0.78rem; color: var(--siva); border-top: 1px dashed var(--linija); padding-top: 0.5rem; }
+.korak-broj { font-family: var(--f-mono); font-weight: 500; color: var(--narandza); }
+
+/* SVG ilustracije: boje iz tokena */
+.il-osa { stroke: var(--siva); stroke-width: 1.5; }
+.il-tekst { fill: var(--siva); font: 13px var(--f-mono); }
+.il-tekst-veci { fill: var(--tinta); font: 600 15px var(--f-tekst); }
+.il-za { fill: var(--za); } .il-protiv { fill: var(--protiv); } .il-neo { fill: var(--neodlucni); }
+.il-prozor { fill: var(--narandza-meko); stroke: var(--narandza); stroke-dasharray: 4 3; }
+.il-strelica { stroke: var(--narandza); stroke-width: 2.5; fill: none; }
+.il-vrh { fill: var(--narandza); }
+.il-domet { fill: none; stroke: var(--narandza); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.il-svijet { fill: var(--svijet); }
+.il-kuca { fill: #eded2f; }
+.il-precrtano { stroke: var(--protiv); stroke-width: 3; }
+.il-oblak { fill: var(--list); stroke: var(--siva); stroke-width: 1.2; }
+
+/* kalkulator jednog susreta */
+.kalk { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 1.5rem; }
+.kalk > * { min-width: 0; }
+@media (max-width: 900px) { .kalk { grid-template-columns: minmax(0, 1fr); } }
+.klizaci { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem 1.2rem; }
+@media (max-width: 520px) { .klizaci { grid-template-columns: minmax(0, 1fr); } }
+.klizac { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+.klizac label { font-family: var(--f-mono); font-size: var(--t-0); }
+.klizac output { font-family: var(--f-mono); font-size: var(--t-0); font-variant-numeric: tabular-nums; }
+.klizac input { grid-column: 1 / -1; width: 100%; accent-color: var(--narandza); }
+.racun { font-family: var(--f-mono); font-size: 0.86rem; line-height: 1.7; background: var(--papir); border-radius: 4px; padding: 0.7rem 0.9rem; overflow-x: auto; white-space: pre; }
+.racun .da { color: var(--za); font-weight: 600; } .racun .ne { color: var(--protiv); font-weight: 600; }
+.dugmad { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+
+/* putanje stava */
+.putanje-okvir { background: var(--svijet); border-radius: 6px; padding: 0.6rem; }
+canvas.putanje { width: 100%; aspect-ratio: 2 / 1; display: block; }
+.izbor { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.6rem; }
+.izbor button { border-color: var(--linija); color: var(--siva); }
+.izbor button[aria-pressed="true"] { border-color: var(--narandza); color: var(--list); background: var(--narandza); }
+.legenda { display: flex; gap: 1rem; flex-wrap: wrap; font-size: var(--t-0); color: var(--siva); margin-top: 0.4rem; }
+.legenda i { display: inline-block; width: 0.8em; height: 0.8em; border-radius: 50%; margin-right: 0.35em; vertical-align: -0.05em; }
+.potpis { font-size: var(--t-0); color: var(--siva); margin-top: 0.4rem; }
+.potpis b { color: var(--tinta); font-weight: 600; }
+
+/* grafikoni iz mjerenja */
+svg.grafik { width: 100%; height: auto; display: block; overflow: visible; }
+.g-mreza { stroke: var(--linija); stroke-width: 1; } .g-os { stroke: var(--siva); stroke-width: 1; }
+.g-oznaka { fill: var(--siva); font: 12px var(--f-mono); } .g-naslov-x { fill: var(--siva); font: 12px var(--f-tekst); }
+.g-vrijednost { fill: var(--tinta); font: 500 12px var(--f-mono); }
+.g-raspon { stroke: var(--narandza); stroke-width: 3; stroke-linecap: round; opacity: 0.35; }
+.g-tacka { fill: var(--narandza); }
+.g-ref { stroke: var(--siva); stroke-width: 1.2; stroke-dasharray: 4 4; }
+.g-ref-tekst { fill: var(--siva); font: italic 12px var(--f-tekst); }
+
+/* kod */
+.kodovi { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; }
+.kodovi > * { min-width: 0; }
+@media (max-width: 900px) { .kodovi { grid-template-columns: minmax(0, 1fr); } }
+.kod { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; overflow: hidden; }
+.kod .jezik { font-family: var(--f-mono); font-size: var(--t-0); padding: 0.4rem 0.8rem; border-bottom: 1px solid var(--linija); color: var(--siva); }
+.kod pre { margin: 0; padding: 0.8rem; overflow-x: auto; }
+.kod code { font-size: 14px; line-height: 1.55; white-space: pre; }
+.kod .kom { color: var(--siva); font-style: italic; }
+.kod mark { background: var(--narandza-meko); color: inherit; border-radius: 2px; padding: 0 0.15em; }
+.kod mark b { color: var(--narandza); font-family: var(--f-tekst); }
+.oblacici { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: 1rem; margin-top: 1rem; }
+.oblacici div { border-left: 3px solid var(--narandza); padding-left: 0.8rem; }
+.oblacici b.br { font-family: var(--f-mono); color: var(--narandza); margin-right: 0.3rem; }
+
+/* probaj */
+.veze { display: grid; gap: 0.7rem; }
+.veze a { display: block; text-decoration: none; background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 0.8rem 1rem; color: var(--tinta); }
+.veze a:hover { border-color: var(--narandza); }
+.veze a b { color: var(--narandza); }
+.veze a span { display: block; color: var(--siva); font-size: var(--t-0); }
+.literatura { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.35rem; font-size: 0.92rem; }
+
+/* donja navigacija */
+.navigacija { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--papir); border-top: 1px solid var(--linija);
+  padding-bottom: env(safe-area-inset-bottom, 0px); }
+.navigacija .okvir { display: flex; align-items: center; gap: 0.8rem; padding-block: 0.5rem; }
+.navigacija .naslov-slajda { flex: 1; min-width: 0; font-size: var(--t-0); color: var(--siva); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.navigacija .broj { font-family: var(--f-mono); font-size: var(--t-0); font-variant-numeric: tabular-nums; }
+.napredak { position: absolute; top: -1px; left: 0; height: 2px; background: var(--narandza); transition: width 0.25s; }
+main.citanje ~ .navigacija { display: none; }
+@media (prefers-reduced-motion: reduce) { .napredak { transition: none; } }
+
+</style>
+<style>
+/* dodaci za mini 2: kod uz kod, koraci ask, kalkulatori, tabela */
+.pojam .kodovi { margin-bottom: 1.2rem; }
+.kod code { font-size: 13.5px; }
+.zasto { border-left: 3px solid var(--narandza); padding: 0.15rem 0 0.15rem 0.9rem; font-size: 1.04rem; }
+.zasto > b:first-child { color: var(--narandza); font-weight: 600; }
+.izmjereno { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 0.75rem 1rem; display: grid; gap: 0.4rem; }
+.izmjereno h3, .ilustracija h3 { font: 500 var(--t-0) var(--f-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--siva); }
+.izmjereno b { font-variant-numeric: tabular-nums; }
+.ilustracija { margin: 0; display: grid; gap: 0.6rem; }
+.agenti { display: flex; flex-wrap: wrap; gap: 0.45rem; min-height: 2.3rem; align-items: center; }
+.ag { width: 2.15rem; height: 2.15rem; border-radius: 50%; display: inline-grid; place-items: center; flex: none;
+  font: 600 0.85rem var(--f-mono); color: #fff; background: var(--neodlucni); transition: transform 0.15s, opacity 0.25s, box-shadow 0.15s; }
+.ag.crvena { background: var(--protiv); } .ag.plava { background: var(--za); } .ag.siva { background: var(--neodlucni); }
+.ag.mrtva { opacity: 0.18; }
+.ag.nova { outline: 2px dashed var(--narandza); outline-offset: 2px; }
+.ag.sada { box-shadow: 0 0 0 3px var(--papir), 0 0 0 6px var(--narandza); transform: scale(1.08); }
+.red-ask { display: flex; flex-wrap: wrap; gap: 0.3rem; align-items: center; font-family: var(--f-mono); font-size: var(--t-0); color: var(--siva); min-height: 1.9rem; }
+.red-ask .q { display: inline-grid; place-items: center; min-width: 1.65rem; height: 1.65rem; padding: 0 0.3rem; border: 1px solid var(--linija);
+  border-radius: 4px; color: var(--tinta); background: var(--list); }
+.red-ask .q.prosao { background: var(--papir); color: var(--siva); }
+.red-ask .q.preskocen { text-decoration: line-through; color: var(--siva); background: var(--papir); }
+.red-ask .q.sada { border-color: var(--narandza); background: var(--narandza); color: var(--list); }
+.dnevnik { font-family: var(--f-mono); font-size: 0.8rem; line-height: 1.6; background: var(--papir); border-radius: 4px; padding: 0.5rem 0.7rem;
+  height: 8.6em; overflow: auto; white-space: pre-wrap; margin: 0; }
+.istorija { margin: 0; padding: 0; list-style: none; font-family: var(--f-mono); font-size: 0.82rem; display: grid; gap: 0.15rem; min-height: 9.5em; }
+.istorija li { display: flex; gap: 0.8rem; } .istorija li span:first-child { color: var(--siva); min-width: 5.5em; }
+.istorija li .isti { color: var(--narandza); }
+.brojac { font-family: var(--f-mono); font-size: var(--t-0); color: var(--siva); }
+.racun .siv { color: var(--siva); }
+table.tabela { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+table.tabela th, table.tabela td { text-align: left; padding: 0.42rem 0.55rem; border-bottom: 1px solid var(--linija); vertical-align: top; }
+table.tabela th { font: 500 var(--t-0) var(--f-mono); color: var(--siva); }
+table.tabela td code { white-space: nowrap; }
+table.tabela td.br { font-family: var(--f-mono); font-variant-numeric: tabular-nums; text-align: right; }
+.tabela-okvir { overflow-x: auto; background: var(--list); border: 1px solid var(--linija); border-radius: 6px; }
+.tabela-okvir table.tabela tr:last-child td { border-bottom: 0; }
+.pojmovi a b { font-family: var(--f-mono); }
+.mala-tabela { font-size: 0.85rem; }
+.mala-tabela td, .mala-tabela th { padding: 0.25rem 0.5rem !important; }
+.polozena td, .polozena th { padding: 0.25rem 0.2rem !important; font-size: 0.76rem; white-space: nowrap; }
+.il-svijet-traka { fill: var(--papir); stroke: var(--siva); stroke-width: 1; }
+.il-put { stroke: var(--narandza); stroke-width: 3; fill: none; stroke-linecap: round; }
+.il-put-dugi { stroke: var(--siva); stroke-width: 1.5; fill: none; stroke-dasharray: 5 4; }
+.il-tacka-a { fill: var(--za); } .il-tacka-b { fill: var(--protiv); }
+.il-celija { fill: var(--list); stroke: var(--linija); }
+.il-celija-izabrana { fill: var(--narandza-meko); stroke: var(--narandza); stroke-width: 1.5; }
+</style>
+</head>
+<body>
+
+<header class="vrh">
+  <div class="okvir">
+    <span><span class="oznaka">Vježbe 2 · mini</span> &nbsp;<b>NetLogo kroz C#</b></span>
+    <div class="nacin" role="group" aria-label="Način prikaza">
+      <button type="button" id="nacin-prezentacija" aria-pressed="true">Prezentacija</button>
+      <button type="button" id="nacin-citanje" aria-pressed="false">Čitanje</button>
+    </div>
+  </div>
+</header>
+
+<main class="prezentacija" id="slajdovi">
+
+<!-- 1 ============================================================ -->
+<section class="slajd" id="s1" data-naslov="NetLogo kroz C#">
+  <div class="okvir naslovni">
+    <div>
+      <span class="oznaka">Modeliranje i simulacije · Vježbe 2 · mini-prezentacija</span>
+      <h1>NetLogo kroz C#: sedam pojmova</h1>
+      <p class="teza">Sedam mjesta na kojima se NetLogo ponaša drugačije nego obična petlja u C#. Uz svako mjesto: kod u oba jezika, objašnjenje i rezultat koji je dao NetLogo.</p>
+      <p class="uvod">C# kod koristi biblioteku MiniNetLogo iz materijala (<code>World.Ask</code>, <code>Shuffle</code>, <code>Hatch</code>, <code>PatchAt</code>), s istim imenima kao u dijelu „Kod kroz C#“ prezentacije vježbi 2. Svaka brojka je izmjerena u NetLogu 7.0.4 bez prozora (headless).</p>
+      <p class="uvod mala">Za promjenu slajda koristite strelice ← → ili dugmad pri dnu. Opcija „Čitanje“ prikazuje sve slajdove na jednoj stranici.</p>
+    </div>
+    <nav class="veze pojmovi" aria-label="Sedam pojmova">
+      <a href="#s2"><b>1 · ask</b> slučajnim redom<span>Svaki poziv obilazi agente novim redoslijedom.</span></a>
+      <a href="#s3"><b>2 · with</b> ili <b>if</b><span>Skup izabran prije petlje ili odluka u trenutku.</span></a>
+      <a href="#s4"><b>3 · die</b> tokom ask<span>Mrtva turtle se preskače.</span></a>
+      <a href="#s5"><b>4 · hatch</b> tokom ask<span>Nova turtle nije na redu.</span></a>
+      <a href="#s6"><b>5 · torus</b><span>Ivica svijeta nije zid.</span></a>
+      <a href="#s7"><b>6 · patch-here</b> i zaokruživanje<span>Tačka 2,5 pripada parceli 3.</span></a>
+      <a href="#s8"><b>7 · nobody</b> = null<span>one-of iz praznog skupa.</span></a>
+    </nav>
+  </div>
+</section>
+
+<!-- 2 ============================================================ -->
+<section class="slajd pojam" id="s2" data-naslov="1 · ask slučajnim redom">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Pojam 1 · ask</span>
+      <h2>ask obilazi agente slučajnim redom, novim pri svakom pozivu</h2>
+      <p class="podnaslov">U C# je <code>ask</code> petlja <code>foreach</code> nad promiješanom kopijom skupa: <code>World.Ask</code> prvo pozove <code>Shuffle()</code>.</p>
+    </div>
+    <div class="kodovi">
+      <div class="kod"><div class="jezik">NetLogo</div><pre><code>create-turtles 5
+repeat 3 [
+  ask turtles [ type who type " " ]
+  print ""
+]
+<span class="kom">; npr. 2 4 0 3 1 / 1 0 2 3 4 / 3 0 1 4 2</span></code></pre></div>
+      <div class="kod"><div class="jezik">C# · MiniNetLogo</div><pre><code>World.CreateTurtles&lt;Turtle&gt;(5);
+for (int i = 0; i &lt; 3; i++)
+{
+    var red = new List&lt;int&gt;();
+    World.Ask(World.Turtles, t =&gt; red.Add(t.Who));
+    Console.WriteLine(string.Join(" ", red));
+}   <span class="kom">// Ask: foreach (var a in agents.Shuffle()) { ... }</span></code></pre></div>
+    </div>
+    <div class="dvije">
+      <div class="tekst">
+        <p class="zasto"><b>Šta se desi i zašto.</b> Tri poziva daju tri različita redoslijeda, jer <code>ask</code> prije svakog obilaska ponovo promiješa skup; zato dva pokretanja istog modela daju različite rezultate.</p>
+        <div class="izmjereno">
+          <h3>Izmjereno u NetLogu 7.0.4</h3>
+          <p><b data-d="ask.pokretanja"></b> pokretanja × <b data-d="ask.poziva_po_pokretanju"></b> poziva = <b data-d="ask.poziva"></b> redoslijeda za 5 turtles.
+            Različitih je <b data-d="ask.razlicitih"></b> od <span data-d="ask.moguce"></span> mogućih (za slučajan red očekuje se oko <span id="ask-ocekivano"></span>).</p>
+          <p>Red <code>0 1 2 3 4</code> (po <code>who</code>) pojavio se <b data-d="ask.po_who"></b> put. Turtle 0 je bila prva <b id="ask-prvi0"></b> puta, a očekivano je oko 40.</p>
+          <p class="mala siva">Prvi primjer iz NetLoga: <span id="ask-primjer"></span>.</p>
+        </div>
+      </div>
+      <figure class="ilustracija panel interaktivno">
+        <h3>Ilustracija u web pregledniku</h3>
+        <div class="agenti" id="ask-agenti"></div>
+        <div class="red-ask" id="ask-red" aria-live="polite"><span>red:</span></div>
+        <div class="dugmad"><button type="button" class="glavno" id="ask-dugme">ask turtles</button><span class="brojac" id="ask-brojac"></span></div>
+        <ol class="istorija" id="ask-istorija" aria-label="Raniji redoslijedi"></ol>
+        <figcaption class="potpis"><b>Ilustracija u web pregledniku</b> (JavaScript): svaki klik promiješa pet turtles i obiđe ih tim redom. Izmjerene vrijednosti su lijevo.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- 3 ============================================================ -->
+<section class="slajd pojam" id="s3" data-naslov="2 · with ili if">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Pojam 2 · with ili if</span>
+      <h2>with izabere skup prije petlje, if odlučuje u trenutku</h2>
+      <p class="podnaslov">Tri crvene turtles; svaka crvena oboji ostale u plavo. Uslov se mijenja tokom petlje, pa dva zapisa daju različit rezultat.</p>
+    </div>
+    <div class="kodovi">
+      <div class="kod"><div class="jezik">NetLogo</div><pre><code><span class="kom">; IF: svaka odluči kada dođe na red</span>
+ask turtles [
+  if color = red [
+    ask other turtles [ set color blue ]
+  ]
+]
+<span class="kom">; WITH: prvo izbor, pa ask (tri nove crvene)</span>
+ask turtles with [ color = red ] [
+  ask other turtles [ set color blue ]
+]</code></pre></div>
+      <div class="kod"><div class="jezik">C# · MiniNetLogo</div><pre><code><span class="kom">// if: provjera u trenutku kada je t na redu</span>
+World.Ask(World.Turtles, t =&gt;
+{
+    if (t.Color == Red)
+        World.Ask(World.Turtles.Other(t), o =&gt; o.Color = Blue);
+});
+<span class="kom">// with = Where + ToList: skup napravljen prije petlje</span>
+World.Ask(World.Turtles.With(t =&gt; t.Color == Red), t =&gt;
+    World.Ask(World.Turtles.Other(t), o =&gt; o.Color = Blue));</code></pre></div>
+    </div>
+    <div class="dvije">
+      <div class="tekst">
+        <p class="zasto"><b>Šta se desi i zašto.</b> Kod <code>if</code> prva turtle na redu oboji ostale, pa one kada dođu na red više nisu crvene; kod <code>with</code> su sve tri izabrane prije petlje i izvrše naredbe iako više nisu crvene (asinhrono ažuriranje: agent vidi promjene agenata prije njega).</p>
+        <div class="izmjereno">
+          <h3>Izmjereno u NetLogu 7.0.4 · <span data-d="with_if.pokretanja"></span> pokretanja</h3>
+          <p><code>if</code>: izvršenja <b data-d="with_if.if.izvrsenja"></b>, crvenih na kraju <b data-d="with_if.if.crvenih"></b> &nbsp;·&nbsp; <code>with</code>: izvršenja <b data-d="with_if.with.izvrsenja"></b>, crvenih <b data-d="with_if.with.crvenih"></b>. Isto u svakom pokretanju.</p>
+          <p class="mala siva">Koja turtle ostane crvena zavisi od redoslijeda: who <span data-sve="with_if.if.crvena_who"></span>.</p>
+        </div>
+        <p class="mala siva">LINQ <code>Where</code> bez <code>ToList()</code> provjerava uslov tokom petlje, pa se ponaša kao <code>if</code>, a ne kao <code>with</code>.</p>
+      </div>
+      <figure class="ilustracija panel interaktivno">
+        <h3>Ilustracija u web pregledniku</h3>
+        <div class="izbor" role="group" aria-label="Način">
+          <button type="button" data-wi="if" aria-pressed="true">if unutar ask</button>
+          <button type="button" data-wi="with" aria-pressed="false">with prije ask</button>
+        </div>
+        <div class="agenti" id="wi-agenti"></div>
+        <div class="red-ask" id="wi-red"></div>
+        <div class="dugmad"><button type="button" class="glavno" id="wi-korak">sljedeća na redu</button><button type="button" id="wi-kraj">do kraja</button><button type="button" id="wi-ponovo">ponovo</button></div>
+        <pre class="dnevnik" id="wi-dnevnik" aria-live="polite"></pre>
+        <figcaption class="potpis"><b>Ilustracija u web pregledniku</b> (JavaScript): korak po korak, redoslijed je slučajan. Gore su turtles, ispod je red u <code>ask</code>.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- 4 ============================================================ -->
+<section class="slajd pojam" id="s4" data-naslov="3 · die tokom ask">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Pojam 3 · die</span>
+      <h2>Turtle koja umre prije svog reda se preskače</h2>
+      <p class="podnaslov">Deset turtles; svaka koja dođe na red ukloni sve ostale. <code>World.Ask</code> radi nad kopijom skupa i preskače agente s <code>Dead == true</code>.</p>
+    </div>
+    <div class="kodovi">
+      <div class="kod"><div class="jezik">NetLogo</div><pre><code>create-turtles 10
+ask turtles [
+  ask other turtles [ die ]
+]
+show count turtles          <span class="kom">; 1</span>
+<span class="kom">; die odmah završava naredbe te turtle</span></code></pre></div>
+      <div class="kod"><div class="jezik">C# · MiniNetLogo</div><pre><code>World.CreateTurtles&lt;Turtle&gt;(10);
+World.Ask(World.Turtles, t =&gt;
+    World.Ask(World.Turtles.Other(t), o =&gt; o.Die()));
+<span class="kom">// World.Turtles.Count == 1</span>
+
+foreach (var t in World.Turtles) t.Die();
+<span class="kom">// InvalidOperationException: lista se promijenila</span>
+<span class="kom">// U C# poslije Die() treba return.</span></code></pre></div>
+    </div>
+    <div class="dvije">
+      <div class="tekst">
+        <p class="zasto"><b>Šta se desi i zašto.</b> Prva turtle na redu ukloni ostalih devet, a <code>ask</code> mrtve turtles preskače, pa blok izvrši samo jedna; obični <code>foreach</code> nad listom koja se mijenja baca <code>InvalidOperationException</code>, zato <code>World.Ask</code> radi nad kopijom (<code>Shuffle</code>).</p>
+        <div class="izmjereno">
+          <h3>Izmjereno u NetLogu 7.0.4 · <span data-d="die.pokretanja"></span> pokretanja</h3>
+          <p>Od <b data-d="die.pocetno"></b> turtles preživi <b data-d="die.prezivjelih"></b>; blok izvrši <b data-d="die.na_redu"></b>. Isto u svakom pokretanju.</p>
+          <p class="mala siva">Preživi ona koja je prva na redu, pa je različita: who <span data-sve="die.prezivjela_who"></span>.</p>
+        </div>
+        <div class="kartica"><div class="kod-cip">World.Ask: foreach (var a in agents.Shuffle()) { if (a.Dead) continue; commands(a); }</div></div>
+      </div>
+      <figure class="ilustracija panel interaktivno">
+        <h3>Ilustracija u web pregledniku</h3>
+        <div class="agenti" id="die-agenti"></div>
+        <div class="red-ask" id="die-red"></div>
+        <div class="dugmad"><button type="button" class="glavno" id="die-korak">sljedeća na redu</button><button type="button" id="die-kraj">do kraja</button><button type="button" id="die-ponovo">ponovo</button></div>
+        <pre class="dnevnik" id="die-dnevnik" aria-live="polite"></pre>
+        <figcaption class="potpis"><b>Ilustracija u web pregledniku</b> (JavaScript): precrtan broj u redu je mrtva turtle koja se preskače.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- 5 ============================================================ -->
+<section class="slajd pojam" id="s5" data-naslov="4 · hatch tokom ask">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Pojam 4 · hatch</span>
+      <h2>Turtle izležena tokom ask nije na redu u tom ask</h2>
+      <p class="podnaslov">Pet crvenih turtles veličine 2; svaka izleže jednu. Dijete je kopija roditelja s novim <code>who</code>.</p>
+    </div>
+    <div class="kodovi">
+      <div class="kod"><div class="jezik">NetLogo</div><pre><code>create-turtles 5 [ set color red set size 2 ]
+ask turtles [ hatch 1 ]
+show count turtles                     <span class="kom">; 10</span>
+show count turtles with
+  [ color = red and size = 2 ]         <span class="kom">; 10</span></code></pre></div>
+      <div class="kod"><div class="jezik">C# · MiniNetLogo</div><pre><code>World.CreateTurtles&lt;Turtle&gt;(5, t =&gt; { t.Color = Red; t.Size = 2; });
+World.Ask(World.Turtles, t =&gt; t.Hatch());
+<span class="kom">// World.Turtles.Count == 10</span>
+<span class="kom">// Hatch: kopija roditelja (MemberwiseClone),</span>
+<span class="kom">// isti položaj i Heading, novi Who</span></code></pre></div>
+    </div>
+    <div class="dvije">
+      <div class="tekst">
+        <p class="zasto"><b>Šta se desi i zašto.</b> <code>ask</code> radi nad skupom napravljenim prije petlje, pa na red dođe pet starih turtles, a svako dijete je kopija roditelja (boja, veličina, položaj, heading) s novim <code>who</code>.</p>
+        <div class="izmjereno">
+          <h3>Izmjereno u NetLogu 7.0.4 · <span data-d="hatch.pokretanja"></span> pokretanja</h3>
+          <p>Na redu <b data-d="hatch.na_redu"></b>, ukupno <b data-d="hatch.ukupno"></b>, crvenih veličine 2: <b data-d="hatch.kopija"></b>. Svih <b data-d="hatch.isto_mjesto"></b> djece ima isti položaj i heading kao roditelj. Isto u svakom pokretanju.</p>
+        </div>
+        <p class="mala siva">Petlja <code>for</code> do <code>World.Turtles.Count</code> ne bi završila: svako dijete bi došlo na red i izleglo novo.</p>
+      </div>
+      <figure class="ilustracija panel interaktivno">
+        <h3>Ilustracija u web pregledniku</h3>
+        <div class="agenti" id="hatch-agenti"></div>
+        <div class="red-ask" id="hatch-red"></div>
+        <div class="dugmad"><button type="button" class="glavno" id="hatch-korak">sljedeća na redu</button><button type="button" id="hatch-kraj">do kraja</button><button type="button" id="hatch-ponovo">ponovo</button></div>
+        <pre class="dnevnik" id="hatch-dnevnik" aria-live="polite"></pre>
+        <figcaption class="potpis"><b>Ilustracija u web pregledniku</b> (JavaScript): isprekidan okvir označava novu turtle; red u <code>ask</code> ostaje pet.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- 6 ============================================================ -->
+<section class="slajd pojam" id="s6" data-naslov="5 · torus">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Pojam 5 · torus</span>
+      <h2>Svijet je torus: preko ivice se izlazi na suprotnu stranu</h2>
+      <p class="podnaslov">Svijet −25..25 je širok 51 parcelu. <code>fd</code> omotava koordinatu, a <code>distance</code> bira kraći put: direktno ili preko ivice.</p>
+    </div>
+    <div class="kodovi">
+      <div class="kod"><div class="jezik">NetLogo · svijet −25..25, wraps</div><pre><code>create-turtles 1 [
+  setxy 25.2 0  set heading 90
+  fd 1  print xcor                 <span class="kom">; -24.8</span>
+]
+<span class="kom">; turtle 1 u (-25, 0), turtle 2 u (25, 0)</span>
+[ distance turtle 2 ] of turtle 1  <span class="kom">; 1</span></code></pre></div>
+      <div class="kod"><div class="jezik">C# · MiniNetLogo</div><pre><code>World.ClearAll(-25, 25, -25, 25);
+var t = World.CreateTurtles&lt;Turtle&gt;(1)[0];
+t.SetXY(25.2, 0); t.Heading = 90;
+t.Forward(1);                         <span class="kom">// t.X == -24.8</span>
+<span class="kom">// World.Distance, za svaku osu:</span>
+double dx = Math.Abs(x1 - x2);
+dx = Math.Min(dx, WorldWidth - dx);   <span class="kom">// preko ivice</span></code></pre></div>
+    </div>
+    <div class="dvije">
+      <div class="tekst">
+        <p class="zasto"><b>Šta se desi i zašto.</b> Ivica svijeta nije zid: koordinata izvan [−25,5; 25,5) vraća se sa suprotne strane, pa su tačke x = −25 i x = 25 susjedne (udaljenost 1), a formula bez omotavanja dala bi 26,2 i 50.</p>
+        <div class="izmjereno">
+          <h3>Izmjereno u NetLogu 7.0.4 · 1 pokretanje (nema slučajnosti)</h3>
+          <p>Poslije <code>fd 1</code> s x = 25,2: xcor = <b data-d="torus.x_poslije"></b>. Udaljenost turtles u (−25, 0) i (25, 0): <b data-d="torus.udaljenost"></b>.</p>
+          <div class="tabela-okvir"><table class="tabela mala-tabela"><thead><tr><th>od</th><th>do</th><th>distance</th></tr></thead><tbody id="torus-parovi"></tbody></table></div>
+        </div>
+      </div>
+      <figure class="ilustracija panel interaktivno">
+        <h3>Ilustracija u web pregledniku · kalkulator udaljenosti po x</h3>
+        <div class="klizaci">
+          <div class="klizac"><label for="t-a">x tačke A</label><output id="o-t-a"></output><input type="range" id="t-a" min="-25" max="25" step="0.5" value="-25"></div>
+          <div class="klizac"><label for="t-b">x tačke B</label><output id="o-t-b"></output><input type="range" id="t-b" min="-25" max="25" step="0.5" value="25"></div>
+        </div>
+        <div id="t-crtez"></div>
+        <div class="racun" id="t-racun" aria-live="polite"></div>
+        <figcaption class="potpis"><b>Ilustracija u web pregledniku</b> (JavaScript): puna linija je kraći put. U ravni se isto uradi i za y, pa d = √(dx² + dy²).</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- 7 ============================================================ -->
+<section class="slajd pojam" id="s7" data-naslov="6 · patch-here i zaokruživanje">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Pojam 6 · patch-here</span>
+      <h2>Parcela pxcor pokriva [pxcor − 0,5; pxcor + 0,5)</h2>
+      <p class="podnaslov">Tačka 2,5 pripada parceli (patch) 3, a tačka −2,5 parceli −2: polovina ide naviše. C# <code>Math.Round</code> polovinu zaokružuje na paran broj.</p>
+    </div>
+    <div class="kodovi">
+      <div class="kod"><div class="jezik">NetLogo · svijet −25..25</div><pre><code>[ pxcor ] of patch 2.5 0         <span class="kom">; 3</span>
+[ pxcor ] of patch -2.5 0        <span class="kom">; -2</span>
+ask turtle 0 [
+  setxy 2.5 0
+  show [ pxcor ] of patch-here   <span class="kom">; 3</span>
+]</code></pre></div>
+      <div class="kod"><div class="jezik">C# · MiniNetLogo</div><pre><code>World.PatchAt(2.5, 0).Pxcor      <span class="kom">// 3</span>
+World.PatchAt(-2.5, 0).Pxcor     <span class="kom">// -2</span>
+<span class="kom">// u PatchAt:</span>
+int px = (int)Math.Floor(WrapX(x) + 0.5);
+<span class="kom">// zamka:</span>
+Math.Round(2.5)                  <span class="kom">// 2, a parcela je 3</span></code></pre></div>
+    </div>
+    <div class="dvije">
+      <div class="tekst">
+        <p class="zasto"><b>Šta se desi i zašto.</b> Granica između dvije parcele je na polovini i pripada većoj parceli, što daje <code>Math.Floor(x + 0.5)</code>, dok <code>Math.Round(2.5)</code> vraća 2, jer C# polovinu zaokružuje na paran broj.</p>
+        <div class="izmjereno">
+          <h3>Izmjereno u NetLogu 7.0.4 · 1 pokretanje (nema slučajnosti)</h3>
+          <p class="mala"><code>patch x 0</code> i <code>patch-here</code> turtle u (x, 0) dali su istu parcelu za svih <span id="patch-n"></span> vrijednosti. Crveno: C# <code>Math.Round</code> daje drugu parcelu (25,5 se omota na −25,5).</p>
+          <div class="tabela-okvir"><table class="tabela mala-tabela polozena"><tbody id="patch-tabela"></tbody></table></div>
+        </div>
+        <p class="mala siva">U PDF verziji prezentacije za ponavljanje (slajd 39) stajao je kraći zapis <code>(int)Math.Round(X)</code>, koji griješi upravo na polovinama. U <a href="../prezentacije/v02a-ponavljanje.html#s39">HTML verziji</a> je ispravljen na <code>Math.Floor(X + 0.5)</code>, kao u MiniNetLogu.</p>
+      </div>
+      <figure class="ilustracija panel interaktivno">
+        <h3>Ilustracija u web pregledniku · tačka → parcela</h3>
+        <div class="klizaci" style="grid-template-columns:minmax(0,1fr)">
+          <div class="klizac"><label for="p-x">x</label><output id="o-p-x"></output><input type="range" id="p-x" min="-25.5" max="25.5" step="0.1" value="2.5"></div>
+        </div>
+        <div class="dugmad" id="p-brzo" aria-label="Brzi izbor"></div>
+        <div id="p-crtez"></div>
+        <div class="racun" id="p-racun" aria-live="polite"></div>
+        <figcaption class="potpis"><b>Ilustracija u web pregledniku</b> (JavaScript): istaknuta je parcela kojoj tačka pripada u NetLogu.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- 8 ============================================================ -->
+<section class="slajd pojam" id="s8" data-naslov="7 · nobody = null">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Pojam 7 · nobody</span>
+      <h2>nobody je null: one-of iz praznog skupa vraća nobody</h2>
+      <p class="podnaslov">Deset turtles, svaka crvena ili plava. Zelene nema, pa <code>one-of</code> nema koga vratiti.</p>
+    </div>
+    <div class="kodovi">
+      <div class="kod"><div class="jezik">NetLogo</div><pre><code>let zelena one-of turtles with [ color = green ]
+if zelena != nobody [
+  ask zelena [ set color yellow ]
+]
+<span class="kom">; Wolf Sheep: let prey one-of sheep-here</span>
+<span class="kom">;             if prey != nobody [ ... ]</span></code></pre></div>
+      <div class="kod"><div class="jezik">C# · MiniNetLogo</div><pre><code>var zelena = World.Turtles
+    .With(t =&gt; t.Color == Green).OneOf();
+if (zelena != null)
+{
+    zelena.Color = Yellow;
+}
+<span class="kom">// bez provjere: NullReferenceException</span></code></pre></div>
+    </div>
+    <div class="dvije">
+      <div class="tekst">
+        <p class="zasto"><b>Šta se desi i zašto.</b> <code>one-of</code> iz praznog skupa ne javlja grešku nego vraća <code>nobody</code>, a greška nastaje tek kada se od <code>nobody</code> nešto traži, kao <code>NullReferenceException</code> u C#; zato iza <code>one-of</code> ide provjera <code>!= nobody</code>.</p>
+        <div class="izmjereno">
+          <h3>Izmjereno u NetLogu 7.0.4 · <span data-d="nobody.pokretanja"></span> pokretanja</h3>
+          <p>Zelenih: <b data-d="nobody.zelenih"></b>; <code>one-of turtles with [ color = green ]</code> = <b data-d="nobody.izbor"></b> u svakom pokretanju.</p>
+          <p class="mala">Bez provjere, <code>ask zelena [ … ]</code>: <q data-d="nobody.poruka_ask"></q></p>
+          <p class="mala">Bez provjere, <code>[ color ] of zelena</code>: <q data-d="nobody.poruka_of"></q></p>
+        </div>
+      </div>
+      <figure class="ilustracija panel interaktivno">
+        <h3>Ilustracija u web pregledniku</h3>
+        <div class="agenti" id="nb-agenti"></div>
+        <div class="izbor" role="group" aria-label="Boja koja se traži">
+          <button type="button" data-nb="crvena" aria-pressed="false">color = red</button>
+          <button type="button" data-nb="plava" aria-pressed="false">color = blue</button>
+          <button type="button" data-nb="zelena" aria-pressed="true">color = green</button>
+          <button type="button" id="nb-nove">nove boje</button>
+        </div>
+        <div class="racun" id="nb-racun" aria-live="polite"></div>
+        <figcaption class="potpis"><b>Ilustracija u web pregledniku</b> (JavaScript): <code>one-of turtles with [ … ]</code> za izabranu boju. Poruke grešaka su iz NetLoga.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- 9 ============================================================ -->
+<section class="slajd" id="s9" data-naslov="Pregled">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Pregled</span>
+      <h2>Sedam pojmova u jednoj tabeli</h2>
+      <p class="podnaslov">Kolona „C#“ je kod koji se prevodi uz MiniNetLogo (<code>using MiniNetLogo;</code> i <code>using static MiniNetLogo.Color;</code>). Kolona „NetLogo 7.0.4“ je izmjereni rezultat.</p>
+    </div>
+    <div class="tabela-okvir">
+      <table class="tabela">
+        <thead><tr><th>#</th><th>NetLogo</th><th>C# · MiniNetLogo</th><th>Šta treba znati</th><th>NetLogo 7.0.4</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><code>ask turtles [ … ]</code></td><td><code>World.Ask(World.Turtles, t =&gt; …)</code></td><td>foreach nad <code>Shuffle()</code>: slučajan red, nov pri svakom pozivu</td><td><span data-d="ask.razlicitih"></span> različitih od <span data-d="ask.poziva"></span> redoslijeda</td></tr>
+          <tr><td>2</td><td><code>with [ … ]</code> · <code>if</code></td><td><code>.With(…)</code> · <code>if (…)</code></td><td>with = <code>Where</code> + <code>ToList</code>, skup prije petlje; if odlučuje u trenutku</td><td>if: <span data-d="with_if.if.izvrsenja"></span> izvršenje; with: <span data-d="with_if.with.izvrsenja"></span></td></tr>
+          <tr><td>3</td><td><code>die</code></td><td><code>Die();</code> pa <code>return;</code></td><td>Ask radi nad kopijom i preskače mrtve; foreach nad listom pada</td><td>preživi <span data-d="die.prezivjelih"></span> od <span data-d="die.pocetno"></span></td></tr>
+          <tr><td>4</td><td><code>hatch 1</code></td><td><code>t.Hatch()</code></td><td>dijete je kopija roditelja i nije na redu</td><td>na redu <span data-d="hatch.na_redu"></span>, ukupno <span data-d="hatch.ukupno"></span></td></tr>
+          <tr><td>5</td><td><code>fd</code>, <code>distance</code></td><td><code>WrapX</code>, <code>Math.Min(dx, WorldWidth - dx)</code></td><td>ivica nije zid; kraći put može ići preko ivice</td><td>xcor <span data-d="torus.x_poslije"></span>; distance <span data-d="torus.udaljenost"></span></td></tr>
+          <tr><td>6</td><td><code>patch-here</code></td><td><code>(int)Math.Floor(x + 0.5)</code></td><td>polovina ide naviše; <code>Math.Round</code> ide na paran broj</td><td>2,5 → <span id="pr-25"></span>; −2,5 → <span id="pr-m25"></span></td></tr>
+          <tr><td>7</td><td><code>nobody</code></td><td><code>null</code></td><td>one-of iz praznog skupa; provjera <code>!= nobody</code></td><td>= <span data-d="nobody.izbor"></span> u <span data-d="nobody.pokretanja"></span> od <span data-d="nobody.pokretanja"></span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pitanje" style="margin-top:1.2rem;max-width:62rem"><h3>Pravilo za čitanje NetLogo koda</h3>
+      <p>Za svaku liniju: ko je ovdje <code>this</code> i nad kojim skupom radi petlja. Pojmovi 1–4 su posljedica istog pravila: <code>ask</code> radi nad kopijom skupa, slučajnim redom, i svaki agent vidi promjene agenata prije njega.</p></div>
+  </div>
+</section>
+
+<!-- 10 =========================================================== -->
+<section class="slajd" id="s10" data-naslov="Probajte">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Probajte</span>
+      <h2>Command Center, C# projekat i samostalna vježba</h2>
+    </div>
+    <div class="dvije">
+      <div class="veze">
+        <a href="../prezentacije/v02a-ponavljanje.html#s34"><b>Observer i this</b>
+          <span>Prezentacija vježbi 2, dio „Kod kroz C#“, slajdovi 34–35.</span></a>
+        <a href="../prezentacije/v02a-ponavljanje.html#s36"><b>ask kao foreach; with ili if</b>
+          <span>Slajdovi 36–37.</span></a>
+        <a href="../prezentacije/v02a-ponavljanje.html#s38"><b>Patch je parcela</b>
+          <span>Slajdovi 38–39.</span></a>
+        <a href="../prezentacije/v02a-ponavljanje.html#s40"><b>one-of other turtles i nobody</b>
+          <span>Slajdovi 40–41.</span></a>
+        <a href="../prezentacije/v02a-ponavljanje.html#s42"><b>Prvi program: setup, go, tick</b>
+          <span>Slajdovi 42–43.</span></a>
+        <a href="model-stava.html"><b>Mini: Model stava</b>
+          <span>Isti pojmovi u modelu s vježbi 2: ask ljudi, one-of … in-radius, != nobody.</span></a>
+        <a href="../../vjezbe-03/materijali/netlogo-kroz-csharp/README.md"><b>Projekat NetLogo kroz C#</b>
+          <span>README: pokretanje, tabela NetLogo ↔ C#, Wolf Sheep i šest blokova interakcije.</span></a>
+      </div>
+      <div class="tekst">
+        <div class="panel"><h3 style="font-size:var(--t-1);margin-bottom:0.4rem">Šta isprobati</h3>
+          <ul>
+            <li>Prije pokretanja zapišite rezultat, pa provjerite u Command Centeru: <code>ca crt 5 ask turtles [ hatch 1 ] ask turtles [ hatch 1 ] show count turtles</code>.</li>
+            <li>Na svijetu −25..25 izračunajte <code>[ distance patch 20 0 ] of patch -20 0</code>, pa provjerite.</li>
+            <li>U modelu stava uklonite provjeru <code>if sagovornik != nobody</code>. Uz koje parametre se greška javlja brzo?</li>
+            <li>U C#: <code>dotnet run -- pojmovi</code>, pa breakpoint u lambdi unutar <code>World.Ask</code>. Ko je <code>this</code> i koliko je turtles u <code>World.Turtles</code>?</li>
+          </ul></div>
+        <div class="pitanje"><h3>Samostalna vježba</h3>
+          <p>U <code>Pojmovi.cs</code> dodajte osmi pojam po istom obrascu (NetLogo kod u komentaru, rezultat uz kod), npr. <code>other turtles</code> u observeru ili <code>[ who ] of turtles</code>, koji vraća listu slučajnim redom. Rezultat provjerite u NetLogu.</p></div>
+        <p class="mala siva">Brojke na slajdovima 2–9 su iz NetLoga 7.0.4 (headless, BehaviorSpace): 10 pokretanja za pojmove sa slučajnošću, 1 pokretanje za torus i parcele.
+          Modeli i tabele su u <code>izvor-html/mjerenja/csharp-*</code>. Ilustracije su u web pregledniku (JavaScript).
+          Modeliranje i simulacije, FIT UNMO, 2026/27.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<nav class="navigacija" aria-label="Slajdovi">
+  <div class="napredak" id="napredak"></div>
+  <div class="okvir">
+    <button type="button" id="nazad" aria-label="Prethodni slajd">←</button>
+    <span class="broj" id="broj">1 / 10</span>
+    <button type="button" id="naprijed" aria-label="Sljedeći slajd">→</button>
+    <span class="naslov-slajda" id="naslov-slajda"></span>
+  </div>
+</nav>
+
+<script>window.CS = {"netlogo":"7.0.4","ask":{"pokretanja":10,"poziva_po_pokretanju":20,"poziva":200,"primjer":[[2,4,0,3,1],[1,0,2,3,4],[3,0,1,4,2]],"razlicitih":96,"moguce":120,"po_who":1,"uzastopni_isti":1,"uzastopnih_parova":190,"prvi":[36,43,48,39,34]},"with_if":{"pokretanja":10,"if":{"izvrsenja":{"min":1,"max":1,"sve":[[1,10]]},"crvenih":{"min":1,"max":1,"sve":[[1,10]]},"crvena_who":{"min":0,"max":2,"sve":[[0,6],[1,2],[2,2]]}},"with":{"izvrsenja":{"min":3,"max":3,"sve":[[3,10]]},"crvenih":{"min":0,"max":0,"sve":[[0,10]]}}},"die":{"pokretanja":10,"pocetno":10,"na_redu":{"min":1,"max":1,"sve":[[1,10]]},"prezivjelih":{"min":1,"max":1,"sve":[[1,10]]},"prezivjela_who":{"min":0,"max":6,"sve":[[0,1],[1,3],[5,2],[6,4]]}},"hatch":{"pokretanja":10,"pocetno":5,"na_redu":{"min":5,"max":5,"sve":[[5,10]]},"ukupno":{"min":10,"max":10,"sve":[[10,10]]},"kopija":{"min":10,"max":10,"sve":[[10,10]]},"isto_mjesto":{"min":5,"max":5,"sve":[[5,10]]}},"torus":{"pokretanja":1,"svijet":[-25,25],"x_prije":25.2,"x_poslije":-24.8,"udaljenost":1.0,"parovi":[{"a":[-25,0],"b":[25,0],"d":1.0},{"a":[-20,0],"b":[20,0],"d":11.0},{"a":[0,0],"b":[10,0],"d":10.0},{"a":[-24,-24],"b":[24,24],"d":4.2426},{"a":[3,0],"b":[-22,0],"d":25.0}]},"patch":{"pokretanja":1,"svijet":[-25,25],"x":[2.4,2.5,2.6,-2.5,-2.6,3.5,-3.5,0.5,-0.5,25.4,25.5],"pxcor":[2,3,3,-2,-3,4,-3,1,0,25,-25]},"nobody":{"pokretanja":10,"izbor":{"min":"nobody","max":"nobody","sve":[["nobody",10]]},"je_nobody":{"min":"true","max":"true","sve":[["true",10]]},"zelenih":{"min":0,"max":0,"sve":[[0,10]]},"poruka_ask":{"min":"ASK expected input to be an agent or agentset but got NOBODY instead.","max":"ASK expected input to be an agent or agentset but got NOBODY instead.","sve":[["ASK expected input to be an agent or agentset but got NOBODY instead.",10]]},"poruka_of":{"min":"OF expected input to be a turtle agentset or link agentset or turtle or link but got NOBODY instead.","max":"OF expected input to be a turtle agentset or link agentset or turtle or link but got NOBODY instead.","sve":[["OF expected input to be a turtle agentset or link agentset or turtle or link but got NOBODY instead.",10]]}}};</script>
+<script>
+// Zajednički dio lekcija (isti kao u mini-prezentacijama blokova s vježbi 3): jedan slajd na ekranu ili svi jedan
+// ispod drugog (način „Čitanje“), strelice i prevlačenje, adresa #sN, zapamćen način prikaza.
+// Upotreba: Prezentacija("lekcija1", crtajVidljivo), gdje crtajVidljivo iscrta grafike na vidljivim slajdovima.
+window.Prezentacija = function (kljuc, crtajVidljivo) {
+  const $ = s => document.querySelector(s);
+  const main = $("#slajdovi"), slajdovi = [...document.querySelectorAll(".slajd")];
+  let tren = 0;
+  function prikazi(i, izHasha) {
+    tren = Math.max(0, Math.min(slajdovi.length - 1, i));
+    slajdovi.forEach((s, k) => s.classList.toggle("aktivan", k === tren));
+    $("#broj").textContent = `${tren + 1} / ${slajdovi.length}`;
+    $("#naslov-slajda").textContent = slajdovi[tren].dataset.naslov;
+    $("#napredak").style.width = `${((tren + 1) / slajdovi.length) * 100}%`;
+    $("#nazad").disabled = tren === 0; $("#naprijed").disabled = tren === slajdovi.length - 1;
+    if (!izHasha) { try { history.replaceState(null, "", "#" + slajdovi[tren].id); } catch (e) {} }
+    if (main.classList.contains("prezentacija")) window.scrollTo(0, 0);
+    crtajVidljivo();
+  }
+  $("#nazad").addEventListener("click", () => prikazi(tren - 1));
+  $("#naprijed").addEventListener("click", () => prikazi(tren + 1));
+  document.addEventListener("keydown", e => {
+    if (!main.classList.contains("prezentacija") || e.target.closest("input, textarea, select")) return;
+    if (["ArrowRight", "PageDown"].includes(e.key) || (e.key === " " && !e.target.closest("button"))) { e.preventDefault(); prikazi(tren + 1); }
+    if (["ArrowLeft", "PageUp"].includes(e.key)) { e.preventDefault(); prikazi(tren - 1); }
+    if (e.key === "Home") prikazi(0);
+    if (e.key === "End") prikazi(slajdovi.length - 1);
+  });
+  let dodirX = null;
+  main.addEventListener("touchstart", e => { dodirX = e.touches[0].clientX; }, { passive: true });
+  main.addEventListener("touchend", e => {
+    if (dodirX === null || !main.classList.contains("prezentacija")) return;
+    const dx = e.changedTouches[0].clientX - dodirX; dodirX = null;
+    if (e.target.closest("input, select, canvas, .interaktivno")) return;
+    if (Math.abs(dx) > 70) prikazi(tren + (dx < 0 ? 1 : -1));
+  });
+  function nacin(citanje) {
+    main.classList.toggle("citanje", citanje); main.classList.toggle("prezentacija", !citanje);
+    $("#nacin-citanje").setAttribute("aria-pressed", citanje); $("#nacin-prezentacija").setAttribute("aria-pressed", !citanje);
+    try { localStorage.setItem(kljuc + "-nacin", citanje ? "citanje" : "prezentacija"); } catch (e) {}
+    if (citanje) requestAnimationFrame(() => slajdovi[tren].scrollIntoView());
+    crtajVidljivo();
+  }
+  $("#nacin-citanje").addEventListener("click", () => nacin(true));
+  $("#nacin-prezentacija").addEventListener("click", () => nacin(false));
+  addEventListener("resize", () => crtajVidljivo());
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => crtajVidljivo());
+
+  let pocetni = 0;
+  const h = location.hash.replace("#", ""), k = slajdovi.findIndex(s => s.id === h); if (k >= 0) pocetni = k;
+  let sacuvano = null; try { sacuvano = localStorage.getItem(kljuc + "-nacin"); } catch (e) {}
+  if (sacuvano === "citanje") nacin(true);
+  prikazi(pocetni, true);
+  if (main.classList.contains("prezentacija")) setTimeout(() => window.scrollTo(0, 0), 0);
+  addEventListener("hashchange", () => {
+    const i = slajdovi.findIndex(s => s.id === location.hash.replace("#", ""));
+    if (i >= 0 && i !== tren) { prikazi(i, true); if (main.classList.contains("citanje")) slajdovi[i].scrollIntoView(); }
+  });
+  return { prikazi };
+};
+
+// Zajedničke pomoćne funkcije za grafike (SVG) i brojeve.
+window.Pomoc = (() => {
+  const SVG = "http://www.w3.org/2000/svg";
+  const el = (ime, atr = {}, tekst) => { const e = document.createElementNS(SVG, ime); for (const [k, v] of Object.entries(atr)) e.setAttribute(k, v); if (tekst !== undefined) e.textContent = tekst; return e; };
+  const zarez = (x, d = 2) => x.toFixed(d).replace(".", ",").replace("-", "−");
+  const pct = x => `${Math.round(x * 100)}%`;
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  // mulberry32: ponovljivi slučajni brojevi za ilustracije u web pregledniku
+  const rng = seed => () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  return { el, zarez, pct, css, rng };
+})();
+
+</script>
+<script>
+(() => {
+  const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+  const { el, zarez, rng } = window.Pomoc;
+  const D = window.CS;
+  const slucaj = rng(Math.floor(Math.random() * 1e9));
+  const promijesaj = niz => { const a = [...niz]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(slucaj() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const raspon = n => [...Array(n).keys()];
+  // broj u bosanskom zapisu: decimalni zarez, znak minus
+  const bs = x => typeof x !== "number" ? String(x) : (Number.isInteger(x) ? String(x) : String(+x.toFixed(4)).replace(".", ",")).replace("-", "−");
+  const put = p => p.split(".").reduce((o, k) => o[k], D);
+
+  // ---------------- brojke iz NetLoga (podaci/mini-csharp.json) ----------------
+  // sažetak {min, max}: ista vrijednost u svim pokretanjima → ta vrijednost, inače raspon
+  for (const e of $$("[data-d]")) {
+    const v = put(e.dataset.d);
+    e.textContent = v && typeof v === "object" ? (v.min === v.max ? bs(v.min) : `${bs(v.min)}–${bs(v.max)}`) : bs(v);
+  }
+  for (const e of $$("[data-sve]"))
+    e.textContent = put(e.dataset.sve).sve.map(([v, n]) => `${bs(v)} (${n}×)`).join(", ");
+  const A = D.ask;
+  $("#ask-ocekivano").textContent = Math.round(A.moguce * (1 - Math.pow(1 - 1 / A.moguce, A.poziva)));
+  $("#ask-prvi0").textContent = A.prvi[0];
+  $("#ask-primjer").textContent = A.primjer.map(r => r.join(" ")).join(" / ");
+  $("#torus-parovi").innerHTML = D.torus.parovi.map(p => `<tr><td>(${bs(p.a[0])}, ${bs(p.a[1])})</td><td>(${bs(p.b[0])}, ${bs(p.b[1])})</td><td class="br">${bs(p.d)}</td></tr>`).join("");
+  // C# Math.Round: polovina na paran broj (MidpointRounding.ToEven)
+  const csRound = x => Math.abs(x % 1) === 0.5 ? 2 * Math.round(x / 2) : Math.round(x);
+  const P = D.patch;
+  $("#patch-n").textContent = P.x.length;
+  // tabela je položena (red po veličini), da slajd ne bude previsok
+  $("#patch-tabela").innerHTML =
+    `<tr><th>x</th>${P.x.map(x => `<td class="br">${bs(x)}</td>`).join("")}</tr>` +
+    `<tr><th>pxcor</th>${P.pxcor.map(p => `<td class="br"><b>${bs(p)}</b></td>`).join("")}</tr>` +
+    `<tr><th>Math.Round</th>${P.x.map((x, i) => { const r = csRound(x), drugo = r !== P.pxcor[i];
+      return `<td class="br"${drugo ? ' style="color:var(--protiv);font-weight:600"' : ""}>${bs(r)}</td>`; }).join("")}</tr>`;
+  $("#pr-25").textContent = bs(P.pxcor[P.x.indexOf(2.5)]); $("#pr-m25").textContent = bs(P.pxcor[P.x.indexOf(-2.5)]);
+
+  const cip = (a, sada) => `<span class="ag ${a.boja}${a.mrtva ? " mrtva" : ""}${a.nova ? " nova" : ""}${a.who === sada ? " sada" : ""}" title="turtle ${a.who}">${a.who}</span>`;
+
+  // ---------------- 1. ask: slučajan red ----------------
+  let askTajmeri = [], askPoziva = 0, askPrethodni = null;
+  const askRedovi = new Set();
+  const askAgenti = raspon(5).map(w => ({ who: w, boja: "siva" }));
+  $("#ask-agenti").innerHTML = askAgenti.map(a => cip(a)).join("");
+  $("#ask-dugme").addEventListener("click", () => {
+    askTajmeri.forEach(clearTimeout); askTajmeri = [];
+    const red = promijesaj(raspon(5));
+    askPoziva++; const isti = askPrethodni && red.join() === askPrethodni.join(); askPrethodni = red; askRedovi.add(red.join(" "));
+    $("#ask-red").innerHTML = "<span>red:</span>";
+    red.forEach((w, k) => askTajmeri.push(setTimeout(() => {
+      $("#ask-agenti").innerHTML = askAgenti.map(a => cip(a, w)).join("");
+      $("#ask-red").insertAdjacentHTML("beforeend", `<span class="q sada">${w}</span>`);
+      $$("#ask-red .q").forEach((q, j) => { if (j < k) q.className = "q prosao"; });
+    }, k * 220)));
+    askTajmeri.push(setTimeout(() => {
+      $("#ask-agenti").innerHTML = askAgenti.map(a => cip(a)).join("");
+      $$("#ask-red .q").forEach(q => { q.className = "q prosao"; });
+      const li = document.createElement("li");
+      li.innerHTML = `<span>poziv ${askPoziva}</span><span>${red.join(" ")}</span>${isti ? '<span class="isti">isti kao prethodni</span>' : ""}`;
+      const ist = $("#ask-istorija"); ist.prepend(li); while (ist.children.length > 6) ist.lastChild.remove();
+      $("#ask-brojac").textContent = `poziva: ${askPoziva} · različitih redoslijeda: ${askRedovi.size}`;
+    }, 5 * 220 + 120));
+  });
+
+  // ---------------- koraci ask (with/if, die, hatch) ----------------
+  // init() vraća stanje {agenti, red, i, log, preskoceni}; korak(st, w) izvrši naredbe turtle w; kraj(st) je zadnja linija
+  function koracnik(p, init, korak, kraj) {
+    let st = null, tajmer = null;
+    const stani = () => { if (tajmer) { clearInterval(tajmer); tajmer = null; } };
+    function crtaj() {
+      const gotovo = st.i >= st.red.length;   // na kraju nijedna nije istaknuta
+      $(`#${p}-agenti`).innerHTML = st.agenti.map(a => cip(a, gotovo ? null : st.zadnji)).join("");
+      $(`#${p}-red`).innerHTML = `<span>red u ask:</span>` + st.red.map((w, k) =>
+        `<span class="q${k === st.i - 1 && !gotovo ? " sada" : k < st.i ? (st.preskoceni.has(k) ? " preskocen" : " prosao") : ""}">${w}</span>`).join("");
+      const d = $(`#${p}-dnevnik`); d.textContent = st.log.join("\n"); d.scrollTop = d.scrollHeight;
+      $(`#${p}-korak`).disabled = $(`#${p}-kraj`).disabled = st.i >= st.red.length;
+    }
+    function jedan() {
+      if (st.i >= st.red.length) { stani(); return; }
+      const w = st.red[st.i]; st.zadnji = w; korak(st, w, st.i); st.i++;
+      if (st.i >= st.red.length) { st.log.push(kraj(st)); stani(); }
+      crtaj();
+    }
+    const reset = () => { stani(); st = Object.assign({ i: 0, zadnji: null, preskoceni: new Set() }, init()); crtaj(); };
+    $(`#${p}-korak`).addEventListener("click", () => { stani(); jedan(); });
+    $(`#${p}-kraj`).addEventListener("click", () => { stani(); jedan(); tajmer = setInterval(jedan, 380); });
+    $(`#${p}-ponovo`).addEventListener("click", reset);
+    reset();
+    return { reset };
+  }
+  const zivi = st => st.agenti.filter(a => !a.mrtva);
+
+  // 2. with ili if
+  let wiNacin = "if";
+  const wi = koracnik("wi", () => {
+    const agenti = raspon(3).map(w => ({ who: w, boja: "crvena" }));
+    const red = promijesaj(agenti.filter(a => a.boja === "crvena").map(a => a.who));
+    return { agenti, red, izv: 0, log: [wiNacin === "if"
+      ? "ask turtles: svaka turtle provjerava color kada dođe na red"
+      : `skup with [ color = red ] izabran prije petlje: ${red.slice().sort().join(", ")}`] };
+  }, (st, w) => {
+    const t = st.agenti[w], crvena = t.boja === "crvena";
+    if (wiNacin === "if" && !crvena) { st.log.push(`turtle ${w}: color = blue → uslov nije ispunjen, ništa`); return; }
+    st.izv++; st.agenti.forEach(o => { if (o !== t) o.boja = "plava"; });
+    st.log.push(wiNacin === "if" ? `turtle ${w}: color = red → oboji ostale u plavo`
+      : `turtle ${w}: u skupu je (sada ${crvena ? "crvena" : "plava"}) → oboji ostale u plavo`);
+  }, st => `kraj: izvršenja ${st.izv}, crvenih ${st.agenti.filter(a => a.boja === "crvena").length}`);
+  for (const b of $$("[data-wi]")) b.addEventListener("click", () => {
+    wiNacin = b.dataset.wi; $$("[data-wi]").forEach(x => x.setAttribute("aria-pressed", x === b)); wi.reset();
+  });
+
+  // 3. die tokom ask
+  koracnik("die", () => ({ agenti: raspon(10).map(w => ({ who: w, boja: "siva" })), red: promijesaj(raspon(10)), naRedu: 0,
+    log: ["ask turtles [ ask other turtles [ die ] ]"] }), (st, w, k) => {
+    const t = st.agenti[w];
+    if (t.mrtva) { st.preskoceni.add(k); st.log.push(`turtle ${w}: mrtva → preskače se`); return; }
+    st.naRedu++; const z = zivi(st).filter(o => o !== t); z.forEach(o => { o.mrtva = true; });
+    st.log.push(`turtle ${w}: ask other turtles [ die ] → umrlo ${z.length}`);
+  }, st => `kraj: blok izvršilo ${st.naRedu}, preživjelih ${zivi(st).length} od 10`);
+
+  // 4. hatch tokom ask
+  koracnik("hatch", () => ({ agenti: raspon(5).map(w => ({ who: w, boja: "crvena" })), red: promijesaj(raspon(5)), sljedeci: 5,
+    log: ["ask turtles [ hatch 1 ]: red je napravljen od 5 turtles"] }), (st, w) => {
+    const d = { who: st.sljedeci++, boja: "crvena", nova: true }; st.agenti.push(d);
+    st.log.push(`turtle ${w}: hatch 1 → turtle ${d.who} (kopija: color red, size 2, isto mjesto)`);
+  }, st => `kraj: na redu ${st.red.length}, ukupno ${st.agenti.length}; nove turtles nisu bile na redu`);
+
+  // ---------------- 5. torus: kalkulator udaljenosti po x ----------------
+  const MIN = -25, MAX = 25, SIR = MAX - MIN + 1;
+  function torus() {
+    const a = +$("#t-a").value, b = +$("#t-b").value;
+    $("#o-t-a").textContent = zarez(a, 1); $("#o-t-b").textContent = zarez(b, 1);
+    const dir = Math.abs(a - b), preko = SIR - dir, d = Math.min(dir, preko), krozIvicu = preko < dir;
+    $("#t-racun").innerHTML =
+      `širina      = ${MAX} − (${bs(MIN)}) + 1 = ${SIR}\n` +
+      `direktno    = |${zarez(a, 1)} − (${zarez(b, 1)})| = ${zarez(dir, 1)}\n` +
+      `preko ivice = ${SIR} − ${zarez(dir, 1)} = ${zarez(preko, 1)}\n` +
+      `distance    = min(${zarez(dir, 1)}; ${zarez(preko, 1)}) = <b>${zarez(d, 1)}</b>  <span class="siv">(${krozIvicu ? "preko ivice" : "direktno"})</span>`;
+    const W = 460, H = 92, L = 16, R = 16, x = v => L + (W - L - R) * (v - (MIN - 0.5)) / SIR, y = 46;
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, class: "grafik", role: "img", "aria-label": `Svijet od −25,5 do 25,5; A u ${a}, B u ${b}, udaljenost ${d}` });
+    svg.append(el("rect", { x: x(MIN - 0.5), y: y - 14, width: x(MAX + 0.5) - x(MIN - 0.5), height: 28, rx: 3, class: "il-svijet-traka" }));
+    for (const v of [MIN, 0, MAX]) svg.append(el("text", { x: x(v), y: H - 6, "text-anchor": "middle", class: "il-tekst" }, bs(v)));
+    const [l, r] = a <= b ? [a, b] : [b, a];
+    if (krozIvicu) {
+      svg.append(el("line", { x1: x(l), x2: x(r), y1: y, y2: y, class: "il-put-dugi" }));
+      svg.append(el("line", { x1: x(MIN - 0.5), x2: x(l), y1: y, y2: y, class: "il-put" }));
+      svg.append(el("line", { x1: x(r), x2: x(MAX + 0.5), y1: y, y2: y, class: "il-put" }));
+    } else {
+      if (dir < SIR - 0.01 && preko > 0) svg.append(el("line", { x1: x(MIN - 0.5), x2: x(l), y1: y + 0.1, y2: y + 0.1, class: "il-put-dugi" }));
+      if (preko > 0) svg.append(el("line", { x1: x(r), x2: x(MAX + 0.5), y1: y + 0.1, y2: y + 0.1, class: "il-put-dugi" }));
+      svg.append(el("line", { x1: x(l), x2: x(r), y1: y, y2: y, class: "il-put" }));
+    }
+    svg.append(el("circle", { cx: x(a), cy: y, r: 7, class: "il-tacka-a" }));
+    svg.append(el("circle", { cx: x(b), cy: y, r: 7, class: "il-tacka-b" }));
+    svg.append(el("text", { x: x(a), y: y - 20, "text-anchor": "middle", class: "il-tekst" }, "A"));
+    svg.append(el("text", { x: x(b), y: y - 20, "text-anchor": "middle", class: "il-tekst" }, "B"));
+    $("#t-crtez").replaceChildren(svg);
+  }
+  for (const id of ["t-a", "t-b"]) $("#" + id).addEventListener("input", torus);
+  torus();
+
+  // ---------------- 6. patch-here: tačka → parcela ----------------
+  const omotaj = v => { let r = (v - (MIN - 0.5)) % SIR; if (r < 0) r += SIR; return MIN - 0.5 + r; };
+  for (const v of [2.4, 2.5, 2.6, -2.5, -2.6, 3.5, -3.5]) {
+    const b = document.createElement("button"); b.type = "button"; b.textContent = bs(v);
+    b.addEventListener("click", () => { $("#p-x").value = v; parcela(); }); $("#p-brzo").append(b);
+  }
+  function parcela() {
+    const x = Math.round(+$("#p-x").value * 10) / 10, xw = Math.round(omotaj(x) * 10) / 10, px = Math.floor(xw + 0.5);
+    const r = csRound(x), tr = Math.trunc(x);
+    $("#o-p-x").textContent = zarez(x, 1);
+    const oc = (v, opis) => v === px ? `<span class="da">${bs(v)}</span>  <span class="siv">ista parcela</span>`
+      : `<span class="ne">${bs(v)}</span>  <span class="siv">${opis}</span>`;
+    $("#p-racun").innerHTML =
+      (xw !== x ? `omotano:                x = ${zarez(xw, 1)}\n` : "") +
+      `NetLogo patch-here:     pxcor <b>${bs(px)}</b>  <span class="siv">[${zarez(px - 0.5, 1)}; ${zarez(px + 0.5, 1)})</span>\n` +
+      `C# Math.Floor(x + 0.5): ${oc(px, "")}\n` +
+      `C# Math.Round(x):       ${oc(r, Math.abs(r) > MAX ? "izvan svijeta" : "druga parcela")}\n` +
+      `C# (int)x:              ${oc(tr, "druga parcela")}`;
+    const W = 460, H = 96, L = 10, R = 10, n = 7, c0 = px - 3, cw = (W - L - R) / n, X = v => L + (v - (c0 - 0.5)) * cw, y0 = 22, h = 40;
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, class: "grafik", role: "img", "aria-label": `Tačka x = ${zarez(xw, 1)} je u parceli ${px}` });
+    for (let k = 0; k < n; k++) {
+      const p = c0 + k;
+      svg.append(el("rect", { x: X(p - 0.5), y: y0, width: cw, height: h, class: p === px ? "il-celija-izabrana" : "il-celija" }));
+      svg.append(el("text", { x: X(p), y: y0 + h + 18, "text-anchor": "middle", class: "il-tekst" }, bs(p)));
+    }
+    svg.append(el("text", { x: X(px), y: y0 - 7, "text-anchor": "middle", class: "il-tekst" }, `parcela ${bs(px)}`));
+    svg.append(el("circle", { cx: X(xw), cy: y0 + h / 2, r: 6, class: "il-tacka-a" }));
+    $("#p-crtez").replaceChildren(svg);
+  }
+  $("#p-x").addEventListener("input", parcela);
+  parcela();
+
+  // ---------------- 7. nobody ----------------
+  let nbBoja = "zelena", nbAgenti = [];
+  const NB = { crvena: "red", plava: "blue", zelena: "green" };
+  const nbNove = () => { nbAgenti = raspon(10).map(w => ({ who: w, boja: slucaj() < 0.5 ? "crvena" : "plava" })); };
+  function nobody() {
+    const skup = nbAgenti.filter(a => a.boja === nbBoja), izbor = skup.length ? skup[Math.floor(slucaj() * skup.length)] : null;
+    $("#nb-agenti").innerHTML = nbAgenti.map(a => cip(a, izbor ? izbor.who : null)).join("");
+    // poruka NetLoga, prelomljena na redove do 44 znaka (racun ne prelama sam)
+    const pa = D.nobody.poruka_ask.sve[0][0].split(" ").reduce((r, w) => { const z = r[r.length - 1]; if (z && (z + " " + w).length <= 44) r[r.length - 1] = z + " " + w; else r.push(w); return r; }, []).join("\n  ");
+    $("#nb-racun").innerHTML =
+      `turtles with [ color = ${NB[nbBoja]} ] → ${skup.length} turtles\n` +
+      `let izbor one-of …        → <b>${izbor ? `(turtle ${izbor.who})` : "nobody"}</b>\n` +
+      (izbor ? `if izbor != nobody [ … ]  → blok se izvrši\nC#: izbor != null          → blok se izvrši`
+        : `if izbor != nobody [ … ]  → blok se preskače\nbez provjere, ask izbor [ … ]:\n  <span class="ne">${pa}</span>\nC#: izbor == null, izbor.Color baca\n  NullReferenceException`);
+  }
+  for (const b of $$("[data-nb]")) b.addEventListener("click", () => {
+    nbBoja = b.dataset.nb; $$("[data-nb]").forEach(x => x.setAttribute("aria-pressed", x === b)); nobody();
+  });
+  $("#nb-nove").addEventListener("click", () => { nbNove(); nobody(); });
+  nbNove(); nobody();
+
+  Prezentacija("v02-mini-netlogo-kroz-csharp", () => {});
+})();
+</script>
+</body>
+</html>

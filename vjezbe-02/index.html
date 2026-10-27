@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="bs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vježbe 2 — materijali</title>
+<meta name="description" content="Modeliranje i simulacije, FIT UNMO 2026/27: prezentacije i mini-prezentacije vježbi 2.">
+<style>
+:root { --papir: #eef1f4; --list: #fff; --tinta: #17212b; --siva: #56636f; --linija: #d3dae1; --narandza: #b9531a;
+  --f-naslov: Cambria, Georgia, serif; --f-tekst: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+@media (prefers-color-scheme: dark) { :root { --papir: #10161c; --list: #18212a; --tinta: #e3e9ee; --siva: #9ba8b4; --linija: #2a3540; --narandza: #f0894a; color-scheme: dark; } }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--papir); color: var(--tinta); font: 17px/1.5 var(--f-tekst); }
+main { max-width: 960px; margin: 0 auto; padding: 2rem max(16px, env(safe-area-inset-left)) 3rem; }
+h1, h2 { font-family: var(--f-naslov); line-height: 1.2; margin: 0 0 0.4rem; }
+h1 { font-size: 2.1rem; } h2 { font-size: 1.3rem; margin-top: 2rem; }
+.oznaka { font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--narandza); }
+.siva { color: var(--siva); }
+.veze { display: grid; gap: 0.7rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr)); margin-top: 0.8rem; }
+.veze a { display: block; text-decoration: none; background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 0.8rem 1rem; color: var(--tinta); }
+.veze a:hover, .veze a:focus-visible { border-color: var(--narandza); }
+.veze b { color: var(--narandza); }
+.veze span { display: block; color: var(--siva); font-size: 0.9rem; }
+</style>
+</head>
+<body>
+<main>
+  <span class="oznaka">Modeliranje i simulacije · FIT UNMO 2026/27</span>
+  <h1>Vježbe 2: materijali</h1>
+  <p class="siva">Subota, 17.10.2026. Prezentacije se listaju strelicama ← →; opcija „Čitanje“ prikazuje sve slajdove na jednoj stranici.</p>
+
+  <h2>Prezentacije</h2>
+  <div class="veze">
+    <a href="prezentacije/v02a-ponavljanje.html"><b>Ponavljanje</b><span>Vježbe 1, predavanje, četiri modela izmjerena u NetLogu, NetLogo kroz C#, headless i LLM (58 slajdova).</span></a>
+    <a href="prezentacije/v02b-v03-gradimo-model.html"><b>Gradimo model: širenje stava u društvu</b><span>Jedan model u pet koraka, rezultat iz NetLoga, zadatak i samostalna vježba (31 slajd).</span></a>
+  </div>
+
+  <h2>Mini-prezentacije</h2>
+  <div class="veze">
+    <a href="mini/model-stava.html"><b>Model stava</b><span>Agenti, atributi, razgovor, mediji, mjere i rezultat; simulacija u web pregledniku.</span></a>
+    <a href="mini/netlogo-kroz-csharp.html"><b>NetLogo kroz C#</b><span>Sedam pojmova NetLoga objašnjenih kodom u C#.</span></a>
+    <a href="mini/fire.html"><b>Fire</b><span>Prag gustine i rasipanje ishoda na pragu.</span></a>
+    <a href="mini/segregation.html"><b>Segregation</b><span>Blaga preferencija pojedinca, jaka segregacija u cjelini.</span></a>
+    <a href="mini/wolf-sheep.html"><b>Wolf Sheep Predation</b><span>Ovce, vukovi i trava: oscilacije i izumiranje.</span></a>
+    <a href="mini/rps.html"><b>Rock Paper Scissors</b><span>Ciklična dominacija bez trajnog pobjednika.</span></a>
+  </div>
+
+  <h2>Modeli</h2>
+  <div class="veze">
+    <a href="modeli/v02-model-stav.nlogox"><b>v02-model-stav.nlogox</b><span>Kompletan model stava (NetLogo 7.0.4).</span></a>
+    <a href="modeli/v02-zadatak.nlogox"><b>v02-zadatak.nlogox</b><span>Model s praznim procedurama razgovaraj i slusaj-medije.</span></a>
+  </div>
+</main>
+</body>
+</html>

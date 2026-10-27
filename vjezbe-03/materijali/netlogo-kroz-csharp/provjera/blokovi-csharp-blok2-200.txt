@@ -1,0 +1,9 @@
+
+Blok 2, prag i kaskada: prosjek praga 0.3, 10 pokretača (200 pokretanja po vrijednosti)
+  rasipanje   udio aktivnih na kraju                 > 0.9 < 0.1   krugova (medijan)
+          0   sred 0.198, med 0.010 (0.010–1.000)       38   162   0
+       0.05   sred 0.431, med 0.010 (0.010–1.000)       85   115   0
+        0.1   sred 0.961, med 1.000 (0.011–1.000)      192     8   41
+        0.2   sred 0.993, med 1.000 (0.939–1.000)      200     0   17
+
+Ukupno 13.7 s; CSV u rezultati/blok1-csharp.csv … blok4-csharp.csv

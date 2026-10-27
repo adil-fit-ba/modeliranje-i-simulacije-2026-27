@@ -1,0 +1,873 @@
+<!--IZLAZ: blok1-ograniceno-povjerenje.html-->
+<title>Ograničeno povjerenje</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:wght@500;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Raspored: mini-prezentacija od 10 slajdova; jedan slajd na ekranu (strelice), ili svi jedan ispod
+   drugog (način „Čitanje“). Papir je svijetao, svijet i putanje su na tamnoj podlozi kao u NetLogu. */
+:root {
+  --papir: #eef1f4; --list: #ffffff; --tinta: #17212b; --siva: #56636f; --linija: #d3dae1;
+  --narandza: #b9531a; --narandza-meko: #f6dfd0; --margina: #e5a3a3; --svijet: #0b0d10;
+  --za: #345da9; --protiv: #d73229; --neodlucni: #8d8d8d;
+  --f-naslov: "Bitter", "Georgia", "Cambria", serif;
+  --f-tekst: "IBM Plex Sans", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "IBM Plex Mono", "Cascadia Mono", Consolas, "Courier New", monospace;
+  --t-0: 0.83rem; --t-1: 1rem; --t-2: 1.17rem; --t-3: 1.5rem; --t-4: 2.2rem; --t-5: 3.1rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --papir: #10161c; --list: #18212a; --tinta: #e3e9ee; --siva: #9ba8b4; --linija: #2a3540;
+    --narandza: #f0894a; --narandza-meko: #3a2416; --margina: #6b3535; --za: #5b86d6; --protiv: #e5574e; --neodlucni: #9a9a9a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --papir: #10161c; --list: #18212a; --tinta: #e3e9ee; --siva: #9ba8b4; --linija: #2a3540;
+  --narandza: #f0894a; --narandza-meko: #3a2416; --margina: #6b3535; --za: #5b86d6; --protiv: #e5574e; --neodlucni: #9a9a9a;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { font-size: 18px; }
+@media (max-width: 600px) { html { font-size: 16px; } }
+body { margin: 0; background: var(--papir); color: var(--tinta); font-family: var(--f-tekst); line-height: 1.55; }
+[hidden] { display: none !important; }
+a { color: var(--narandza); text-underline-offset: 0.15em; }
+:focus-visible { outline: 3px solid var(--narandza); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--f-naslov); text-wrap: balance; line-height: 1.18; margin: 0; }
+p { margin: 0; }
+code { font-family: var(--f-mono); font-size: 0.9em; }
+p code, li code, td code { background: var(--narandza-meko); padding: 0.05em 0.3em; border-radius: 3px; }
+.okvir { max-width: 1200px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.oznaka { font-family: var(--f-mono); font-size: var(--t-0); letter-spacing: 0.08em; text-transform: uppercase; color: var(--narandza); font-weight: 500; }
+.siva { color: var(--siva); }
+.mala { font-size: var(--t-0); }
+
+/* traka na vrhu */
+.vrh { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--papir); border-bottom: 1px solid var(--linija); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--papir); }
+.vrh .okvir { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem 1rem; padding-block: 0.55rem; flex-wrap: wrap; }
+.vrh b { font-family: var(--f-naslov); font-weight: 700; }
+.nacin { display: flex; gap: 0.3rem; }
+button { font: 500 var(--t-0) var(--f-mono); border-radius: 4px; padding: 0.4rem 0.8rem; cursor: pointer;
+  border: 1px solid var(--narandza); background: transparent; color: var(--narandza); }
+button[aria-pressed="true"], button.glavno { background: var(--narandza); color: var(--list); }
+button:disabled { opacity: 0.45; cursor: default; }
+
+/* slajdovi */
+.slajd { padding-block: 2rem 6rem; scroll-margin-top: 3.4rem; }
+main.prezentacija .slajd { display: none; min-height: calc(100svh - 3.2rem); }
+main.prezentacija .slajd.aktivan { display: block; }
+main.citanje .slajd { border-bottom: 1px solid var(--linija); padding-block: 2.5rem; }
+.glava { display: grid; gap: 0.35rem; margin-bottom: 1.4rem; }
+.glava h2 { font-size: var(--t-4); max-width: 30ch; }
+.glava .podnaslov { font-size: var(--t-2); color: var(--siva); max-width: 52rem; }
+.dvije { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2rem; align-items: start; }
+.dvije > * { min-width: 0; }
+@media (max-width: 900px) { .dvije { grid-template-columns: minmax(0, 1fr); } }
+.tekst { display: grid; gap: 1rem; }
+.tekst ul { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.35rem; }
+.panel { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 1rem; }
+.pitanje { background: var(--narandza-meko); border-radius: 4px; padding: 0.9rem 1rem; }
+.pitanje h3 { font-size: var(--t-1); margin-bottom: 0.25rem; }
+
+/* naslovni slajd */
+.naslovni { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 2.4rem; align-items: center; padding-top: 1rem; }
+.naslovni > * { min-width: 0; }
+.naslovni h1 { font-size: var(--t-5); letter-spacing: -0.01em; margin: 0.4rem 0 0.9rem; }
+.naslovni .teza { font-size: var(--t-3); font-family: var(--f-naslov); line-height: 1.3; }
+.naslovni .uvod { margin-top: 1rem; color: var(--siva); }
+@media (max-width: 900px) { .naslovni { grid-template-columns: minmax(0, 1fr); } }
+
+/* list papira: pravilo za model na papiru */
+.papir {
+  margin: 0; background-color: var(--list); border: 1px solid var(--linija); border-radius: 4px;
+  padding: 1rem 1.2rem 1.2rem 2.4rem; position: relative; line-height: 1.75rem;
+  background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(1.75rem - 1px), var(--linija) calc(1.75rem - 1px), var(--linija) 1.75rem);
+  background-position: 0 2.55rem;
+}
+.papir::before { content: ""; position: absolute; left: 1.5rem; top: 0; bottom: 0; width: 2px; background: var(--margina); }
+.papir figcaption { font-family: var(--f-mono); font-size: var(--t-0); color: var(--siva); letter-spacing: 0.04em; text-transform: uppercase; line-height: 1.75rem; }
+.papir p, .papir li { font-family: var(--f-naslov); font-size: 1.08rem; }
+.papir ul { list-style: none; margin: 0; padding: 0 0 0 1.2rem; }
+.papir li::before { content: "→ "; color: var(--narandza); font-family: var(--f-tekst); }
+.papir b { color: var(--narandza); }
+
+/* kartice (pojava, sastavni dijelovi, koraci) */
+.kartice { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); }
+.kartica { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 1rem; display: grid; gap: 0.6rem; align-content: start; }
+.kartica h3 { font-size: var(--t-2); }
+.kartica svg { width: 100%; height: auto; display: block; }
+.kartica ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.25rem; }
+.kartica .kod-cip { font-family: var(--f-mono); font-size: 0.78rem; color: var(--siva); border-top: 1px dashed var(--linija); padding-top: 0.5rem; }
+.korak-broj { font-family: var(--f-mono); font-weight: 500; color: var(--narandza); }
+
+/* SVG ilustracije: boje iz tokena */
+.il-osa { stroke: var(--siva); stroke-width: 1.5; }
+.il-tekst { fill: var(--siva); font: 13px var(--f-mono); }
+.il-tekst-veci { fill: var(--tinta); font: 600 15px var(--f-tekst); }
+.il-za { fill: var(--za); } .il-protiv { fill: var(--protiv); } .il-neo { fill: var(--neodlucni); }
+.il-prozor { fill: var(--narandza-meko); stroke: var(--narandza); stroke-dasharray: 4 3; }
+.il-strelica { stroke: var(--narandza); stroke-width: 2.5; fill: none; }
+.il-vrh { fill: var(--narandza); }
+.il-domet { fill: none; stroke: var(--narandza); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.il-svijet { fill: var(--svijet); }
+.il-kuca { fill: #eded2f; }
+.il-precrtano { stroke: var(--protiv); stroke-width: 3; }
+.il-oblak { fill: var(--list); stroke: var(--siva); stroke-width: 1.2; }
+
+/* kalkulator jednog susreta */
+.kalk { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 1.5rem; }
+.kalk > * { min-width: 0; }
+@media (max-width: 900px) { .kalk { grid-template-columns: minmax(0, 1fr); } }
+.klizaci { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem 1.2rem; }
+@media (max-width: 520px) { .klizaci { grid-template-columns: minmax(0, 1fr); } }
+.klizac { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+.klizac label { font-family: var(--f-mono); font-size: var(--t-0); }
+.klizac output { font-family: var(--f-mono); font-size: var(--t-0); font-variant-numeric: tabular-nums; }
+.klizac input { grid-column: 1 / -1; width: 100%; accent-color: var(--narandza); }
+.racun { font-family: var(--f-mono); font-size: 0.86rem; line-height: 1.7; background: var(--papir); border-radius: 4px; padding: 0.7rem 0.9rem; overflow-x: auto; white-space: pre; }
+.racun .da { color: var(--za); font-weight: 600; } .racun .ne { color: var(--protiv); font-weight: 600; }
+.dugmad { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+
+/* putanje stava */
+.putanje-okvir { background: var(--svijet); border-radius: 6px; padding: 0.6rem; }
+canvas.putanje { width: 100%; aspect-ratio: 2 / 1; display: block; }
+.izbor { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.6rem; }
+.izbor button { border-color: var(--linija); color: var(--siva); }
+.izbor button[aria-pressed="true"] { border-color: var(--narandza); color: var(--list); background: var(--narandza); }
+.legenda { display: flex; gap: 1rem; flex-wrap: wrap; font-size: var(--t-0); color: var(--siva); margin-top: 0.4rem; }
+.legenda i { display: inline-block; width: 0.8em; height: 0.8em; border-radius: 50%; margin-right: 0.35em; vertical-align: -0.05em; }
+.potpis { font-size: var(--t-0); color: var(--siva); margin-top: 0.4rem; }
+.potpis b { color: var(--tinta); font-weight: 600; }
+
+/* grafikoni iz mjerenja */
+svg.grafik { width: 100%; height: auto; display: block; overflow: visible; }
+.g-mreza { stroke: var(--linija); stroke-width: 1; } .g-os { stroke: var(--siva); stroke-width: 1; }
+.g-oznaka { fill: var(--siva); font: 12px var(--f-mono); } .g-naslov-x { fill: var(--siva); font: 12px var(--f-tekst); }
+.g-vrijednost { fill: var(--tinta); font: 500 12px var(--f-mono); }
+.g-raspon { stroke: var(--narandza); stroke-width: 3; stroke-linecap: round; opacity: 0.35; }
+.g-tacka { fill: var(--narandza); }
+.g-ref { stroke: var(--siva); stroke-width: 1.2; stroke-dasharray: 4 4; }
+.g-ref-tekst { fill: var(--siva); font: italic 12px var(--f-tekst); }
+
+/* kod */
+.kodovi { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; }
+.kodovi > * { min-width: 0; }
+@media (max-width: 900px) { .kodovi { grid-template-columns: minmax(0, 1fr); } }
+.kod { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; overflow: hidden; }
+.kod .jezik { font-family: var(--f-mono); font-size: var(--t-0); padding: 0.4rem 0.8rem; border-bottom: 1px solid var(--linija); color: var(--siva); }
+.kod pre { margin: 0; padding: 0.8rem; overflow-x: auto; }
+.kod code { font-size: 14px; line-height: 1.55; white-space: pre; }
+.kod .kom { color: var(--siva); font-style: italic; }
+.kod mark { background: var(--narandza-meko); color: inherit; border-radius: 2px; padding: 0 0.15em; }
+.kod mark b { color: var(--narandza); font-family: var(--f-tekst); }
+.oblacici { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: 1rem; margin-top: 1rem; }
+.oblacici div { border-left: 3px solid var(--narandza); padding-left: 0.8rem; }
+.oblacici b.br { font-family: var(--f-mono); color: var(--narandza); margin-right: 0.3rem; }
+
+/* probaj */
+.veze { display: grid; gap: 0.7rem; }
+.veze a { display: block; text-decoration: none; background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 0.8rem 1rem; color: var(--tinta); }
+.veze a:hover { border-color: var(--narandza); }
+.veze a b { color: var(--narandza); }
+.veze a span { display: block; color: var(--siva); font-size: var(--t-0); }
+.literatura { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.35rem; font-size: 0.92rem; }
+
+/* donja navigacija */
+.navigacija { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--papir); border-top: 1px solid var(--linija);
+  padding-bottom: env(safe-area-inset-bottom, 0px); }
+.navigacija .okvir { display: flex; align-items: center; gap: 0.8rem; padding-block: 0.5rem; }
+.navigacija .naslov-slajda { flex: 1; min-width: 0; font-size: var(--t-0); color: var(--siva); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.navigacija .broj { font-family: var(--f-mono); font-size: var(--t-0); font-variant-numeric: tabular-nums; }
+.napredak { position: absolute; top: -1px; left: 0; height: 2px; background: var(--narandza); transition: width 0.25s; }
+main.citanje ~ .navigacija { display: none; }
+@media (prefers-reduced-motion: reduce) { .napredak { transition: none; } }
+</style>
+<!--TIJELO-->
+<header class="vrh">
+  <div class="okvir">
+    <span><span class="oznaka">Blok 1</span> &nbsp;<b>Ograničeno povjerenje</b></span>
+    <div class="nacin" role="group" aria-label="Način prikaza">
+      <button type="button" id="nacin-prezentacija" aria-pressed="true">Prezentacija</button>
+      <button type="button" id="nacin-citanje" aria-pressed="false">Čitanje</button>
+    </div>
+  </div>
+</header>
+
+<main class="prezentacija" id="slajdovi">
+
+<!-- 1 ============================================================ -->
+<section class="slajd" id="s1" data-naslov="Ograničeno povjerenje">
+  <div class="okvir naslovni">
+    <div>
+      <span class="oznaka">Modeliranje i simulacije · Vježbe 3 · Blok interakcije 1 od 6</span>
+      <h1>Ograničeno povjerenje</h1>
+      <p class="teza">Razgovor mijenja stav samo kada je razlika stavova dovoljno mala.</p>
+      <p class="uvod">Dodavanje jednog pravila modelu stava s vježbi 2 potpuno mijenja kolektivno ponašanje: umjesto jednog zajedničkog stava nastaje nekoliko grupa među kojima prestaje međusobni uticaj.</p>
+      <p class="uvod mala">Za promjenu slajda koristite strelice ← → ili dugmad pri dnu. Opcija „Čitanje“ prikazuje sve slajdove na jednoj stranici.</p>
+    </div>
+    <figure style="margin:0">
+      <div class="putanje-okvir"><canvas class="putanje" id="put-naslov" aria-label="Stav 200 ljudi kroz 500 sedmica: četiri odvojene grupe"></canvas></div>
+      <figcaption class="potpis" id="put-naslov-potpis"></figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 2 ============================================================ -->
+<section class="slajd" id="s2" data-naslov="Pojava">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Pojava</span>
+      <h2>Znatna razlika stavova ograničava međusobni uticaj</h2>
+      <p class="podnaslov">U modelu stava s vježbi 2 svaki razgovor približava stavove, bez obzira na to koliko su
+        različiti. Ovdje razgovor djeluje samo kad je razlika manja od praga.</p>
+    </div>
+    <div class="kartice">
+      <div class="kartica">
+        <svg viewBox="0 0 300 150" role="img" aria-label="Dva bliska stava: razgovor ih približava">
+          <line class="il-osa" x1="20" y1="118" x2="280" y2="118"/>
+          <text class="il-tekst" x="20" y="140">−1</text><text class="il-tekst" x="146" y="140">0</text><text class="il-tekst" x="268" y="140">+1</text>
+          <rect class="il-prozor" x="98" y="104" width="104" height="28" rx="4"/>
+          <circle class="il-neo" cx="134" cy="118" r="9"/><circle class="il-neo" cx="166" cy="118" r="9"/>
+          <path class="il-oblak" d="M70 22 h70 a10 10 0 0 1 10 10 v24 a10 10 0 0 1 -10 10 h-34 l-10 14 l-2 -14 h-24 a10 10 0 0 1 -10 -10 v-24 a10 10 0 0 1 10 -10 z"/>
+          <path class="il-oblak" d="M160 22 h70 a10 10 0 0 1 10 10 v24 a10 10 0 0 1 -10 10 h-24 l-2 14 l-10 -14 h-34 a10 10 0 0 1 -10 -10 v-24 a10 10 0 0 1 10 -10 z"/>
+          <text class="il-tekst" x="80" y="48">−0,1</text><text class="il-tekst" x="182" y="48">+0,1</text>
+        </svg>
+        <h3>Mala razlika: stavovi se približavaju</h3>
+        <p class="siva">Razlika 0,2 manja je od praga. Stavovi obojice se približe.</p>
+      </div>
+      <div class="kartica">
+        <svg viewBox="0 0 300 150" role="img" aria-label="Dva udaljena stava: razgovor ništa ne mijenja">
+          <line class="il-osa" x1="20" y1="118" x2="280" y2="118"/>
+          <text class="il-tekst" x="20" y="140">−1</text><text class="il-tekst" x="146" y="140">0</text><text class="il-tekst" x="268" y="140">+1</text>
+          <rect class="il-prozor" x="0" y="104" width="0" height="0"/>
+          <circle class="il-protiv" cx="46" cy="118" r="9"/><circle class="il-za" cx="241" cy="118" r="9"/>
+          <path class="il-oblak" d="M20 22 h70 a10 10 0 0 1 10 10 v24 a10 10 0 0 1 -10 10 h-34 l-10 14 l-2 -14 h-24 a10 10 0 0 1 -10 -10 v-24 a10 10 0 0 1 10 -10 z"/>
+          <path class="il-oblak" d="M200 22 h70 a10 10 0 0 1 10 10 v24 a10 10 0 0 1 -10 10 h-24 l-2 14 l-10 -14 h-34 a10 10 0 0 1 -10 -10 v-24 a10 10 0 0 1 10 -10 z"/>
+          <text class="il-tekst" x="32" y="48">−0,8</text><text class="il-tekst" x="220" y="48">+0,7</text>
+          <line class="il-precrtano" x1="130" y1="30" x2="170" y2="70"/><line class="il-precrtano" x1="170" y1="30" x2="130" y2="70"/>
+        </svg>
+        <h3>Velika razlika: stavovi se ne mijenjaju</h3>
+        <p class="siva">Razlika 1,5 veća je od praga. Obojica ostaju pri svom stavu.</p>
+      </div>
+      <div class="kartica">
+        <svg viewBox="0 0 300 150" role="img" aria-label="Tri odvojene grupe stavova">
+          <line class="il-osa" x1="20" y1="118" x2="280" y2="118"/>
+          <text class="il-tekst" x="20" y="140">−1</text><text class="il-tekst" x="146" y="140">0</text><text class="il-tekst" x="268" y="140">+1</text>
+          <g class="il-protiv"><circle cx="60" cy="100" r="7"/><circle cx="70" cy="86" r="7"/><circle cx="52" cy="80" r="7"/><circle cx="64" cy="66" r="7"/></g>
+          <g class="il-neo"><circle cx="150" cy="100" r="7"/><circle cx="160" cy="86" r="7"/><circle cx="142" cy="84" r="7"/><circle cx="152" cy="70" r="7"/><circle cx="146" cy="56" r="7"/></g>
+          <g class="il-za"><circle cx="232" cy="100" r="7"/><circle cx="244" cy="86" r="7"/><circle cx="228" cy="80" r="7"/></g>
+          <text class="il-tekst" x="38" y="30">grupa</text><text class="il-tekst" x="128" y="30">grupa</text><text class="il-tekst" x="212" y="30">grupa</text>
+        </svg>
+        <h3>Posljedica: grupe</h3>
+        <p class="siva">Unutar grupe međusobni uticaj dovodi do izjednačavanja stavova. Razgovori između grupa ne mijenjaju stavove.</p>
+      </div>
+    </div>
+    <div class="pitanje" style="margin-top:1.2rem">
+      <h3>Gdje se to javlja</h3>
+      <p>Mišljenja o novom pravilu u gradu ili na fakultetu; rasprave u kojima učesnici razmatraju tuđe stavove samo dok razlike nisu prevelike; nastanak suprotstavljenih grupa među kojima prestaje međusobni uticaj.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 3 ============================================================ -->
+<section class="slajd" id="s3" data-naslov="Sastavni dijelovi">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Sastavni dijelovi</span>
+      <h2>Dvije vrste agenata, dva atributa, tri parametra i dvije mjere</h2>
+      <p class="podnaslov">Sve osim praga već postoji u modelu stava s vježbi 2.</p>
+    </div>
+    <div class="kartice">
+      <div class="kartica">
+        <svg viewBox="0 0 260 120" role="img" aria-label="Čovjek i skale atributa stav i integritet">
+          <circle class="il-za" cx="34" cy="30" r="13"/><rect class="il-za" x="18" y="46" width="32" height="44" rx="12"/>
+          <defs><linearGradient id="g-stav" x1="0" x2="1"><stop offset="0" stop-color="#d73229"/><stop offset="0.5" stop-color="#8d8d8d"/><stop offset="1" stop-color="#345da9"/></linearGradient></defs>
+          <text class="il-tekst" x="78" y="24">stav</text>
+          <rect x="78" y="32" width="170" height="10" rx="5" fill="url(#g-stav)"/>
+          <text class="il-tekst" x="78" y="58">−1</text><text class="il-tekst" x="232" y="58">+1</text>
+          <text class="il-tekst" x="78" y="84">integritet</text>
+          <rect x="78" y="92" width="170" height="10" rx="5" class="il-neo" opacity="0.5"/>
+          <text class="il-tekst" x="78" y="118">0</text><text class="il-tekst" x="240" y="118">1</text>
+        </svg>
+        <h3>Ljudi · kreću se</h3>
+        <ul>
+          <li><b>stav</b> od −1 (protiv) do +1 (za)</li>
+          <li><b>integritet</b> od 0 (mijenja se najlakše) do 1 (ne mijenja se)</li>
+        </ul>
+        <div class="kod-cip">breed [ ljudi covjek ] · ljudi-own [ stav integritet ]<br>C#: class Covjek : Turtle { double Stav, Integritet; }</div>
+      </div>
+      <div class="kartica">
+        <svg viewBox="0 0 260 120" role="img" aria-label="Kuća medija s dometom">
+          <rect class="il-svijet" x="0" y="0" width="260" height="120" rx="6"/>
+          <circle class="il-domet" cx="130" cy="64" r="48"/>
+          <path class="il-kuca" d="M112 64 L130 46 L148 64 Z"/><rect class="il-kuca" x="116" y="64" width="28" height="20"/>
+          <circle class="il-za" cx="166" cy="40" r="6"/><circle class="il-neo" cx="96" cy="90" r="6"/><circle class="il-protiv" cx="226" cy="96" r="6"/>
+          <text x="252" y="112" text-anchor="end" style="fill:#c9ced4;font:12px var(--f-mono)">domet-medija</text>
+        </svg>
+        <h3>Mediji · nepokretni</h3>
+        <ul>
+          <li>šalju poruku <b>+1</b></li>
+          <li>čuju ih ljudi u dometu (<code>domet-medija</code> = 8)</li>
+          <li>isto pravilo praga vrijedi i za poruku</li>
+        </ul>
+        <div class="kod-cip">breed [ mediji medij ] · switch mediji-rade?</div>
+      </div>
+      <div class="kartica">
+        <svg viewBox="0 0 260 120" role="img" aria-label="Tri klizača: prag, uticaj, domet">
+          <g font-family="var(--f-mono)">
+            <text class="il-tekst" x="8" y="22">prag</text><line class="il-osa" x1="90" y1="18" x2="250" y2="18"/><circle cx="130" cy="18" r="7" style="fill:var(--narandza)"/>
+            <text class="il-tekst" x="8" y="62">uticaj</text><line class="il-osa" x1="90" y1="58" x2="250" y2="58"/><circle cx="122" cy="58" r="7" class="il-neo"/>
+            <text class="il-tekst" x="8" y="102">domet</text><line class="il-osa" x1="90" y1="98" x2="250" y2="98"/><circle cx="135" cy="98" r="7" class="il-neo"/>
+          </g>
+        </svg>
+        <h3>Parametri · klizači</h3>
+        <ul>
+          <li><b>prag</b>: granična razlika stavova ispod koje razgovor djeluje (novo; od 0,05 do 2)</li>
+          <li><b>uticaj</b> = 0,2: dio razlike stavova za koji se stav promijeni u jednom razgovoru</li>
+          <li><b>domet</b> = 3: najveća udaljenost na kojoj čovjek traži sagovornika</li>
+        </ul>
+        <p class="siva">Domet određuje moguće sagovornike prema udaljenosti u prostoru, a prag određuje djeluje li razgovor prema razlici stavova.</p>
+      </div>
+      <div class="kartica">
+        <svg viewBox="0 0 260 120" role="img" aria-label="Histogram stava s četiri grupe">
+          <line class="il-osa" x1="10" y1="104" x2="250" y2="104"/>
+          <g class="il-protiv"><rect x="24" y="40" width="10" height="64"/><rect x="36" y="74" width="10" height="30"/></g>
+          <g class="il-neo"><rect x="94" y="56" width="10" height="48"/><rect x="128" y="34" width="10" height="70"/><rect x="140" y="80" width="10" height="24"/></g>
+          <g class="il-za"><rect x="214" y="44" width="10" height="60"/><rect x="202" y="86" width="10" height="18"/></g>
+          <text class="il-tekst" x="10" y="120">−1</text><text class="il-tekst" x="236" y="120">+1</text>
+        </svg>
+        <h3>Mjere · izlaz modela</h3>
+        <ul>
+          <li><b>broj-grupa</b>: broj grupa s barem 5% ljudi, u kojima je razlika susjednih stavova manja od 0,1</li>
+          <li><b>udio-za</b>: udio ljudi sa stavom većim od 0,2</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 ============================================================ -->
+<section class="slajd" id="s4" data-naslov="Tok jednog susreta">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Interakcija</span>
+      <h2>Tok jednog susreta</h2>
+      <p class="podnaslov">Svake sedmice svaki čovjek, slučajnim redom (<code>ask ljudi</code>), izvršava četiri koraka. Domet određuje izbor sagovornika u prostoru, a prag određuje djelovanje razgovora prema razlici stavova.</p>
+    </div>
+    <div class="kartice">
+      <div class="kartica">
+        <svg viewBox="0 0 240 150" role="img" aria-label="Čovjek se okrene i pomjeri za jedan korak">
+          <rect class="il-svijet" x="0" y="0" width="240" height="150" rx="6"/>
+          <circle cx="80" cy="96" r="9" class="il-neo" opacity="0.45"/>
+          <path class="il-strelica" d="M88 90 Q 120 60 146 58"/><path class="il-vrh" d="M146 50 L160 58 L146 66 Z"/>
+          <circle cx="170" cy="58" r="10" class="il-neo"/>
+        </svg>
+        <h3><span class="korak-broj">1</span> Kretanje</h3>
+        <p class="siva">Okrene se slučajno i napravi jedan korak.</p>
+        <div class="kod-cip">right random 360 · forward 1</div>
+      </div>
+      <div class="kartica">
+        <svg viewBox="0 0 240 150" role="img" aria-label="U krugu dometa su dva čovjeka; jedan je izabran">
+          <rect class="il-svijet" x="0" y="0" width="240" height="150" rx="6"/>
+          <circle class="il-domet" cx="110" cy="76" r="54"/>
+          <circle cx="110" cy="76" r="10" class="il-neo"/>
+          <circle cx="146" cy="52" r="9" class="il-za"/><circle cx="146" cy="52" r="15" fill="none" stroke="#f0894a" stroke-width="2.5"/>
+          <circle cx="80" cy="108" r="9" class="il-protiv"/>
+          <circle cx="206" cy="122" r="9" class="il-za" opacity="0.6"/>
+          <text x="58" y="20" style="fill:#c9ced4;font:12px var(--f-mono)">domet = 3</text>
+        </svg>
+        <h3><span class="korak-broj">2</span> Izbor sagovornika</h3>
+        <p class="siva">Za sagovornika izabere jednog čovjeka nasumično među ljudima u dometu. Ako nema nikoga, nema ni susreta.</p>
+        <div class="kod-cip">one-of other ljudi in-radius domet · nobody</div>
+      </div>
+      <div class="kartica">
+        <svg viewBox="0 0 240 150" role="img" aria-label="Stavovi na osi; sagovornik je unutar prozora praga">
+          <line class="il-osa" x1="14" y1="96" x2="226" y2="96"/>
+          <rect class="il-prozor" x="66" y="78" width="96" height="36" rx="4"/>
+          <circle cx="114" cy="96" r="9" class="il-neo"/><circle cx="146" cy="96" r="9" class="il-za"/>
+          <text class="il-tekst" x="70" y="70">prag</text><text class="il-tekst" x="134" y="70">prag</text>
+          <text class="il-tekst" x="14" y="134">−1</text><text class="il-tekst" x="208" y="134">+1</text>
+          <text class="il-tekst" x="106" y="134">ja</text>
+        </svg>
+        <h3><span class="korak-broj">3</span> Poređenje stavova</h3>
+        <p class="siva">Ako je razlika manja od praga, razgovor djeluje. Inače se ništa ne dešava.</p>
+        <div class="kod-cip">if abs razlika &lt; prag [ … ]</div>
+      </div>
+      <div class="kartica">
+        <svg viewBox="0 0 240 150" role="img" aria-label="Dva stava se približe jedan drugom">
+          <line class="il-osa" x1="14" y1="96" x2="226" y2="96"/>
+          <circle cx="90" cy="96" r="9" class="il-neo" opacity="0.4"/><circle cx="170" cy="96" r="9" class="il-za" opacity="0.4"/>
+          <circle cx="112" cy="96" r="9" class="il-neo"/><circle cx="150" cy="96" r="9" class="il-za"/>
+          <path class="il-strelica" d="M90 70 L106 70"/><path class="il-vrh" d="M106 64 L116 70 L106 76 Z"/>
+          <path class="il-strelica" d="M170 70 L156 70"/><path class="il-vrh" d="M156 64 L146 70 L156 76 Z"/>
+          <text class="il-tekst" x="14" y="134">−1</text><text class="il-tekst" x="208" y="134">+1</text>
+        </svg>
+        <h3><span class="korak-broj">4</span> Približavanje stavova</h3>
+        <p class="siva">Svako promijeni stav za dio razlike: <code>(1 − integritet) × uticaj</code>. Veći integritet znači manju promjenu.</p>
+        <div class="kod-cip">set stav stav + razlika × (1 − integritet) × uticaj</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 ============================================================ -->
+<section class="slajd" id="s5" data-naslov="Probajte jedan susret">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Probajte</span>
+      <h2>Numerički primjer susreta</h2>
+      <p class="podnaslov">Postavite stavove A i B i prag, zatim pritisnite „Razgovaraj“. Prikaz odgovara postupku procedure <code>razgovaraj</code> u jednom susretu.</p>
+    </div>
+    <div class="kalk">
+      <div class="panel">
+        <svg id="kalk-osa" viewBox="0 0 800 190" role="img" aria-label="Os stava od −1 do +1 s položajem A i B"></svg>
+        <div class="dugmad" style="margin-top:0.6rem">
+          <button type="button" class="glavno" id="kalk-razgovaraj">Razgovaraj</button>
+          <button type="button" id="kalk-vrati">Vrati na početak</button>
+          <span class="mala siva" id="kalk-brojac" aria-live="polite"></span>
+        </div>
+      </div>
+      <div class="panel" style="display:grid;gap:0.8rem">
+        <div class="klizaci">
+          <div class="klizac"><label for="k-a">stav A</label><output for="k-a"></output><input type="range" id="k-a" min="-1" max="1" step="0.05" value="-0.2"></div>
+          <div class="klizac"><label for="k-b">stav B</label><output for="k-b"></output><input type="range" id="k-b" min="-1" max="1" step="0.05" value="0.3"></div>
+          <div class="klizac"><label for="k-ia">integritet A</label><output for="k-ia"></output><input type="range" id="k-ia" min="0" max="1" step="0.05" value="0.3"></div>
+          <div class="klizac"><label for="k-ib">integritet B</label><output for="k-ib"></output><input type="range" id="k-ib" min="0" max="1" step="0.05" value="0.5"></div>
+          <div class="klizac"><label for="k-prag">prag</label><output for="k-prag"></output><input type="range" id="k-prag" min="0.05" max="2" step="0.05" value="0.6"></div>
+          <div class="klizac"><label for="k-uticaj">uticaj</label><output for="k-uticaj"></output><input type="range" id="k-uticaj" min="0" max="1" step="0.05" value="0.2"></div>
+        </div>
+        <div class="racun" id="kalk-racun" aria-live="polite"></div>
+        <p class="mala siva">Postavite stav B na 0,6 (razlika 0,8 veća je od praga), a zatim prag na 1. Pritisnite „Razgovaraj“ nekoliko puta zaredom: stavovi se približavaju zajedničkoj vrijednosti, bližoj početnom stavu čovjeka s većim integritetom.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 ============================================================ -->
+<section class="slajd" id="s6" data-naslov="Kod: this i myself">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Kod</span>
+      <h2>Dodatak <code>if</code> i značenje <code>myself</code></h2>
+      <p class="podnaslov">Polazna tačka je tačka 3 zadatka s vježbi 2 (mijenja se i stav sagovornika). Lijevo je NetLogo, desno isti kod u C#
+        (projekat <code>netlogo-kroz-csharp</code>).</p>
+    </div>
+    <div class="kodovi">
+      <div class="kod"><div class="jezik">NetLogo · v03-blok1-povjerenje.nlogox</div><pre><code><span class="kom">;; turtle procedura: izvršava je svaki čovjek</span>
+to razgovaraj
+  let sagovornik one-of other ljudi in-radius domet
+  if sagovornik != nobody [
+    let razlika ([ stav ] of sagovornik) - stav
+    <mark><b>①</b> if abs razlika &lt; prag [</mark>
+      <mark><b>②</b> let moj-stav stav</mark>
+      set stav stav + razlika * (1 - integritet) * uticaj
+      <mark><b>③</b> ask sagovornik [</mark>
+        set stav stav +
+          (moj-stav - stav) * (1 - integritet) * uticaj
+        oboji
+      ]
+    ]
+  ]
+end</code></pre></div>
+      <div class="kod"><div class="jezik">C# · Blokovi/Blok1Povjerenje.cs</div><pre><code>public void Razgovaraj()          <span class="kom">// metoda klase Covjek</span>
+{
+    var sagovornik = ljudi.Other(this)
+        .InRadius(this, Globals.Domet).OneOf();
+    if (sagovornik != null)
+    {
+        double razlika = sagovornik.Stav - this.Stav;
+        <mark><b>①</b> if (Math.Abs(razlika) &lt; Globals.Prag)</mark>
+        {
+            <mark><b>②</b> double mojStav = this.Stav;</mark>
+            this.Stav += razlika * (1 - this.Integritet) * Globals.Uticaj;
+            <mark><b>③</b> World.Ask(new[] { sagovornik }, s =&gt;</mark>
+            {   <span class="kom">// s = sagovornik (self), this = ja (myself)</span>
+                s.Stav += (mojStav - s.Stav)
+                    * (1 - s.Integritet) * Globals.Uticaj;
+                s.Oboji();
+            });
+        }
+    }
+}</code></pre></div>
+    </div>
+    <div class="oblacici">
+      <div><b class="br">①</b>Jedini novi red u odnosu na model stava. Bez njega (ili uz prag 2) svi razgovori djeluju.</div>
+      <div><b class="br">②</b>Moj stav se sačuva prije promjene. Ko unutar <code>ask sagovornik</code> napiše <code>[ stav ] of myself</code>, dobije već promijenjeni stav.</div>
+      <div><b class="br">③</b>Unutar <code>ask sagovornik</code> riječ <code>stav</code> je stav sagovornika. U C#: <code>self</code> je parametar lambde <code>s</code>, a <code>myself</code> je <code>this</code>, koji lambda zatvara iz vanjskog opsega (closure). Zato je u C# kodu svugdje napisano <code>this.</code>: odmah se vidi čiji se atribut koristi.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 ============================================================ -->
+<section class="slajd" id="s7" data-naslov="Ishod: grupe">
+  <div class="okvir">
+    <div class="glava">
+      Ishod
+      <h2>Mali prag vodi ka više grupa, veliki ka jednoj</h2>
+      <p class="podnaslov">Svaka linija prikazuje stav jednog čovjeka tokom 500 sedmica. Prikazan je zapis pokretanja modela u NetLogu.</p>
+    </div>
+    <div class="dvije">
+      <figure style="margin:0">
+        <div class="izbor" role="group" aria-label="Prag">
+          <button type="button" data-put="p02" aria-pressed="true">prag 0,2</button>
+          <button type="button" data-put="p05" aria-pressed="false">prag 0,5</button>
+          <button type="button" data-put="p2" aria-pressed="false">prag 2</button>
+        </div>
+        <div class="putanje-okvir"><canvas class="putanje" id="put-grupe" aria-label="Stav 200 ljudi kroz 500 sedmica"></canvas></div>
+        <div class="legenda"><span><i style="background:var(--za)"></i>na kraju &gt; 0,2</span><span><i style="background:var(--neodlucni)"></i>između</span><span><i style="background:var(--protiv)"></i>na kraju &lt; −0,2</span></div>
+        <figcaption class="potpis" id="put-grupe-potpis"></figcaption>
+      </figure>
+      <div class="tekst">
+        <figure style="margin:0"><div id="g-grupe"></div>
+          <figcaption class="potpis"><b>Broj grupa na ticku 500</b>, bez medija, 10 pokretanja po pragu. Tačka je medijan, crta raspon.</figcaption></figure>
+        <p>Grupe nastaju sporo: na ticku 150 su još spojene, a jasno su odvojene tek nakon nekoliko stotina sedmica.
+          Zato se broj grupa mjeri na ticku 500.</p>
+        <div class="pitanje"><h3>Jedna grupa uz prag 2</h3>
+          <p>Stavovi su u rasponu od −1 do +1, pa je najveća moguća razlika 2. Uz prag 2 svi razgovori utiču na stavove, kao u modelu stava s vježbi 2.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 ============================================================ -->
+<section class="slajd" id="s8" data-naslov="Mediji i udaljeni stavovi">
+  <div class="okvir">
+    <div class="glava">
+      Ishod
+      <h2>Velika razlika stava i poruke ograničava uticaj medija</h2>
+      <p class="podnaslov">Mediji šalju poruku +1, a isto pravilo vrijedi i ovdje: poruka utiče samo na ljude kod kojih je razlika između stava i poruke manja od praga.</p>
+    </div>
+    <div class="dvije">
+      <figure style="margin:0">
+        <div class="izbor" role="group" aria-label="Prag s medijima">
+          <button type="button" data-put="p03m" aria-pressed="true">prag 0,3, mediji uključeni</button>
+          <button type="button" data-put="p2m" aria-pressed="false">prag 2, mediji uključeni</button>
+        </div>
+        <div class="putanje-okvir"><canvas class="putanje" id="put-mediji" aria-label="Stav 200 ljudi kroz 500 sedmica uz medije"></canvas></div>
+        <div class="legenda"><span><i style="background:var(--narandza)"></i>isprekidano: poruka medija i prag oko nje</span></div>
+        <figcaption class="potpis" id="put-mediji-potpis"></figcaption>
+      </figure>
+      <div class="tekst">
+        <figure style="margin:0"><div id="g-mediji"></div>
+          <figcaption class="potpis"><b>Udio „za“ na ticku 150</b>, mediji uključeni, 10 pokretanja po pragu. Isprekidano: medijan na početku.</figcaption></figure>
+        <div class="pitanje"><h3>Primjena u vlastitom modelu</h3>
+          <p>U ovom bloku poruka kampanje ne mijenja stav od kojeg se znatno razlikuje. Procijenite vrijedi li isto za pojavu koju modelirate i obrazložite odgovor.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 9 ============================================================ -->
+<section class="slajd" id="s9" data-naslov="U modelu na papiru">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Model na papiru</span>
+      <h2>Zapis bloka u modelu na papiru</h2>
+      <p class="podnaslov">Model se prvo opisuje na papiru, a zatim u kodu. Blok se zapisuje jednom rečenicom u polju „Interakcije“, uz potrebne atribute i parametre.</p>
+    </div>
+    <div class="dvije">
+      <figure class="papir">
+        <figcaption>Polje 8 · Interakcije</figcaption>
+        <p>Kada čovjek sretne čovjeka:</p>
+        <ul>
+          <li>ako je razlika stavova manja od <b>praga</b>, obojica približe svoj stav sagovornikovom, zavisno od vlastitog integriteta;</li>
+          <li>inače se ništa ne mijenja.</li>
+        </ul>
+        <p>Isto pravilo vrijedi i za poruku kampanje.</p>
+      </figure>
+      <div class="tekst">
+        <figure class="papir">
+          <figcaption>Polje 6 · Atributi</figcaption>
+          <ul>
+            <li>stav od −1 (protiv) do +1 (za);</li>
+            <li>integritet od 0 (mijenja se najlakše) do 1 (ne mijenja se).</li>
+          </ul>
+        </figure>
+        <div class="panel"><h3 style="font-size:var(--t-1);margin-bottom:0.3rem">Podaci za koje treba navesti izvor</h3>
+          <p><b>prag</b>: granična razlika stavova ispod koje čovjek uzima u obzir tuđe mišljenje (anketa ili istraživanje). Potrebni su i <b>integritet</b> i <b>uticaj</b>, kao u modelu stava.</p></div>
+        <p class="mala siva">Konvencija integriteta može biti i obrnuta (0 = stav se ne mijenja), kao u primjeru s predavanja 2. Obje su ispravne ako su jasno navedene.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 10 =========================================================== -->
+<section class="slajd" id="s10" data-naslov="Probajte u NetLogu">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Probajte</span>
+      <h2>Isti model u NetLogu</h2>
+    </div>
+    <div class="dvije">
+      <div class="veze">
+        <a href="../netlogo-web/v03-blok1-povjerenje.html" target="_blank" rel="noopener"><b>NetLogo Web ↗</b>
+          <span>Pravi NetLogo u web pregledniku: klizači, Command Center, kod. Bez instalacije i bez interneta.</span></a>
+        <a href="../modeli/v03-blok1-povjerenje.nlogox"><b>v03-blok1-povjerenje.nlogox</b>
+          <span>Za NetLogo 7.0.4 (File → Open). BehaviorSpace eksperimenti: grupe (500 tickova) i mediji.</span></a>
+        <a href="../v03-blokovi-interakcije.html#blok1" target="_blank" rel="noopener"><b>Sva četiri bloka ↗</b>
+          <span>Stranica s blokovima: simulacija, mjerenja i kod u NetLogu i C#.</span></a>
+        <a><b>C#: dotnet run -- blokovi --blok 1</b>
+          <span>Projekat netlogo-kroz-csharp; ispiše iste mjere kao NetLogo.</span></a>
+      </div>
+      <div class="tekst">
+        <div class="panel"><h3 style="font-size:var(--t-1);margin-bottom:0.4rem">Zadaci za provjeru</h3>
+          <ul>
+            <li>Postavite prag na 0,2 i izvršite <code>repeat 500 [ go ]</code> u Command Centeru; zatim ponovite s pragom 1. Uporedite broj grupa.</li>
+            <li>Uključite medije uz prag 0,3 i utvrdite kojim se ljudima stav mijenja, a kojima ostaje isti.</li>
+            <li>U Command Centeru izvršite <code>ask ljudi [ set integritet 0.9 ]</code> i utvrdite mijenja li se ishod ili brzina promjene.</li>
+          </ul></div>
+        <div><h3 style="font-size:var(--t-1);margin-bottom:0.4rem">Literatura</h3>
+          <ol class="literatura">
+            <li>Deffuant, G., Neau, D., Amblard, F., Weisbuch, G. (2000). Mixing beliefs among interacting agents. <i>Advances in Complex Systems</i>, 3, 87–98.</li>
+            <li>Hegselmann, R., Krause, U. (2002). Opinion dynamics and bounded confidence: models, analysis and simulation. <i>JASSS</i>, 5(3).</li>
+          </ol></div>
+        <p class="mala siva">Rezultati na ovoj stranici dobijeni su u NetLogu 7.0.4 (headless). Putanje potiču iz jednog pokretanja uz seed (random-seed 1); grafikoni prikazuju medijan i raspon 10 pokretanja. Modeliranje i simulacije, FIT UNMO, 2026/27.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<nav class="navigacija" aria-label="Slajdovi">
+  <div class="napredak" id="napredak"></div>
+  <div class="okvir">
+    <button type="button" id="nazad" aria-label="Prethodni slajd">←</button>
+    <span class="broj" id="broj">1 / 10</span>
+    <button type="button" id="naprijed" aria-label="Sljedeći slajd">→</button>
+    <span class="naslov-slajda" id="naslov-slajda"></span>
+  </div>
+</nav>
+
+<script>window.PUTANJE = {{JSON:mjerenja/putanje-b1.json}}; window.MJERENJA = {{MJERENJA:b1_grupe_500,b1_udio_za_mediji_0,b1_udio_za_mediji_150}};</script>
+<script>
+(() => {
+  const $ = (s, el = document) => el.querySelector(s);
+  const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const zarez = (x, d = 2) => x.toFixed(d).replace(".", ",").replace("-", "−");
+  const pct = x => `${Math.round(x * 100)}%`;
+  const pct1 = x => `${(Math.round(x * 1000) / 10).toString().replace(".", ",")}%`;
+  const smanjeno = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // ---------------- slajdovi ----------------
+  const main = $("#slajdovi"), slajdovi = $$(".slajd");
+  let tren = 0;
+  function prikazi(i, izHasha) {
+    tren = Math.max(0, Math.min(slajdovi.length - 1, i));
+    slajdovi.forEach((s, k) => s.classList.toggle("aktivan", k === tren));
+    $("#broj").textContent = `${tren + 1} / ${slajdovi.length}`;
+    $("#naslov-slajda").textContent = slajdovi[tren].dataset.naslov;
+    $("#napredak").style.width = `${((tren + 1) / slajdovi.length) * 100}%`;
+    $("#nazad").disabled = tren === 0; $("#naprijed").disabled = tren === slajdovi.length - 1;
+    if (!izHasha) { try { history.replaceState(null, "", "#" + slajdovi[tren].id); } catch (e) {} }
+    if (main.classList.contains("prezentacija")) window.scrollTo(0, 0);
+    crtajVidljivo();
+  }
+  $("#nazad").addEventListener("click", () => prikazi(tren - 1));
+  $("#naprijed").addEventListener("click", () => prikazi(tren + 1));
+  document.addEventListener("keydown", e => {
+    if (!main.classList.contains("prezentacija") || e.target.closest("input, textarea")) return;
+    if (["ArrowRight", "PageDown"].includes(e.key) || (e.key === " " && !e.target.closest("button"))) { e.preventDefault(); prikazi(tren + 1); }
+    if (["ArrowLeft", "PageUp"].includes(e.key)) { e.preventDefault(); prikazi(tren - 1); }
+    if (e.key === "Home") prikazi(0);
+    if (e.key === "End") prikazi(slajdovi.length - 1);
+  });
+  let dodirX = null;
+  main.addEventListener("touchstart", e => { dodirX = e.touches[0].clientX; }, { passive: true });
+  main.addEventListener("touchend", e => {
+    if (dodirX === null || !main.classList.contains("prezentacija")) return;
+    const dx = e.changedTouches[0].clientX - dodirX; dodirX = null;
+    if (e.target.closest("input, canvas, .kalk")) return;
+    if (Math.abs(dx) > 70) prikazi(tren + (dx < 0 ? 1 : -1));
+  });
+  function nacin(citanje) {
+    main.classList.toggle("citanje", citanje); main.classList.toggle("prezentacija", !citanje);
+    $("#nacin-citanje").setAttribute("aria-pressed", citanje); $("#nacin-prezentacija").setAttribute("aria-pressed", !citanje);
+    try { localStorage.setItem("blok1-nacin", citanje ? "citanje" : "prezentacija"); } catch (e) {}
+    if (citanje) { requestAnimationFrame(() => slajdovi[tren].scrollIntoView()); }
+    crtajVidljivo();
+  }
+  $("#nacin-citanje").addEventListener("click", () => nacin(true));
+  $("#nacin-prezentacija").addEventListener("click", () => nacin(false));
+
+  // ---------------- putanje stava (NetLogo) ----------------
+  const P = {}; for (const u of window.PUTANJE.uslovi) P[u.kljuc] = u;
+  const bojaKraja = v => v > 20 ? css("--za") : v < -20 ? css("--protiv") : css("--neodlucni");
+  function crtajPutanje(canvas, kljuc, animiraj) {
+    const u = P[kljuc]; if (!u) return;
+    const dpr = Math.min(devicePixelRatio || 1, 2), w = canvas.clientWidth || 600, h = canvas.clientHeight || 300;
+    canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
+    const g = canvas.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const L = 34, R = 16, T = 8, B = 22, pw = w - L - R, ph = h - T - B;
+    const n = u.ticks.length, xMax = u.ticks[n - 1];
+    const X = t => L + (t / xMax) * pw, Y = s => T + (1 - (s / 100 + 1) / 2) * ph;
+    const osnova = () => {
+      g.clearRect(0, 0, w, h);
+      g.font = `11px ${css("--f-mono")}`; g.fillStyle = "#9aa3ad"; g.strokeStyle = "rgba(255,255,255,0.12)"; g.lineWidth = 1;
+      for (const s of [-100, -50, 0, 50, 100]) {
+        g.beginPath(); g.moveTo(L, Y(s) + 0.5); g.lineTo(w - R, Y(s) + 0.5); g.stroke();
+        g.textAlign = "right"; g.fillText(s === 0 ? "0" : zarez(s / 100, s % 100 ? 1 : 0).replace("1,0", "1"), L - 6, Y(s) + 4);
+      }
+      g.textAlign = "center";
+      for (let t = 0; t <= xMax; t += 100) { g.textAlign = t === xMax ? "right" : t === 0 ? "left" : "center"; g.fillText(String(t), X(t) + (t === xMax ? 6 : 0), h - 6); }
+      if (u.mediji) {                                    // poruka +1 i prag oko nje
+        g.setLineDash([5, 4]); g.strokeStyle = css("--narandza"); g.lineWidth = 1.5;
+        g.beginPath(); g.moveTo(L, Y(100)); g.lineTo(w - R, Y(100)); g.stroke();
+        const donja = Math.max(-100, 100 - u.prag * 100);
+        g.beginPath(); g.moveTo(L, Y(donja)); g.lineTo(w - R, Y(donja)); g.stroke(); g.setLineDash([]);
+      }
+    };
+    const crtajDo = k => {
+      osnova();
+      g.globalAlpha = 0.32; g.lineWidth = 1;
+      for (const niz of u.stav) {
+        g.strokeStyle = bojaKraja(niz[n - 1]);
+        g.beginPath(); g.moveTo(X(u.ticks[0]), Y(niz[0]));
+        for (let i = 1; i <= k; i++) g.lineTo(X(u.ticks[i]), Y(niz[i]));
+        g.stroke();
+      }
+      g.globalAlpha = 1;
+    };
+    if (canvas._anim) cancelAnimationFrame(canvas._anim);
+    if (!animiraj || smanjeno) { crtajDo(n - 1); return; }
+    const pocetak = performance.now(), trajanje = 1600;
+    const korak = sad => {
+      const k = Math.max(1, Math.round(Math.min(1, (sad - pocetak) / trajanje) * (n - 1)));
+      crtajDo(k);
+      if (k < n - 1) canvas._anim = requestAnimationFrame(korak);
+    };
+    canvas._anim = requestAnimationFrame(korak);
+  }
+  const opisPutanje = u => `NetLogo 7.0.4, jedno pokretanje (random-seed ${u.seed}), 200 ljudi, prag ${zarez(u.prag, u.prag % 1 ? 1 : 0)}${u.mediji ? ", mediji uključeni" : ""}. ` +
+    `Na ticku 500: <b>${u.broj_grupa} ${u.broj_grupa === 1 ? "grupa" : u.broj_grupa < 5 ? "grupe" : "grupa"}</b>, udio „za“ ${pct1(u.udio_za)}.`;
+  const izbori = { "put-grupe": "p02", "put-mediji": "p03m" };
+  function postaviPutanje(id, kljuc, animiraj) {
+    izbori[id] = kljuc;
+    crtajPutanje(document.getElementById(id), kljuc, animiraj);
+    const potpis = document.getElementById(id + "-potpis"); if (potpis) potpis.innerHTML = opisPutanje(P[kljuc]);
+  }
+  for (const grupa of $$(".izbor")) {
+    const canvas = grupa.parentElement.querySelector("canvas.putanje");
+    for (const b of $$("button", grupa)) b.addEventListener("click", () => {
+      $$("button", grupa).forEach(x => x.setAttribute("aria-pressed", x === b));
+      postaviPutanje(canvas.id, b.dataset.put, true);
+    });
+  }
+  function crtajVidljivo() {
+    const vidljiv = id => { const c = document.getElementById(id); return c && c.offsetParent !== null; };
+    if (vidljiv("put-naslov")) { crtajPutanje($("#put-naslov"), "p02", false); $("#put-naslov-potpis").innerHTML = opisPutanje(P.p02); }
+    for (const id of ["put-grupe", "put-mediji"]) if (vidljiv(id)) postaviPutanje(id, izbori[id], main.classList.contains("prezentacija"));
+    kalkCrtaj();
+  }
+  addEventListener("resize", () => crtajVidljivo());
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => crtajVidljivo());
+
+  // ---------------- grafikoni iz mjerenja (SVG) ----------------
+  const SVG = "http://www.w3.org/2000/svg";
+  const el = (ime, atr = {}, tekst) => { const e = document.createElementNS(SVG, ime); for (const [k, v] of Object.entries(atr)) e.setAttribute(k, v); if (tekst !== undefined) e.textContent = tekst; return e; };
+  function grafik(cilj, spec) {
+    const W = 460, H = 240, L = 46, R = 12, T = 14, B = 44;
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": spec.naslov, class: "grafik" });
+    const n = spec.kategorije.length, sir = (W - L - R) / n;
+    const x = i => L + sir * (i + 0.5), y = v => T + (H - T - B) * (1 - (v - spec.yMin) / (spec.yMax - spec.yMin));
+    for (const v of spec.yKoraci) {
+      svg.append(el("line", { x1: L, x2: W - R, y1: y(v), y2: y(v), class: "g-mreza" }));
+      svg.append(el("text", { x: L - 6, y: y(v) + 4, "text-anchor": "end", class: "g-oznaka" }, spec.yFormat(v)));
+    }
+    if (spec.ref) {
+      svg.append(el("line", { x1: L, x2: W - R, y1: y(spec.ref.v), y2: y(spec.ref.v), class: "g-ref" }));
+      svg.append(el("text", { x: W - R, y: y(spec.ref.v) - 5, "text-anchor": "end", class: "g-ref-tekst" }, spec.ref.tekst));
+    }
+    spec.podaci.forEach((d, i) => {
+      svg.append(el("line", { x1: x(i), x2: x(i), y1: y(d.min), y2: y(d.max), class: "g-raspon" }));
+      svg.append(el("circle", { cx: x(i), cy: y(d.med), r: 5, class: "g-tacka" }));
+      svg.append(el("text", { x: x(i) + 8, y: y(d.med) + 4, class: "g-vrijednost" }, spec.yFormat(d.med)));
+      svg.append(el("text", { x: x(i), y: H - B + 18, "text-anchor": "middle", class: "g-oznaka" }, spec.kategorije[i].replace(".", ",")));
+    });
+    svg.append(el("text", { x: L + (W - L - R) / 2, y: H - 6, "text-anchor": "middle", class: "g-naslov-x" }, spec.xNaslov));
+    svg.append(el("line", { x1: L, x2: W - R, y1: y(spec.yMin), y2: y(spec.yMin), class: "g-os" }));
+    cilj.append(svg);
+  }
+  const M = window.MJERENJA, PR = ["0.1", "0.2", "0.3", "0.5", "1", "2"];
+  grafik($("#g-grupe"), { naslov: "Broj grupa na ticku 500", kategorije: PR, podaci: PR.map(p => M.b1_grupe_500["prag=" + p]),
+    yMin: 0, yMax: 9, yKoraci: [0, 2, 4, 6, 8], yFormat: v => String(Math.round(v)), xNaslov: "prag" });
+  grafik($("#g-mediji"), { naslov: "Udio za na ticku 150, s medijima", kategorije: PR, podaci: PR.map(p => M.b1_udio_za_mediji_150["prag=" + p]),
+    yMin: 0, yMax: 1, yKoraci: [0, 0.25, 0.5, 0.75, 1], yFormat: pct, xNaslov: "prag",
+    ref: { v: M.b1_udio_za_mediji_0["prag=0.5"].med, tekst: "na početku" } });
+
+  // ---------------- kalkulator jednog susreta ----------------
+  const ul = id => document.getElementById(id);
+  const vr = () => ({ a: +ul("k-a").value, b: +ul("k-b").value, ia: +ul("k-ia").value, ib: +ul("k-ib").value, prag: +ul("k-prag").value, uticaj: +ul("k-uticaj").value });
+  let stanje = null, brojRazgovora = 0, staro = null;
+  const resetuj = () => { const v = vr(); stanje = { a: v.a, b: v.b }; staro = null; brojRazgovora = 0; };
+  const XO = s => 40 + (s + 1) / 2 * 720;
+  const bojaStava = s => s > 0.2 ? css("--za") : s < -0.2 ? css("--protiv") : css("--neodlucni");
+  function kalkCrtaj(polozaj) {
+    const svg = ul("kalk-osa"); if (!svg || !stanje) return;
+    const v = vr(), p = polozaj || stanje;
+    svg.replaceChildren();
+    const lo = Math.max(-1, p.a - v.prag), hi = Math.min(1, p.a + v.prag);
+    svg.append(el("rect", { x: XO(lo), y: 70, width: Math.max(0, XO(hi) - XO(lo)), height: 64, rx: 6, class: "il-prozor" }));
+    svg.append(el("text", { x: (XO(lo) + XO(hi)) / 2, y: 62, "text-anchor": "middle", class: "il-tekst" }, "A sluša ovdje (stav A ± prag)"));
+    svg.append(el("line", { x1: 40, x2: 760, y1: 102, y2: 102, class: "il-osa" }));
+    for (const t of [-1, -0.5, 0, 0.5, 1]) {
+      svg.append(el("line", { x1: XO(t), x2: XO(t), y1: 96, y2: 108, class: "il-osa" }));
+      svg.append(el("text", { x: XO(t), y: 160, "text-anchor": "middle", class: "il-tekst" }, t === 0 ? "0" : zarez(t, 1).replace(/^1,0$/, "+1").replace("−1,0", "−1").replace(/^0,5$/, "+0,5")));
+    }
+    svg.append(el("text", { x: 40, y: 182, class: "il-tekst" }, "protiv")); svg.append(el("text", { x: 760, y: 182, "text-anchor": "end", class: "il-tekst" }, "za"));
+    if (staro) for (const [k, s] of [["A", staro.a], ["B", staro.b]]) {
+      svg.append(el("circle", { cx: XO(s), cy: 102, r: 11, fill: "none", stroke: css("--siva"), "stroke-dasharray": "3 3" }));
+    }
+    for (const [k, s] of [["A", p.a], ["B", p.b]]) {
+      svg.append(el("circle", { cx: XO(s), cy: 102, r: 13, fill: bojaStava(s) }));
+      svg.append(el("text", { x: XO(s), y: 107, "text-anchor": "middle", style: "fill:#fff;font:600 13px var(--f-tekst)" }, k));
+      svg.append(el("text", { x: XO(s), y: k === "A" ? 30 : 46, "text-anchor": "middle", class: "il-tekst-veci" }, `${k} = ${zarez(s)}`));
+    }
+  }
+  function racun() {
+    const v = vr(), a = stanje.a, b = stanje.b, raz = b - a, da = Math.abs(raz) < v.prag;
+    const na = a + raz * (1 - v.ia) * v.uticaj, nb = b + (a - b) * (1 - v.ib) * v.uticaj;
+    let t = `razlika = B − A = ${zarez(b)} − (${zarez(a)}) = ${zarez(raz)}\n`;
+    t += `|razlika| = ${zarez(Math.abs(raz))} ${da ? "&lt;" : "≥"} prag ${zarez(v.prag)}  →  ${da ? '<span class="da">razgovor djeluje</span>' : '<span class="ne">ništa se ne mijenja</span>'}\n`;
+    if (da) {
+      t += `A: ${zarez(a)} + ${zarez(raz)} × (1 − ${zarez(v.ia)}) × ${zarez(v.uticaj)} = ${zarez(na, 3)}\n`;
+      t += `B: ${zarez(b)} + (${zarez(a)} − ${zarez(b)}) × (1 − ${zarez(v.ib)}) × ${zarez(v.uticaj)} = ${zarez(nb, 3)}`;
+    } else t += "A i B ostaju gdje su.";
+    ul("kalk-racun").innerHTML = t;
+    return { da, na, nb };
+  }
+  function osvjezi() { for (const id of ["k-a", "k-b", "k-ia", "k-ib", "k-prag", "k-uticaj"]) ul(id).nextElementSibling; $$(".kalk output").forEach(o => { o.textContent = zarez(+ul(o.htmlFor).value); }); }
+  for (const id of ["k-a", "k-b"]) ul(id).addEventListener("input", () => { resetuj(); osvjezi(); racun(); kalkCrtaj(); ul("kalk-brojac").textContent = ""; });
+  for (const id of ["k-ia", "k-ib", "k-prag", "k-uticaj"]) ul(id).addEventListener("input", () => { osvjezi(); racun(); kalkCrtaj(); });
+  ul("kalk-razgovaraj").addEventListener("click", () => {
+    const r = racun(); if (!r.da) { ul("kalk-brojac").textContent = "razlika je veća od praga: nema promjene"; return; }
+    const od = { ...stanje }, do_ = { a: r.na, b: r.nb };
+    staro = od; brojRazgovora++;
+    const zavrsi = () => { stanje = do_; kalkCrtaj(); racun(); ul("kalk-brojac").textContent = `razgovora: ${brojRazgovora}`; };
+    if (smanjeno) return zavrsi();
+    const t0 = performance.now();
+    const anim = sad => { const k = Math.min(1, (sad - t0) / 500), e = 1 - Math.pow(1 - k, 3);
+      kalkCrtaj({ a: od.a + (do_.a - od.a) * e, b: od.b + (do_.b - od.b) * e });
+      if (k < 1) requestAnimationFrame(anim); else zavrsi(); };
+    requestAnimationFrame(anim);
+  });
+  ul("kalk-vrati").addEventListener("click", () => { resetuj(); racun(); kalkCrtaj(); ul("kalk-brojac").textContent = ""; });
+  resetuj(); osvjezi(); racun();
+
+  // ---------------- početak ----------------
+  let pocetni = 0;
+  const h = location.hash.replace("#", ""); const k = slajdovi.findIndex(s => s.id === h); if (k >= 0) pocetni = k;
+  let sacuvano = null; try { sacuvano = localStorage.getItem("blok1-nacin"); } catch (e) {}
+  if (sacuvano === "citanje") nacin(true);
+  prikazi(pocetni, true);
+  if (main.classList.contains("prezentacija")) setTimeout(() => window.scrollTo(0, 0), 0);
+  addEventListener("hashchange", () => {
+    const i = slajdovi.findIndex(s => s.id === location.hash.replace("#", ""));
+    if (i >= 0 && i !== tren) { prikazi(i, true); if (main.classList.contains("citanje")) slajdovi[i].scrollIntoView(); }
+  });
+})();
+</script>

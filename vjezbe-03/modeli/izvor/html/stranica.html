@@ -1,0 +1,741 @@
+<title>Blokovi interakcije</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:wght@500;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Raspored: katalog blokova. Svaki blok je red „pravilo na papiru | svijet u NetLogu“,
+   ispod njega mjerenja, kod i izvori. Papir je svijetao, svijet je crn kao u NetLogu. */
+:root {
+  --papir: #eef1f4;        /* pozadina stranice, hladna siva */
+  --list: #ffffff;         /* panel simulacije i list s pravilom */
+  --tinta: #17212b;        /* tekst */
+  --siva: #56636f;         /* sporedni tekst */
+  --linija: #d3dae1;       /* linije, mreža grafikona, crte na papiru */
+  --narandza: #b9531a;     /* akcent: dugmad, oznake, tačke na grafikonima */
+  --narandza-meko: #f6dfd0;
+  --margina: #e5a3a3;      /* crvena margina na listu papira */
+  --svijet: #000000;       /* svijet u NetLogu */
+  --f-naslov: "Bitter", "Georgia", "Cambria", serif;
+  --f-tekst: "IBM Plex Sans", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "IBM Plex Mono", "Cascadia Mono", Consolas, "Courier New", monospace;
+  --t-0: 0.83rem; --t-1: 1rem; --t-2: 1.17rem; --t-3: 1.5rem; --t-4: 2.1rem; --t-5: 2.9rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --papir: #10161c; --list: #18212a; --tinta: #e3e9ee; --siva: #9ba8b4; --linija: #2a3540;
+    --narandza: #f0894a; --narandza-meko: #3a2416; --margina: #6b3535; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --papir: #10161c; --list: #18212a; --tinta: #e3e9ee; --siva: #9ba8b4; --linija: #2a3540;
+  --narandza: #f0894a; --narandza-meko: #3a2416; --margina: #6b3535; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { font-size: 18px; scroll-behavior: smooth; }
+@media (max-width: 600px) { html { font-size: 16px; } }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0; background: var(--papir); color: var(--tinta);
+  font-family: var(--f-tekst); font-size: var(--t-1); line-height: 1.55;
+}
+[hidden] { display: none !important; }
+a { color: var(--narandza); text-underline-offset: 0.15em; }
+:focus-visible { outline: 3px solid var(--narandza); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--f-naslov); text-wrap: balance; line-height: 1.2; margin: 0; }
+h3 { font-size: var(--t-2); font-weight: 700; }
+p { margin: 0; }
+code, kbd { font-family: var(--f-mono); font-size: 0.92em; }
+p code, li code, td code { background: var(--narandza-meko); padding: 0.05em 0.3em; border-radius: 3px; }
+.okvir {
+  max-width: 1200px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.oznaka {
+  font-family: var(--f-mono); font-size: var(--t-0); letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--narandza); font-weight: 500;
+}
+
+/* ---------- zaglavlje ---------- */
+.zaglavlje { padding-block: 2.6rem 1.6rem; border-bottom: 1px solid var(--linija); }
+.zaglavlje h1 { font-size: var(--t-5); font-weight: 700; margin-top: 0.4rem; letter-spacing: -0.01em; }
+.zaglavlje .uvodni { max-width: 46rem; font-size: var(--t-2); margin-top: 0.9rem; }
+.sadrzaj {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: var(--papir); border-bottom: 1px solid var(--linija);
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--papir); }
+.sadrzaj ol { list-style: none; margin: 0; padding-block: 0.55rem; display: flex; gap: 0.4rem 1.4rem; flex-wrap: wrap; }
+.sadrzaj a { text-decoration: none; color: var(--tinta); font-size: var(--t-0); font-weight: 500; }
+.sadrzaj a span { font-family: var(--f-mono); color: var(--narandza); margin-right: 0.35em; }
+.sadrzaj a:hover { color: var(--narandza); }
+
+/* ---------- uvod ---------- */
+.uvod { padding-block: 2rem 1rem; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 2rem; }
+.uvod > * { min-width: 0; }
+.uvod h2 { font-size: var(--t-3); margin-bottom: 0.6rem; }
+.uvod ol { margin: 0.5rem 0 0; padding-left: 1.3rem; display: grid; gap: 0.35rem; }
+.vec-imate { border-left: 3px solid var(--linija); padding-left: 1rem; display: grid; gap: 0.6rem; align-content: start; }
+.vec-imate dl { margin: 0; display: grid; gap: 0.5rem; }
+.vec-imate dt { font-weight: 600; }
+.vec-imate dd { margin: 0; color: var(--siva); }
+.napomena { color: var(--siva); font-size: var(--t-0); }
+@media (max-width: 860px) { .uvod { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---------- blok ---------- */
+.blok { padding-block: 3rem 1rem; border-top: 1px solid var(--linija); scroll-margin-top: 3rem; }
+.blok-glava { display: grid; gap: 0.3rem; margin-bottom: 1.4rem; }
+.blok-glava h2 { font-size: var(--t-4); }
+.blok-glava .teza { font-size: var(--t-2); color: var(--siva); max-width: 44rem; }
+.blok-tijelo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2rem; align-items: start; }
+.blok-tijelo > * { min-width: 0; }
+.tekst { display: grid; gap: 1.3rem; }
+.tekst section { display: grid; gap: 0.4rem; }
+.tekst ul { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.3rem; }
+@media (max-width: 900px) { .blok-tijelo { grid-template-columns: minmax(0, 1fr); } }
+
+/* list papira s pravilom: model na papiru */
+.pravilo {
+  margin: 0; background-color: var(--list); border: 1px solid var(--linija); border-radius: 4px;
+  padding: 1.1rem 1.2rem 1.2rem 2.4rem; position: relative;
+  background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(1.7rem - 1px), var(--linija) calc(1.7rem - 1px), var(--linija) 1.7rem);
+  background-position: 0 2.55rem; line-height: 1.7rem;
+}
+.pravilo::before { content: ""; position: absolute; left: 1.5rem; top: 0; bottom: 0; width: 2px; background: var(--margina); }
+.pravilo figcaption { font-family: var(--f-mono); font-size: var(--t-0); color: var(--siva); letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 0.15rem; line-height: 1.7rem; }
+.pravilo p, .pravilo li { font-family: var(--f-naslov); font-size: 1.06rem; }
+.pravilo ul { list-style: none; margin: 0; padding: 0 0 0 1.2rem; }
+.pravilo li::before { content: "→ "; color: var(--narandza); font-family: var(--f-tekst); }
+.pravilo b { color: var(--narandza); font-weight: 700; }
+
+.pitanje { background: var(--narandza-meko); border-radius: 4px; padding: 0.9rem 1rem; }
+.pitanje h3 { font-size: var(--t-1); }
+
+/* panel simulacije */
+.sim { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 0.9rem; display: grid; gap: 0.8rem; }
+.sim-glava { display: flex; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; align-items: baseline; }
+.sim-glava .napomena { font-size: 0.75rem; flex-basis: 100%; }
+.nlw { font-family: var(--f-mono); font-size: var(--t-0); text-decoration: none; border: 1px solid var(--narandza);
+  border-radius: 4px; padding: 0.15rem 0.55rem; }
+.nlw:hover { background: var(--narandza-meko); }
+canvas.svijet { width: 100%; max-width: min(100%, 540px); margin-inline: auto; aspect-ratio: 1 / 1; display: block; background: var(--svijet); border-radius: 2px; }
+canvas.hist { width: 100%; height: 92px; display: block; }
+.monitori { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: 0.5rem; }
+.monitor { border: 1px solid var(--linija); border-radius: 4px; padding: 0.35rem 0.6rem; }
+.monitor span { display: block; font-size: 0.72rem; color: var(--siva); font-family: var(--f-mono); letter-spacing: 0.03em; }
+.monitor b { font-family: var(--f-mono); font-size: var(--t-2); font-weight: 500; font-variant-numeric: tabular-nums; }
+.kontrole { display: grid; gap: 0.6rem; }
+.dugmad { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+button {
+  font: 500 var(--t-0) var(--f-mono); border-radius: 4px; padding: 0.45rem 0.9rem; cursor: pointer;
+  border: 1px solid var(--narandza); background: transparent; color: var(--narandza);
+}
+button.glavno, button[aria-pressed="true"] { background: var(--narandza); color: var(--list); }
+button:disabled { opacity: 0.5; cursor: wait; }
+.klizac { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0 0.6rem; align-items: center; }
+.klizac label { font-family: var(--f-mono); font-size: var(--t-0); }
+.klizac output { font-family: var(--f-mono); font-size: var(--t-0); font-variant-numeric: tabular-nums; min-width: 2.6rem; text-align: right; }
+.klizac input { grid-column: 1 / -1; width: 100%; accent-color: var(--narandza); }
+.klizac small { grid-column: 1 / -1; color: var(--siva); font-size: 0.72rem; }
+.prekidac { display: flex; gap: 0.5rem; align-items: center; font-family: var(--f-mono); font-size: var(--t-0); }
+.prekidac input { accent-color: var(--narandza); width: 1.1rem; height: 1.1rem; }
+.stanje { font-family: var(--f-mono); font-size: var(--t-0); color: var(--narandza); min-height: 1.2em; }
+
+/* izmjereno */
+.izmjereno { margin-top: 2rem; display: grid; gap: 0.7rem; }
+.grafici { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: 1rem 2rem; }
+.grafici figure { margin: 0; display: grid; gap: 0.3rem; min-width: 0; max-width: 36rem; }
+.grafici figcaption { font-size: var(--t-0); color: var(--siva); }
+.grafici figcaption b { color: var(--tinta); font-weight: 600; }
+svg.grafik { width: 100%; height: auto; display: block; overflow: visible; }
+.g-mreza { stroke: var(--linija); stroke-width: 1; }
+.g-os { stroke: var(--siva); stroke-width: 1; }
+.g-oznaka { fill: var(--siva); font: 12px var(--f-mono); }
+.g-naslov-x { fill: var(--siva); font: 12px var(--f-tekst); }
+.g-vrijednost { fill: var(--tinta); font: 500 12px var(--f-mono); }
+.g-raspon { stroke: var(--narandza); stroke-width: 3; stroke-linecap: round; opacity: 0.35; }
+.g-tacka { fill: var(--narandza); }
+.g-stupac { fill: var(--narandza); opacity: 0.85; }
+.g-ref { stroke: var(--siva); stroke-width: 1.2; stroke-dasharray: 4 4; }
+.g-ref-tekst { fill: var(--siva); font: italic 12px var(--f-tekst); }
+
+/* kod */
+details.kod { margin-top: 1.6rem; border: 1px solid var(--linija); border-radius: 6px; background: var(--list); }
+details.kod summary { cursor: pointer; padding: 0.7rem 1rem; font-weight: 600; }
+details.kod summary span { font-weight: 400; color: var(--siva); font-size: var(--t-0); margin-left: 0.5rem; }
+.kod-kartice { padding: 0 1rem 1rem; }
+.kartice { display: flex; gap: 0.4rem; margin-bottom: 0.6rem; }
+.kartice button { border-color: var(--linija); color: var(--siva); }
+.kartice button[aria-selected="true"] { border-color: var(--narandza); color: var(--narandza); background: var(--narandza-meko); }
+pre { margin: 0; overflow-x: auto; background: var(--papir); border-radius: 4px; padding: 0.8rem 1rem; }
+pre code { font-size: 15px; line-height: 1.5; white-space: pre; }
+.kom { color: var(--siva); font-style: italic; }
+.kod-napomena { font-size: var(--t-0); color: var(--siva); margin-top: 0.6rem; }
+
+/* tri kolone na dnu bloka */
+.trojka { margin-top: 1.6rem; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.2rem 2rem; }
+.trojka section { display: grid; gap: 0.3rem; align-content: start; }
+.trojka h3 { font-family: var(--f-mono); font-size: var(--t-0); font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--siva); }
+.trojka p { font-size: 0.95rem; }
+@media (max-width: 860px) { .trojka { grid-template-columns: minmax(0, 1fr); } }
+
+/* model na papiru */
+.papir-sekcija { padding-block: 3rem 1rem; border-top: 1px solid var(--linija); scroll-margin-top: 3rem; display: grid; gap: 1.2rem; }
+.papir-sekcija h2 { font-size: var(--t-4); }
+.obrazac { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2rem; align-items: start; }
+.obrazac > * { min-width: 0; }
+.obrazac ol { margin: 0; padding-left: 1.4rem; display: grid; gap: 0.55rem; }
+.obrazac li b { font-weight: 600; }
+.obrazac li span { display: block; color: var(--siva); font-size: 0.95rem; }
+@media (max-width: 900px) { .obrazac { grid-template-columns: minmax(0, 1fr); } }
+#obrazac-tekst { white-space: pre-wrap; font-family: var(--f-mono); font-size: 14px; }
+
+/* prilog */
+.prilog { padding-block: 3rem 3rem; border-top: 1px solid var(--linija); scroll-margin-top: 3rem; display: grid; gap: 1.2rem; }
+.prilog h2 { font-size: var(--t-3); }
+.prilog h3 { margin-bottom: 0.3rem; }
+.tabela { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+th, td { text-align: left; padding: 0.45rem 0.7rem 0.45rem 0; border-bottom: 1px solid var(--linija); vertical-align: top; }
+th { font-family: var(--f-mono); font-size: var(--t-0); font-weight: 500; color: var(--siva); }
+.literatura { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.4rem; font-size: 0.95rem; }
+.podnozje { color: var(--siva); font-size: var(--t-0); padding-block: 0 2rem; }
+</style>
+<!--TIJELO-->
+<header class="zaglavlje">
+  <div class="okvir">
+    <span class="oznaka">Modeliranje i simulacije · Vježbe 3 · FIT UNMO · 2026/27</span>
+    <h1>Blokovi interakcije</h1>
+    <p class="uvodni">Model zasnovan na agentima gradi se opisom interakcija: ko s kim stupa u kontakt i šta se pri tome mijenja. Prikazano je šest tipičnih interakcija. Za svaku su navedeni pravilo za model na papiru, simulacija, mini-prezentacija i učinci izmjereni u NetLogu.</p>
+  </div>
+</header>
+
+<nav class="sadrzaj" aria-label="Sadržaj">
+  <div class="okvir">
+    <ol>
+      <li><a href="#blok1"><span>1</span>Ograničeno povjerenje</a></li>
+      <li><a href="#blok2"><span>2</span>Prag i kaskada</a></li>
+      <li><a href="#blok3"><span>3</span>Mreža poznanstava</a></li>
+      <li><a href="#blok4"><span>4</span>Preseljenje</a></li>
+      <li><a href="#blok56"><span>5–6</span>Ustanova; kazna</a></li>
+      <li><a href="#papir"><span>→</span>Model na papiru</a></li>
+      <li><a href="#prilog"><span>+</span>Prilog</a></li>
+    </ol>
+  </div>
+</nav>
+
+<main>
+<div class="okvir">
+
+<section class="uvod" aria-labelledby="uvod-naslov">
+  <div>
+    <h2 id="uvod-naslov">Kako čitati blok</h2>
+    <p>Na predavanju 2 model je prvo opisan na papiru: cilj, akteri, atributi, okruženje, interakcije i vrijeme.
+      Kodiranje dolazi poslije. Blok je zato jedna rečenica u dijelu „Interakcije“ vašeg modela na papiru.</p>
+    <ol>
+      <li><b>Pravilo</b>: rečenica oblika „Kada … sretne … : ako … → …“.</li>
+      <li>Ishod: simulacija, pa brojke izmjerene u NetLogu.</li>
+      <li><b>Pitanje</b> koje pravilo postavlja vašem modelu.</li>
+      <li><b>Kod</b> (NetLogo i C#), te koji parametar mora imati izvor.</li>
+    </ol>
+  </div>
+  <aside class="vec-imate" aria-label="Već poznate interakcije">
+    <h3>Već imate (model stava, vježbe 2)</h3>
+    <dl>
+      <dt>Razgovor</dt>
+      <dd>Kada čovjek sretne čovjeka u dometu → stav mu se približi stavu sagovornika, zavisno od integriteta.</dd>
+      <dt>Izvor poruke</dt>
+      <dd>Mediji su agenti koji stoje. Ko je u njihovom dometu → stav mu se približi poruci.</dd>
+    </dl>
+    <p class="napomena">Simulacije na ovoj stranici rade u web pregledniku i prate isti kod kao NetLogo modeli. Brojke u
+      tekstu i na grafikonima su iz NetLoga 7.0.4 (10 do 200 pokretanja po vrijednosti). Jedno pokretanje u web pregledniku
+      može dati drugačiji broj; zato se brojke uvijek navode kao raspon.</p>
+    <p class="napomena">Dugme „Otvori u NetLogo Webu“ otvara isti model u NetLogu koji radi u web pregledniku, s klizačima,
+      Command Centerom i kodom, bez instalacije i bez interneta. Fajlovi su u mapi <code>netlogo-web/</code> pored ove
+      stranice.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ BLOK 1 -->
+<section class="blok" id="blok1" aria-labelledby="b1-naslov">
+  <div class="blok-glava">
+    <span class="oznaka">Blok 1 · v03-blok1-povjerenje.nlogox</span>
+    <h2 id="b1-naslov">Ograničeno povjerenje</h2>
+    <p class="teza">Razgovor mijenja stav samo kada je razlika stavova dovoljno mala.</p>
+    <p><a class="nlw" href="blokovi/blok1-ograniceno-povjerenje.html" target="_blank" rel="noopener">Mini-prezentacija bloka 1 ↗</a></p>
+  </div>
+  <div class="blok-tijelo">
+    <div class="tekst">
+      <figure class="pravilo">
+        <figcaption>Pravilo · model na papiru</figcaption>
+        <p>Kada čovjek sretne čovjeka:</p>
+        <ul>
+          <li>ako je razlika stavova manja od <b>praga</b>, obojica približe svoj stav sagovornikovom, zavisno od vlastitog integriteta;</li>
+          <li>inače se ništa ne mijenja.</li>
+        </ul>
+        <p>Isto pravilo vrijedi i za poruku medija.</p>
+      </figure>
+      <section>
+        <h3>Ishod</h3>
+        <p>Mali prag dovodi do većeg broja odvojenih grupa stavova. Nakon 500 tickova prag 0,1 daje 4–8 grupa, prag 0,2 daje 3–5, prag 0,3
+          daje 2–4, a prag 1 ili veći jednu grupu.</p>
+        <p>Uz prag do 0,5 mediji gotovo ne mijenjaju udio „za“: na ticku 150 medijan je 34–40%, a na početku 38–41%. Poruka +1 utiče samo na ljude čiji je stav već blizak toj poruci. Uz prag 1 ili 2 udio „za“ na ticku 150 je 66,5–100%.</p>
+      </section>
+      <section>
+        <h3>Polazni model</h3>
+        <p>Polazište je model stava s vježbi 2, tačka 3 zadatka (mijenja se i stav sagovornika). Dodaje se samo <code>if abs razlika < prag</code>. Grupe se formiraju sporo: jasno su odvojene tek nakon nekoliko stotina tickova.</p>
+        <p>Domet određuje moguće sagovornike prema udaljenosti u prostoru, a prag određuje djeluje li razgovor prema razlici stavova.</p>
+      </section>
+      <div class="pitanje">
+        <h3>Primjena u vlastitom modelu</h3>
+        <p>U ovom bloku poruka kampanje ne mijenja stav od kojeg se znatno razlikuje. Procijenite vrijedi li isto za pojavu koju modelirate i obrazložite odgovor.</p>
+      </div>
+    </div>
+    <div class="sim" id="sim1">
+      <div class="sim-glava"><span class="oznaka">Simulacija</span><a class="nlw" href="netlogo-web/v03-blok1-povjerenje.html" target="_blank" rel="noopener">Otvori u NetLogo Webu ↗</a><span class="napomena">plavo: stav &gt; 0,2 · crveno: &lt; −0,2 · žuto: mediji</span></div>
+      <canvas class="svijet" aria-label="Svijet: 200 ljudi obojenih po stavu i četiri kuće medija"></canvas>
+      <canvas class="hist" aria-label="Raspodjela stava od −1 do +1"></canvas>
+      <div class="monitori">
+        <div class="monitor"><span>sedmica</span><b data-m="ticks">0</b></div>
+        <div class="monitor"><span>broj grupa</span><b data-m="grupe">–</b></div>
+        <div class="monitor"><span>udio za</span><b data-m="za">–</b></div>
+      </div>
+      <div class="kontrole">
+        <div class="klizac"><label for="b1-prag">prag</label><output for="b1-prag"></output>
+          <input type="range" id="b1-prag" min="0.05" max="2" step="0.05"></div>
+        <label class="prekidac"><input type="checkbox" id="b1-mediji"> mediji-rade?</label>
+        <div class="dugmad">
+          <button type="button" data-a="setup" class="glavno">setup</button>
+          <button type="button" data-a="go" aria-pressed="false">go</button>
+          <button type="button" data-a="korak">korak</button>
+          <button type="button" data-a="do500">do sedmice 500</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="izmjereno">
+    <h3>Izmjereno u NetLogu</h3>
+    <div class="grafici">
+      <figure><div id="g1a"></div><figcaption><b>Broj grupa stavova na ticku 500</b>, bez medija. 10 pokretanja po pragu; tačka je medijan, crta raspon od najmanjeg do najvećeg.</figcaption></figure>
+      <figure><div id="g1b"></div><figcaption><b>Udio „za“ na ticku 150</b>, s medijima. 10 pokretanja po pragu. Isprekidana linija: medijan na početku.</figcaption></figure>
+    </div>
+  </div>
+  <details class="kod">
+    <summary>Kod: NetLogo i C#<span>procedure razgovaraj i slusaj-medije</span></summary>
+    <div class="kod-kartice">
+      <div class="kartice" role="tablist" aria-label="Jezik">
+        <button type="button" role="tab" id="t1n" aria-controls="p1n" aria-selected="true">NetLogo</button>
+        <button type="button" role="tab" id="t1c" aria-controls="p1c" aria-selected="false" tabindex="-1">C#</button>
+      </div>
+      <div role="tabpanel" id="p1n" aria-labelledby="t1n"><pre><code>{{KOD_1_NL}}</code></pre></div>
+      <div role="tabpanel" id="p1c" aria-labelledby="t1c" hidden><pre><code>{{KOD_1_CS}}</code></pre></div>
+      <p class="kod-napomena">Unutar lambde <code>s =&gt; …</code> NetLogo-ov <code>self</code> je <code>s</code> (sagovornik), a
+        <code>myself</code> je C# <code>this</code>, čovjek koji je započeo razgovor: lambda ga zatvara iz vanjskog opsega (closure).
+        Zato se njegov stav sačuva u <code>mojStav</code> prije promjene.</p>
+    </div>
+  </details>
+  <div class="trojka">
+    <section><h3>Gdje se javlja</h3><p>Mišljenja o novom pravilu u gradu ili na fakultetu; rasprave u kojima učesnici razmatraju tuđe stavove samo dok razlike nisu prevelike; nastanak suprotstavljenih grupa među kojima prestaje međusobni uticaj.</p></section>
+    <section><h3>Podaci za koje treba navesti izvor</h3><p><code>prag</code>: granična razlika stavova ispod koje čovjek uzima u obzir tuđe mišljenje. Potrebni su i <code>integritet</code> i <code>uticaj</code>, kao u modelu stava.</p></section>
+    <section><h3>Literatura</h3><p>Deffuant, Neau, Amblard i Weisbuch (2000); Hegselmann i Krause (2002). Puni navodi su u Prilogu.</p></section>
+  </div>
+</section>
+
+<!-- ============================================================ BLOK 2 -->
+<section class="blok" id="blok2" aria-labelledby="b2-naslov">
+  <div class="blok-glava">
+    <span class="oznaka">Blok 2 · v03-blok2-prag.nlogox</span>
+    <h2 id="b2-naslov">Prag i kaskada</h2>
+    <p class="teza">Čovjek se pridružuje kada udio ljudi koji su se već pridružili u njegovoj okolini dostigne prag.</p>
+    <p><a class="nlw" href="blokovi/blok2-prag-i-kaskada.html" target="_blank" rel="noopener">Mini-prezentacija bloka 2 ↗</a></p>
+  </div>
+  <div class="blok-tijelo">
+    <div class="tekst">
+      <figure class="pravilo">
+        <figcaption>Pravilo · model na papiru</figcaption>
+        <p>U sali svako vidi do 8 susjeda. Kada čovjek koji sjedi pogleda oko sebe:</p>
+        <ul>
+          <li>ako je udio susjeda koji stoje barem jednak njegovom <b>prag</b>u, ustane i ostane stajati;</li>
+          <li>inače ostane sjediti.</li>
+        </ul>
+        <p>Nekoliko <b>pokretača</b> ustane bez obzira na druge.</p>
+      </figure>
+      <section>
+        <h3>Ishod</h3>
+        <p>Ishod je dvojak („sve ili ništa“): uz rasipanje praga do 0,2 svako pokretanje završava s manje od 10% ili s više od 90% ljudi koji stoje.</p>
+        <p>Prosječni prag je isti (0,3), a vjerovatnoća talasa zavisi od toga koliko se pragovi razlikuju. <b>Rasipanje praga</b> izražava se standardnom devijacijom pragova (uz rasipanje 0,1 oko 95% ljudi ima prag između 0,1 i 0,5).
+          Kad su svi pragovi
+          jednaki, talas nastane u 22% pokretanja, uz rasipanje 0,05 u 38%, a uz rasipanje 0,1 u 97%. Isto vrijedi za broj
+          pokretača: uz rasipanje 0,05 talas pokrene 5 pokretača u 20% pokretanja, a 20 pokretača u 88%.</p>
+      </section>
+      <section>
+        <h3>Polazni model</h3>
+        <p>Ljudi ostaju na svojim mjestima u sali. <code>with</code> najprije izdvaja agente koji ispunjavaju uslov za ustajanje prema stanju na početku kruga. Zatim <code>ask</code> izvršava naredbu za ustajanje, pa svi odlučuju na osnovu istog stanja.</p>
+      </section>
+      <div class="pitanje">
+        <h3>Primjena u vlastitom modelu</h3>
+        <p>Odredite prag i pokretače u pojavi koju modelirate. Pokrenite istu postavku više puta: jedno pokretanje nije dovoljno za procjenu vjerovatnoće talasa.</p>
+      </div>
+    </div>
+    <div class="sim" id="sim2">
+      <div class="sim-glava"><span class="oznaka">Simulacija</span><a class="nlw" href="netlogo-web/v03-blok2-prag.html" target="_blank" rel="noopener">Otvori u NetLogo Webu ↗</a><span class="napomena">narandžasto: stoji · tamno: sjedi · 961 mjesto</span></div>
+      <canvas class="svijet" aria-label="Sala 31 puta 31 mjesto: ko stoji, a ko sjedi"></canvas>
+      <div class="monitori">
+        <div class="monitor"><span>krug</span><b data-m="ticks">0</b></div>
+        <div class="monitor"><span>udio aktivnih</span><b data-m="aktivni">–</b></div>
+      </div>
+      <p class="stanje" data-m="stanje"></p>
+      <div class="kontrole">
+        <div class="klizac"><label for="b2-prosjek">prosjek-praga</label><output for="b2-prosjek"></output>
+          <input type="range" id="b2-prosjek" min="0" max="1" step="0.05"></div>
+        <div class="klizac"><label for="b2-rasipanje">rasipanje-praga</label><output for="b2-rasipanje"></output>
+          <input type="range" id="b2-rasipanje" min="0" max="0.5" step="0.01"></div>
+        <div class="klizac"><label for="b2-pokretaci">pokretaci</label><output for="b2-pokretaci"></output>
+          <input type="range" id="b2-pokretaci" min="0" max="100" step="1" data-dec="0">
+          <small>Promjena klizača odmah radi novi setup.</small></div>
+        <div class="dugmad">
+          <button type="button" data-a="setup" class="glavno">setup</button>
+          <button type="button" data-a="go" aria-pressed="false">go</button>
+          <button type="button" data-a="korak">korak</button>
+          <button type="button" data-a="serija">100 pokretanja</button>
+        </div>
+        <p class="stanje" data-m="serija" aria-live="polite"></p>
+      </div>
+    </div>
+  </div>
+  <div class="izmjereno">
+    <h3>Izmjereno u NetLogu</h3>
+    <div class="grafici">
+      <figure><div id="g2a"></div><figcaption>Udio pokretanja u kojima ustane više od 90% ljudi u sali, prema rasipanju praga. Prosječni prag 0,3, 10 pokretača, 200 pokretanja po vrijednosti.</figcaption></figure>
+      <figure><div id="g2b"></div><figcaption>Isti udio pokretanja, prema broju pokretača. Rasipanje praga 0,05, 200 pokretanja po vrijednosti.</figcaption></figure>
+    </div>
+  </div>
+  <details class="kod">
+    <summary>Kod: NetLogo i C#<span>procedure go i udio-oko-mene</span></summary>
+    <div class="kod-kartice">
+      <div class="kartice" role="tablist" aria-label="Jezik">
+        <button type="button" role="tab" id="t2n" aria-controls="p2n" aria-selected="true">NetLogo</button>
+        <button type="button" role="tab" id="t2c" aria-controls="p2c" aria-selected="false" tabindex="-1">C#</button>
+      </div>
+      <div role="tabpanel" id="p2n" aria-labelledby="t2n"><pre><code>{{KOD_2_NL}}</code></pre></div>
+      <div role="tabpanel" id="p2c" aria-labelledby="t2c" hidden><pre><code>{{KOD_2_CS}}</code></pre></div>
+      <p class="kod-napomena"><code>with</code> je u C# <code>Where(...).ToList()</code>: lista se napravi prije nego što iko ustane.
+        Da je odluka u <code>ask</code> s <code>if</code>, oni koji su ustali ranije u istom krugu uticali bi na kasnije.</p>
+    </div>
+  </details>
+  <div class="trojka">
+    <section><h3>Gdje se javlja</h3><p>Stojeći aplauz; pridruživanje protestu ili štrajku (Granovetterov primjer); prihvatanje novog
+      načina rada u grupi.</p></section>
+    <section><h3>Podaci za koje treba navesti izvor</h3><p>Raspodjela pragova, a ne samo prosjek: udio ljudi u okolini čije je učešće potrebno da bi se čovjek pridružio. Potreban je i broj pokretača.</p></section>
+    <section><h3>Literatura</h3><p>Granovetter (1978). Puni navod je u Prilogu.</p></section>
+  </div>
+</section>
+
+<!-- ============================================================ BLOK 3 -->
+<section class="blok" id="blok3" aria-labelledby="b3-naslov">
+  <div class="blok-glava">
+    <span class="oznaka">Blok 3 · v03-blok3-mreza.nlogox</span>
+    <h2 id="b3-naslov">Mreža poznanstava</h2>
+    <p class="teza">Uticaj se prenosi preko poznanika, a ne preko slučajnih prolaznika.</p>
+    <p><a class="nlw" href="blokovi/blok3-mreza-poznanstava.html" target="_blank" rel="noopener">Mini-prezentacija bloka 3 ↗</a></p>
+  </div>
+  <div class="blok-tijelo">
+    <div class="tekst">
+      <figure class="pravilo">
+        <figcaption>Pravilo · model na papiru</figcaption>
+        <p>Ljudi su nepokretni. Veze se najprije uspostavljaju s 3 najbliža čovjeka, a dio se zatim preusmjerava na ljude u cijelom prostoru modela.</p>
+        <ul>
+          <li>Kada čovjek razgovara, za sagovornika bira jednog od svojih <b>poznanika</b>;</li>
+          <li>poruku medija čuju samo ljudi koji žive blizu kuće medija.</li>
+        </ul>
+      </figure>
+      <section>
+        <h3>Ishod</h3>
+        <p>Veći udio dalekih veza omogućava širenje poruke do većeg broja ljudi. Na ticku 500, uz dvije kuće medija, medijan udjela „za“ je
+          44% bez dalekih veza (raspon 22–72%), 53% uz 5% dalekih veza, 77% uz 20%, a 95% kad su sve veze daleke (60–99%).
+          Na početku je udio „za“ oko 40%.</p>
+        <p>Rasipanje između pokretanja je veliko, jer ishod zavisi i od toga gdje su kuće medija.</p>
+      </section>
+      <section>
+        <h3>Polazni model</h3>
+        <p>Od modela stava s vježbi 2: u <code>razgovaraj</code> se <code>one-of other ljudi in-radius domet</code> zamijeni s
+          <code>one-of link-neighbors</code>. Novi pojmovi: <code>create-links-with</code>, <code>link-neighbors</code>,
+          <code>min-n-of 3 other ljudi [ distance myself ]</code>.</p>
+      </section>
+      <div class="pitanje">
+        <h3>Primjena u vlastitom modelu</h3>
+        <p>Odredite razgovaraju li ljudi u vašem modelu s prolaznicima (kretanje, kao na vježbama 2) ili s poznanicima (veze). Za opis veza potrebni su podaci o broju poznanika po osobi i broju poznanika izvan njene okoline.</p>
+      </div>
+    </div>
+    <div class="sim" id="sim3">
+      <div class="sim-glava"><span class="oznaka">Simulacija</span><a class="nlw" href="netlogo-web/v03-blok3-mreza.html" target="_blank" rel="noopener">Otvori u NetLogo Webu ↗</a><span class="napomena">sive linije: veze · plavo: stav &gt; 0,2 · žuto: mediji</span></div>
+      <canvas class="svijet" aria-label="200 ljudi povezanih vezama i dvije kuće medija"></canvas>
+      <div class="monitori">
+        <div class="monitor"><span>sedmica</span><b data-m="ticks">0</b></div>
+        <div class="monitor"><span>udio za</span><b data-m="za">–</b></div>
+        <div class="monitor"><span>poznanika po osobi</span><b data-m="poznanika">–</b></div>
+      </div>
+      <div class="kontrole">
+        <div class="klizac"><label for="b3-daleke">udio-dalekih-veza</label><output for="b3-daleke"></output>
+          <input type="range" id="b3-daleke" min="0" max="1" step="0.01">
+          <small>Promjena klizača odmah radi novi setup (nova mreža).</small></div>
+        <label class="prekidac"><input type="checkbox" id="b3-mediji"> mediji-rade?</label>
+        <label class="prekidac"><input type="checkbox" id="b3-veze" checked> prikazi-veze?</label>
+        <div class="dugmad">
+          <button type="button" data-a="setup" class="glavno">setup</button>
+          <button type="button" data-a="go" aria-pressed="false">go</button>
+          <button type="button" data-a="korak">korak</button>
+          <button type="button" data-a="do500">do sedmice 500</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="izmjereno">
+    <h3>Izmjereno u NetLogu</h3>
+    <div class="grafici">
+      <figure><div id="g3a"></div><figcaption><b>Udio „za“ na ticku 500</b> prema udjelu dalekih veza. Dvije kuće medija, 20 pokretanja po vrijednosti. Tačka je medijan, crta raspon.</figcaption></figure>
+    </div>
+  </div>
+  <details class="kod">
+    <summary>Kod: NetLogo i C#<span>procedure napravi-mrezu i razgovaraj</span></summary>
+    <div class="kod-kartice">
+      <div class="kartice" role="tablist" aria-label="Jezik">
+        <button type="button" role="tab" id="t3n" aria-controls="p3n" aria-selected="true">NetLogo</button>
+        <button type="button" role="tab" id="t3c" aria-controls="p3c" aria-selected="false" tabindex="-1">C#</button>
+      </div>
+      <div role="tabpanel" id="p3n" aria-labelledby="t3n"><pre><code>{{KOD_3_NL}}</code></pre></div>
+      <div role="tabpanel" id="p3c" aria-labelledby="t3c" hidden><pre><code>{{KOD_3_CS}}</code></pre></div>
+      <p class="kod-napomena">Veze (links) su u NetLogu agenti kao i turtles: imaju svoje varijable, boju i mogu umrijeti
+        (<code>die</code>). U <code>min-n-of ... [ distance myself ]</code> izraz u zagradi računa svaki kandidat, a
+        <code>myself</code> je čovjek koji traži poznanike.</p>
+    </div>
+  </details>
+  <div class="trojka">
+    <section><h3>Gdje se javlja</h3><p>Prenošenje stava među članovima porodice, susjedima i kolegama umjesto slučajnim susretima; razlika između zatvorene sredine i sredine s brojnim vanjskim vezama.</p></section>
+    <section><h3>Podaci za koje treba navesti izvor</h3><p>Broj poznanika po osobi i udio poznanika izvan neposredne okoline (npr. anketa o
+      kontaktima).</p></section>
+    <section><h3>Literatura</h3><p>Watts i Strogatz (1998). Puni navod je u Prilogu.</p></section>
+  </div>
+</section>
+
+<!-- ============================================================ BLOK 4 -->
+<section class="blok" id="blok4" aria-labelledby="b4-naslov">
+  <div class="blok-glava">
+    <span class="oznaka">Blok 4 · v03-blok4-preseljenje.nlogox</span>
+    <h2 id="b4-naslov">Preseljenje</h2>
+    <p class="teza">Čovjek se preseljava ako je udio sličnih susjeda manji od traženog.</p>
+    <p><a class="nlw" href="blokovi/blok4-preseljenje.html" target="_blank" rel="noopener">Mini-prezentacija bloka 4 ↗</a></p>
+  </div>
+  <div class="blok-tijelo">
+    <div class="tekst">
+      <figure class="pravilo">
+        <figcaption>Pravilo · model na papiru</figcaption>
+        <p>Svako pripada jednoj od dvije grupe. Kada čovjek pogleda svoje susjede (do 8):</p>
+        <ul>
+          <li>ako je udio sličnih susjeda manji od traženog, preseli se na slučajno odabrano prazno mjesto;</li>
+          <li>inače ostaje.</li>
+        </ul>
+      </figure>
+      <section>
+        <h3>Ishod</h3>
+        <p>Blaga sklonost sličnim susjedima dovodi do izražene podjele. Na početku je prosječno 50% susjeda iz iste grupe. Uz traženih barem 30% sličnih susjeda, završni prosječni udio je 72–77%; uz traženih 50% iznosi 88–90%. Uz traženih 30% model se zaustavi nakon 9–16 mjeseci, kada su svi zadovoljni (gustina 70%, 10 pokretanja).</p>
+      </section>
+      <section>
+        <h3>Polazni model</h3>
+        <p>Patchevi predstavljaju mjesta: na svakom živi najviše jedan čovjek. Novi elementi su <code>move-to one-of patches with [ not any? ljudi-here ]</code> i <code>[ grupa ] of myself</code> unutar <code>with</code>.</p>
+      </section>
+      <div class="pitanje">
+        <h3>Primjena u vlastitom modelu</h3>
+        <p>Objasnite nastanak podijeljenih susjedstava kada niko ne zahtijeva većinu susjeda iz vlastite grupe. Odredite mjeru koja bi pokazala takav ishod u vašem modelu.</p>
+      </div>
+    </div>
+    <div class="sim" id="sim4">
+      <div class="sim-glava"><span class="oznaka">Simulacija</span><a class="nlw" href="netlogo-web/v03-blok4-preseljenje.html" target="_blank" rel="noopener">Otvori u NetLogo Webu ↗</a><span class="napomena">plavo i narandžasto: dvije grupe · crno: prazno</span></div>
+      <canvas class="svijet" aria-label="Svijet 41 puta 41 mjesto, dvije grupe ljudi"></canvas>
+      <div class="monitori">
+        <div class="monitor"><span>mjesec</span><b data-m="ticks">0</b></div>
+        <div class="monitor"><span>prosječno sličnih</span><b data-m="slicnih">–</b></div>
+        <div class="monitor"><span>nezadovoljnih</span><b data-m="nezadovoljni">–</b></div>
+      </div>
+      <p class="stanje" data-m="stanje"></p>
+      <div class="kontrole">
+        <div class="klizac"><label for="b4-trazeni">trazeni-udio-slicnih</label><output for="b4-trazeni"></output>
+          <input type="range" id="b4-trazeni" min="0" max="1" step="0.05"></div>
+        <div class="klizac"><label for="b4-gustina">gustina</label><output for="b4-gustina"></output>
+          <input type="range" id="b4-gustina" min="0.5" max="0.95" step="0.05">
+          <small>Promjena gustine odmah radi novi setup.</small></div>
+        <div class="dugmad">
+          <button type="button" data-a="setup" class="glavno">setup</button>
+          <button type="button" data-a="go" aria-pressed="false">go</button>
+          <button type="button" data-a="korak">korak</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="izmjereno">
+    <h3>Izmjereno u NetLogu</h3>
+    <div class="grafici">
+      <figure><div id="g4a"></div><figcaption><b>Prosječan udio sličnih susjeda na kraju</b> prema traženom udjelu. Gustina 70%, 10 pokretanja po vrijednosti. Isprekidano: traženo (y = x) i stanje na početku.</figcaption></figure>
+    </div>
+  </div>
+  <details class="kod">
+    <summary>Kod: NetLogo i C#<span>procedure go, procijeni i preseli-se</span></summary>
+    <div class="kod-kartice">
+      <div class="kartice" role="tablist" aria-label="Jezik">
+        <button type="button" role="tab" id="t4n" aria-controls="p4n" aria-selected="true">NetLogo</button>
+        <button type="button" role="tab" id="t4c" aria-controls="p4c" aria-selected="false" tabindex="-1">C#</button>
+      </div>
+      <div role="tabpanel" id="p4n" aria-labelledby="t4n"><pre><code>{{KOD_4_NL}}</code></pre></div>
+      <div role="tabpanel" id="p4c" aria-labelledby="t4c" hidden><pre><code>{{KOD_4_CS}}</code></pre></div>
+      <p class="kod-napomena">Unutar <code>with [ grupa = [ grupa ] of myself ]</code> riječ <code>grupa</code> je grupa kandidata
+        (susjeda), a <code>[ grupa ] of myself</code> grupa čovjeka koji gleda oko sebe.</p>
+    </div>
+  </details>
+  <div class="trojka">
+    <section><h3>Gdje se javlja</h3><p>Susjedstva podijeljena po bilo kojoj osobini; sjedenje po grupama u amfiteatru ili menzi.</p></section>
+    <section><h3>Podaci za koje treba navesti izvor</h3><p>Traženi udio sličnih (koliki udio sličnih susjeda čovjek želi) i gustina (udio zauzetih mjesta, iz kojeg slijedi broj praznih).</p></section>
+    <section><h3>Literatura</h3><p>Schelling (1971); NetLogo Models Library: Social Science → Segregation. Puni navodi su u Prilogu.</p></section>
+  </div>
+</section>
+
+<!-- ============================================================ BLOKOVI 5 I 6 -->
+<section class="blok" id="blok56" aria-labelledby="b56-naslov">
+  <div class="blok-glava">
+    <span class="oznaka">Blokovi 5 i 6 · v03-blok5-ustanova.nlogox · v03-blok6-kazna.nlogox</span>
+    <h2 id="b56-naslov">Iskustvo s ustanovom; kontrola i kazna</h2>
+    <p class="teza">Prikazana su dva bloka koji obuhvataju ustanove i pravila. Svaki ima mini-prezentaciju, model i stranicu u NetLogo Webu.</p>
+  </div>
+  <div class="blok-tijelo">
+    <div class="tekst">
+      <figure class="pravilo">
+        <figcaption>Blok 5 · pravilo na papiru</figcaption>
+        <p>Kada čovjek stane na patch koji predstavlja ustanovu:</p>
+        <ul>
+          <li>iskustvo je loše s vjerovatnoćom jednakom udjelu loših iskustava, i tada se povjerenje približi 0;</li>
+          <li>inače se povjerenje približi 1. U oba slučaja promjena zavisi od integriteta.</li>
+        </ul>
+        <p>Razgovor prenosi informacije o iskustvu i onima koji nisu posjetili ustanovu.</p>
+      </figure>
+      <p><a class="nlw" href="blokovi/blok5-ustanova.html" target="_blank" rel="noopener">Mini-prezentacija bloka 5 ↗</a>
+        &nbsp;<a class="nlw" href="netlogo-web/v03-blok5-ustanova.html" target="_blank" rel="noopener">Otvori u NetLogo Webu ↗</a></p>
+    </div>
+    <div class="tekst">
+      <figure class="pravilo">
+        <figcaption>Blok 6 · pravilo na papiru</figcaption>
+        <p>Kada čovjek ima priliku da prekrši pravilo:</p>
+        <ul>
+          <li>prekrši ga s vjerovatnoćom jednakom svojoj <b>sklonosti</b>;</li>
+          <li>ako kontrola otkrije prekršaj, čovjekova sklonost opada; inače raste.</li>
+        </ul>
+        <p>Postoji prag vjerovatnoće kontrole: ispod njega sklonost raste, a iznad njega pada.</p>
+      </figure>
+      <p><a class="nlw" href="blokovi/blok6-kazna.html" target="_blank" rel="noopener">Mini-prezentacija bloka 6 ↗</a>
+        &nbsp;<a class="nlw" href="netlogo-web/v03-blok6-kazna.html" target="_blank" rel="noopener">Otvori u NetLogo Webu ↗</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ MODEL NA PAPIRU -->
+<section class="papir-sekcija" id="papir" aria-labelledby="papir-naslov">
+  <div class="blok-glava">
+    <span class="oznaka">Za predavanje 3</span>
+    <h2 id="papir-naslov">Model na papiru</h2>
+    <p class="teza">Redoslijed polja odgovara primjeru s predavanja 2. Blok se zapisuje u polju 8.</p>
+  </div>
+  <div class="obrazac">
+    <ol>
+      <li><b>Naziv i pojava</b><span>Opišite društvenu pojavu jednom rečenicom.</span></li>
+      <li><b>Cilj</b><span>Navedite šta model treba pokazati i precizno definišite glavni pojam.</span></li>
+      <li><b>Vrijeme</b><span>Navedite period koji model obuhvata i značenje jednog ticka (dan, sedmica, mjesec).</span></li>
+      <li><b>Okruženje</b><span>Opišite prostor i vanjske uticaje (kampanja, pravila).</span></li>
+      <li><b>Akteri</b><span>Navedite ko se kreće (turtles), a ko ostaje na mjestu (patchevi ili nepokretni agenti).</span></li>
+      <li><b>Atributi</b><span>Zapišite sve atribute, zatim precrtajte one za koje nema podataka. Uz svaki navedite raspon i značenje krajnjih vrijednosti, npr. za integritet od 0 do 1 definišite značenje 0 i 1. Obje konvencije su ispravne ako su precizno navedene.</span></li>
+      <li><b>Šta se mjeri</b><span>Navedite globalnu mjeru kojom se provjerava ostvarenje cilja (npr. prosječan stav, udio „za“, broj grupa).</span></li>
+      <li><b>Interakcije</b><span>Svaku opišite rečenicom „Kada …: ako …, …; inače …“. U ovo polje uključuju se blokovi.</span></li>
+      <li><b>Šta ostaje otvoreno</b><span>Navedite neriješene odluke i parametre za koje još nema izvora.</span></li>
+    </ol>
+    <div class="sim">
+      <div class="sim-glava"><span class="oznaka">Obrazac za kopiranje</span>
+        <button type="button" id="kopiraj-obrazac">Kopiraj obrazac</button></div>
+<pre><code id="obrazac-tekst">MODEL NA PAPIRU
+1. Naziv i pojava:
+2. Cilj (s preciznom definicijom pojma):
+3. Vrijeme (period; 1 tick = ...):
+4. Okruženje:
+5. Akteri (ko se kreće, ko stoji):
+6. Atributi (raspon i značenje krajeva; izvor):
+7. Šta se mjeri:
+8. Interakcije:
+   Kada ... sretne ... : ako ... -> ... ; inače ...
+   (primjer, blok 1) Kada čovjek sretne čovjeka čiji se stav
+   razlikuje manje od praga -> oba se približe, zavisno od
+   integriteta; inače se ništa ne mijenja.
+9. Šta ostaje otvoreno:</code></pre>
+      <p class="stanje" id="kopiraj-poruka" aria-live="polite"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ PRILOG -->
+<section class="prilog" id="prilog" aria-labelledby="prilog-naslov">
+  <h2 id="prilog-naslov">Prilog</h2>
+  <div>
+    <h3>Modeli</h3>
+    <div class="tabela"><table>
+      <thead><tr><th>Fajl</th><th>Blok</th><th>BehaviorSpace eksperimenti u modelu</th></tr></thead>
+      <tbody>
+        <tr><td><code>v03-blok1-povjerenje.nlogox</code></td><td>ograničeno povjerenje</td><td><code>grupe</code>, <code>mediji</code></td></tr>
+        <tr><td><code>v03-blok2-prag.nlogox</code></td><td>prag i kaskada</td><td><code>rasipanje</code></td></tr>
+        <tr><td><code>v03-blok3-mreza.nlogox</code></td><td>mreža poznanstava</td><td><code>daleke-veze</code></td></tr>
+        <tr><td><code>v03-blok4-preseljenje.nlogox</code></td><td>preseljenje</td><td><code>trazeni-udio</code></td></tr>
+      </tbody>
+    </table></div>
+    <p class="napomena" style="margin-top:0.5rem">NetLogo 7.0.4: File → Open. Eksperimenti u modelima imaju po 2 pokretanja i služe za brzu provjeru tokom demonstracije; rezultati na ovoj stranici potiču iz eksperimenata s većim brojem pokretanja (tabela ispod).</p>
+    <p class="napomena" style="margin-top:0.5rem">Isti modeli kao NetLogo Web stranice: <code>netlogo-web/v03-blok1-povjerenje.html</code> …
+      <code>v03-blok4-preseljenje.html</code> (oko 5 MB svaka; NetLogo Web je ugrađen u fajl). Provjereno: u NetLogo Webu
+      blokovi daju iste raspone kao NetLogo 7.0.4 (npr. blok 4, traženo 30%: 74–76% sličnih na kraju).</p>
+  </div>
+  <div>
+    <h3>Kako su provedena mjerenja</h3>
+    <div class="tabela"><table>
+      <thead><tr><th>Blok</th><th>Šta se mijenja</th><th>Pokretanja</th><th>Mjera</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><code>prag</code> 0,1 · 0,2 · 0,3 · 0,5 · 1 · 2; mediji isključeni, pa uključeni</td><td>10 po vrijednosti</td><td><code>broj-grupa</code> na ticku 500; <code>udio-za</code> na ticku 150</td></tr>
+        <tr><td>2</td><td><code>rasipanje-praga</code> 0–0,3; <code>pokretaci</code> 5–80; <code>prosjek-praga</code> 0,2–0,4</td><td>200 po vrijednosti</td><td>udio pokretanja s <code>udio-aktivnih</code> &gt; 0,9</td></tr>
+        <tr><td>3</td><td><code>udio-dalekih-veza</code> 0 · 0,05 · 0,2 · 1; 2 kuće medija</td><td>20 po vrijednosti</td><td><code>udio-za</code> na ticku 500</td></tr>
+        <tr><td>4</td><td><code>trazeni-udio-slicnih</code> 0,2–0,75; gustina 0,7</td><td>10 po vrijednosti</td><td><code>prosjecno-slicnih</code> kad su svi zadovoljni</td></tr>
+      </tbody>
+    </table></div>
+    <p class="napomena" style="margin-top:0.5rem">NetLogo 7.0.4 headless (BehaviorSpace), ostali klizači na zadanim vrijednostima.
+      Simulacija u web pregledniku je provjerena prema ovim mjerenjima i daje isti obrazac; njen kod je u izvoru stranice.</p>
+  </div>
+  <div>
+    <h3>C# verzija</h3>
+    <p>{{CS_NAPOMENA}}</p>
+  </div>
+  <div>
+    <h3>Literatura</h3>
+    <ol class="literatura">
+      <li>Deffuant, G., Neau, D., Amblard, F., Weisbuch, G. (2000). Mixing beliefs among interacting agents. <i>Advances in Complex Systems</i>, 3, 87–98.</li>
+      <li>Hegselmann, R., Krause, U. (2002). Opinion dynamics and bounded confidence: models, analysis and simulation. <i>Journal of Artificial Societies and Social Simulation</i>, 5(3).</li>
+      <li>Granovetter, M. (1978). Threshold Models of Collective Behavior. <i>American Journal of Sociology</i>, 83(6), 1420–1443.</li>
+      <li>Watts, D. J., Strogatz, S. H. (1998). Collective dynamics of ‘small-world’ networks. <i>Nature</i>, 393, 440–442.</li>
+      <li>Schelling, T. C. (1971). Dynamic Models of Segregation. <i>Journal of Mathematical Sociology</i>, 1(2), 143–186.</li>
+      <li>Wilensky, U. (1997). NetLogo Segregation model. Center for Connected Learning and Computer-Based Modeling, Northwestern University.</li>
+    </ol>
+  </div>
+</section>
+
+</div>
+</main>
+<footer class="podnozje"><div class="okvir">Vježbe 3, Modeliranje i simulacije, FIT UNMO, 2026/27. Modeli: NetLogo 7.0.4.</div></footer>
+
+<script>window.MJERENJA = {{MJERENJA}};</script>
+<script>
+{{SIM}}
+</script>
+<script>
+{{UI}}
+</script>

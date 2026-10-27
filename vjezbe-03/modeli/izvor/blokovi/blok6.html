@@ -1,0 +1,953 @@
+<!--IZLAZ: blok6-kazna.html-->
+<title>Kontrola i kazna</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:wght@500;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Raspored: mini-prezentacija od 11 slajdova; jedan slajd na ekranu (strelice), ili svi jedan ispod
+   drugog (način „Čitanje“). Papir je svijetao, svijet i putanje su na tamnoj podlozi kao u NetLogu. */
+:root {
+  --papir: #eef1f4; --list: #ffffff; --tinta: #17212b; --siva: #56636f; --linija: #d3dae1;
+  --narandza: #b9531a; --narandza-meko: #f6dfd0; --margina: #e5a3a3; --svijet: #0b0d10;
+  --za: #345da9; --protiv: #d73229; --neodlucni: #8d8d8d;
+  --f-naslov: "Bitter", "Georgia", "Cambria", serif;
+  --f-tekst: "IBM Plex Sans", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "IBM Plex Mono", "Cascadia Mono", Consolas, "Courier New", monospace;
+  --t-0: 0.83rem; --t-1: 1rem; --t-2: 1.17rem; --t-3: 1.5rem; --t-4: 2.2rem; --t-5: 3.1rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --papir: #10161c; --list: #18212a; --tinta: #e3e9ee; --siva: #9ba8b4; --linija: #2a3540;
+    --narandza: #f0894a; --narandza-meko: #3a2416; --margina: #6b3535; --za: #5b86d6; --protiv: #e5574e; --neodlucni: #9a9a9a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --papir: #10161c; --list: #18212a; --tinta: #e3e9ee; --siva: #9ba8b4; --linija: #2a3540;
+  --narandza: #f0894a; --narandza-meko: #3a2416; --margina: #6b3535; --za: #5b86d6; --protiv: #e5574e; --neodlucni: #9a9a9a;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { font-size: 18px; }
+@media (max-width: 600px) { html { font-size: 16px; } }
+body { margin: 0; background: var(--papir); color: var(--tinta); font-family: var(--f-tekst); line-height: 1.55; }
+[hidden] { display: none !important; }
+a { color: var(--narandza); text-underline-offset: 0.15em; }
+:focus-visible { outline: 3px solid var(--narandza); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--f-naslov); text-wrap: balance; line-height: 1.18; margin: 0; }
+p { margin: 0; }
+code { font-family: var(--f-mono); font-size: 0.9em; }
+p code, li code, td code { background: var(--narandza-meko); padding: 0.05em 0.3em; border-radius: 3px; }
+.okvir { max-width: 1200px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.oznaka { font-family: var(--f-mono); font-size: var(--t-0); letter-spacing: 0.08em; text-transform: uppercase; color: var(--narandza); font-weight: 500; }
+.siva { color: var(--siva); }
+.mala { font-size: var(--t-0); }
+
+/* traka na vrhu */
+.vrh { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--papir); border-bottom: 1px solid var(--linija); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--papir); }
+.vrh .okvir { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem 1rem; padding-block: 0.55rem; flex-wrap: wrap; }
+.vrh b { font-family: var(--f-naslov); font-weight: 700; }
+.nacin { display: flex; gap: 0.3rem; }
+button { font: 500 var(--t-0) var(--f-mono); border-radius: 4px; padding: 0.4rem 0.8rem; cursor: pointer;
+  border: 1px solid var(--narandza); background: transparent; color: var(--narandza); }
+button[aria-pressed="true"], button.glavno { background: var(--narandza); color: var(--list); }
+button:disabled { opacity: 0.45; cursor: default; }
+
+/* slajdovi */
+.slajd { padding-block: 2rem 6rem; scroll-margin-top: 3.4rem; }
+main.prezentacija .slajd { display: none; min-height: calc(100svh - 3.2rem); }
+main.prezentacija .slajd.aktivan { display: block; }
+main.citanje .slajd { border-bottom: 1px solid var(--linija); padding-block: 2.5rem; }
+.glava { display: grid; gap: 0.35rem; margin-bottom: 1.4rem; }
+.glava h2 { font-size: var(--t-4); max-width: 30ch; }
+.glava .podnaslov { font-size: var(--t-2); color: var(--siva); max-width: 52rem; }
+.dvije { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2rem; align-items: start; }
+.dvije > * { min-width: 0; }
+@media (max-width: 900px) { .dvije { grid-template-columns: minmax(0, 1fr); } }
+.tekst { display: grid; gap: 1rem; }
+.tekst ul { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.35rem; }
+.panel { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 1rem; }
+.pitanje { background: var(--narandza-meko); border-radius: 4px; padding: 0.9rem 1rem; }
+.pitanje h3 { font-size: var(--t-1); margin-bottom: 0.25rem; }
+
+/* naslovni slajd */
+.naslovni { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 2.4rem; align-items: center; padding-top: 1rem; }
+.naslovni > * { min-width: 0; }
+.naslovni h1 { font-size: var(--t-5); letter-spacing: -0.01em; margin: 0.4rem 0 0.9rem; }
+.naslovni .teza { font-size: var(--t-3); font-family: var(--f-naslov); line-height: 1.3; }
+.naslovni .uvod { margin-top: 1rem; color: var(--siva); }
+@media (max-width: 900px) { .naslovni { grid-template-columns: minmax(0, 1fr); } }
+
+/* list papira: pravilo za model na papiru */
+.papir {
+  margin: 0; background-color: var(--list); border: 1px solid var(--linija); border-radius: 4px;
+  padding: 1rem 1.2rem 1.2rem 2.4rem; position: relative; line-height: 1.75rem;
+  background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(1.75rem - 1px), var(--linija) calc(1.75rem - 1px), var(--linija) 1.75rem);
+  background-position: 0 2.55rem;
+}
+.papir::before { content: ""; position: absolute; left: 1.5rem; top: 0; bottom: 0; width: 2px; background: var(--margina); }
+.papir figcaption { font-family: var(--f-mono); font-size: var(--t-0); color: var(--siva); letter-spacing: 0.04em; text-transform: uppercase; line-height: 1.75rem; }
+.papir p, .papir li { font-family: var(--f-naslov); font-size: 1.08rem; }
+.papir ul { list-style: none; margin: 0; padding: 0 0 0 1.2rem; }
+.papir li::before { content: "→ "; color: var(--narandza); font-family: var(--f-tekst); }
+.papir b { color: var(--narandza); }
+
+/* kartice (pojava, sastavni dijelovi, koraci) */
+.kartice { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); }
+.kartica { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 1rem; display: grid; gap: 0.6rem; align-content: start; }
+.kartica h3 { font-size: var(--t-2); }
+.kartica svg { width: 100%; height: auto; display: block; }
+.kartica ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.25rem; }
+.kartica .kod-cip { font-family: var(--f-mono); font-size: 0.78rem; color: var(--siva); border-top: 1px dashed var(--linija); padding-top: 0.5rem; }
+.korak-broj { font-family: var(--f-mono); font-weight: 500; color: var(--narandza); }
+
+/* SVG ilustracije: boje iz tokena */
+.il-osa { stroke: var(--siva); stroke-width: 1.5; }
+.il-tekst { fill: var(--siva); font: 13px var(--f-mono); }
+.il-tekst-veci { fill: var(--tinta); font: 600 15px var(--f-tekst); }
+.il-za { fill: var(--za); } .il-protiv { fill: var(--protiv); } .il-neo { fill: var(--neodlucni); }
+.il-prozor { fill: var(--narandza-meko); stroke: var(--narandza); stroke-dasharray: 4 3; }
+.il-strelica { stroke: var(--narandza); stroke-width: 2.5; fill: none; }
+.il-vrh { fill: var(--narandza); }
+.il-domet { fill: none; stroke: var(--narandza); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.il-svijet { fill: var(--svijet); }
+.il-kuca { fill: #eded2f; }
+.il-precrtano { stroke: var(--protiv); stroke-width: 3; }
+.il-oblak { fill: var(--list); stroke: var(--siva); stroke-width: 1.2; }
+
+/* kalkulator jednog susreta */
+.kalk { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 1.5rem; }
+.kalk > * { min-width: 0; }
+@media (max-width: 900px) { .kalk { grid-template-columns: minmax(0, 1fr); } }
+.klizaci { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem 1.2rem; }
+@media (max-width: 520px) { .klizaci { grid-template-columns: minmax(0, 1fr); } }
+.klizac { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+.klizac label { font-family: var(--f-mono); font-size: var(--t-0); }
+.klizac output { font-family: var(--f-mono); font-size: var(--t-0); font-variant-numeric: tabular-nums; }
+.klizac input { grid-column: 1 / -1; width: 100%; accent-color: var(--narandza); }
+.racun { font-family: var(--f-mono); font-size: 0.86rem; line-height: 1.7; background: var(--papir); border-radius: 4px; padding: 0.7rem 0.9rem; overflow-x: auto; white-space: pre; }
+.racun .da { color: var(--za); font-weight: 600; } .racun .ne { color: var(--protiv); font-weight: 600; }
+.dugmad { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+
+/* putanje stava */
+.putanje-okvir { background: var(--svijet); border-radius: 6px; padding: 0.6rem; }
+canvas.putanje { width: 100%; aspect-ratio: 2 / 1; display: block; }
+.izbor { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.6rem; }
+.izbor button { border-color: var(--linija); color: var(--siva); }
+.izbor button[aria-pressed="true"] { border-color: var(--narandza); color: var(--list); background: var(--narandza); }
+.legenda { display: flex; gap: 1rem; flex-wrap: wrap; font-size: var(--t-0); color: var(--siva); margin-top: 0.4rem; }
+.legenda i { display: inline-block; width: 0.8em; height: 0.8em; border-radius: 50%; margin-right: 0.35em; vertical-align: -0.05em; }
+.potpis { font-size: var(--t-0); color: var(--siva); margin-top: 0.4rem; }
+.potpis b { color: var(--tinta); font-weight: 600; }
+
+/* grafikoni iz mjerenja */
+svg.grafik { width: 100%; height: auto; display: block; overflow: visible; }
+.g-mreza { stroke: var(--linija); stroke-width: 1; } .g-os { stroke: var(--siva); stroke-width: 1; }
+.g-oznaka { fill: var(--siva); font: 12px var(--f-mono); } .g-naslov-x { fill: var(--siva); font: 12px var(--f-tekst); }
+.g-vrijednost { fill: var(--tinta); font: 500 12px var(--f-mono); }
+.g-raspon { stroke: var(--narandza); stroke-width: 3; stroke-linecap: round; opacity: 0.35; }
+.g-tacka { fill: var(--narandza); }
+.g-ref { stroke: var(--siva); stroke-width: 1.2; stroke-dasharray: 4 4; }
+.g-ref-tekst { fill: var(--siva); font: italic 12px var(--f-tekst); }
+
+/* kod */
+.kodovi { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; }
+.kodovi > * { min-width: 0; }
+@media (max-width: 900px) { .kodovi { grid-template-columns: minmax(0, 1fr); } }
+.kod { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; overflow: hidden; }
+.kod .jezik { font-family: var(--f-mono); font-size: var(--t-0); padding: 0.4rem 0.8rem; border-bottom: 1px solid var(--linija); color: var(--siva); }
+.kod pre { margin: 0; padding: 0.8rem; overflow-x: auto; }
+.kod code { font-size: 14px; line-height: 1.55; white-space: pre; }
+.kod .kom { color: var(--siva); font-style: italic; }
+.kod mark { background: var(--narandza-meko); color: inherit; border-radius: 2px; padding: 0 0.15em; }
+.kod mark b { color: var(--narandza); font-family: var(--f-tekst); }
+.oblacici { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: 1rem; margin-top: 1rem; }
+.oblacici div { border-left: 3px solid var(--narandza); padding-left: 0.8rem; }
+.oblacici b.br { font-family: var(--f-mono); color: var(--narandza); margin-right: 0.3rem; }
+
+/* probaj */
+.veze { display: grid; gap: 0.7rem; }
+.veze a { display: block; text-decoration: none; background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 0.8rem 1rem; color: var(--tinta); }
+.veze a:hover { border-color: var(--narandza); }
+.veze a b { color: var(--narandza); }
+.veze a span { display: block; color: var(--siva); font-size: var(--t-0); }
+.literatura { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.35rem; font-size: 0.92rem; }
+
+/* donja navigacija */
+.navigacija { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--papir); border-top: 1px solid var(--linija);
+  padding-bottom: env(safe-area-inset-bottom, 0px); }
+.navigacija .okvir { display: flex; align-items: center; gap: 0.8rem; padding-block: 0.5rem; }
+.navigacija .naslov-slajda { flex: 1; min-width: 0; font-size: var(--t-0); color: var(--siva); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.navigacija .broj { font-family: var(--f-mono); font-size: var(--t-0); font-variant-numeric: tabular-nums; }
+.napredak { position: absolute; top: -1px; left: 0; height: 2px; background: var(--narandza); transition: width 0.25s; }
+main.citanje ~ .navigacija { display: none; }
+@media (prefers-reduced-motion: reduce) { .napredak { transition: none; } }
+
+/* blok 6: boje sklonosti (crveno: često krši, plavo: rijetko krši), stablo odluke, kalkulator */
+:root { --visoka: #d73229; --niska: #2b8ccb; --kazna: #c99a06; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --visoka: #e5574e; --niska: #4aa8e0; --kazna: #e8c547; } }
+:root[data-theme="dark"] { --visoka: #e5574e; --niska: #4aa8e0; --kazna: #e8c547; }
+.il-visoka { fill: var(--visoka); } .il-niska { fill: var(--niska); } .il-kazna { fill: var(--kazna); }
+.stablo-cvor { fill: var(--list); stroke: var(--siva); stroke-width: 1.4; }
+.stablo-cvor.odluka { stroke: var(--narandza); stroke-width: 2; }
+.stablo-cvor.kazna { stroke: var(--visoka); stroke-width: 2; }
+.stablo-cvor.bez { stroke: var(--niska); stroke-width: 2; }
+.stablo-grana { stroke: var(--siva); stroke-width: 2; fill: none; }
+.stablo-grana.aktivna { stroke: var(--narandza); stroke-width: 4; }
+.stablo-tekst { fill: var(--tinta); font: 600 14px var(--f-tekst); }
+.stablo-mali { fill: var(--siva); font: 12.5px var(--f-mono); }
+.stablo-vjer { fill: var(--narandza); font: 600 13px var(--f-mono); }
+.dvije-slike { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.8rem; }
+.dvije-slike > * { min-width: 0; }
+@media (max-width: 700px) { .dvije-slike { grid-template-columns: minmax(0, 1fr); } }
+canvas.putanje.niza { aspect-ratio: 3 / 2; }
+.ishod-kalk { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr)); gap: 0.5rem; }
+.ishod-kalk div { border: 1px solid var(--linija); border-radius: 4px; padding: 0.4rem 0.6rem; }
+.ishod-kalk span { display: block; font-size: 0.72rem; color: var(--siva); font-family: var(--f-mono); }
+.ishod-kalk b { font-family: var(--f-mono); font-size: 1.05rem; font-weight: 500; font-variant-numeric: tabular-nums; }
+.ishod-kalk b.raste { color: var(--visoka); } .ishod-kalk b.pada { color: var(--niska); }
+canvas.trag { width: 100%; height: 70px; display: block; background: var(--papir); border-radius: 4px; }
+.dnevnik { font-family: var(--f-mono); font-size: 0.8rem; color: var(--siva); min-height: 1.3em; }
+.formula { font-family: var(--f-mono); font-size: 0.95rem; background: var(--papir); border-radius: 4px; padding: 0.7rem 0.9rem; overflow-x: auto; white-space: pre; line-height: 1.7; }
+</style>
+<!--TIJELO-->
+<header class="vrh">
+  <div class="okvir">
+    <span><span class="oznaka">Blok 6</span> &nbsp;<b>Kontrola i kazna</b></span>
+    <div class="nacin" role="group" aria-label="Način prikaza">
+      <button type="button" id="nacin-prezentacija" aria-pressed="true">Prezentacija</button>
+      <button type="button" id="nacin-citanje" aria-pressed="false">Čitanje</button>
+    </div>
+  </div>
+</header>
+
+<main class="prezentacija" id="slajdovi">
+
+<!-- 1 ============================================================ -->
+<section class="slajd" id="s1" data-naslov="Kontrola i kazna">
+  <div class="okvir naslovni">
+    <div>
+      <span class="oznaka">Modeliranje i simulacije · Vježbe 3 · Blok interakcije 6</span>
+      <h1>Kontrola i kazna</h1>
+      <p class="teza">Prekršaj bez kazne povećava sklonost kršenju, a kazna je smanjuje.</p>
+      <p class="uvod">Učestalost otkrivanja prekršaja određuje smjer promjene sklonosti. Ispod određenog praga sklonost raste, a iznad njega opada.</p>
+      <p class="uvod mala">Za promjenu slajda koristite strelice ← → ili dugmad pri dnu. Opcija „Čitanje“ prikazuje sve slajdove na jednoj stranici.</p>
+    </div>
+    <div class="dvije-slike">
+      <figure style="margin:0">
+        <div class="putanje-okvir"><canvas class="putanje niza" id="put-q01" aria-label="Sklonost 200 ljudi kroz 150 sedmica uz kontrolu 0,1"></canvas></div>
+        <figcaption class="potpis" id="put-q01-potpis"></figcaption>
+      </figure>
+      <figure style="margin:0">
+        <div class="putanje-okvir"><canvas class="putanje niza" id="put-q03" aria-label="Sklonost 200 ljudi kroz 150 sedmica uz kontrolu 0,3"></canvas></div>
+        <figcaption class="potpis" id="put-q03-potpis"></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- 2 ============================================================ -->
+<section class="slajd" id="s2" data-naslov="Pojava">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Pojava</span>
+      <h2>Iskustvo s prekršajem mijenja sklonost da se prekršaj ponovi</h2>
+      <p class="podnaslov">Nakon nekažnjenog prekršaja povećava se sklonost ponavljanju prekršaja, a nakon kazne se smanjuje. Poštivanje pravila ne donosi novo iskustvo.</p>
+    </div>
+    <div class="kartice">
+      <div class="kartica">
+        <svg viewBox="0 0 300 150" role="img" aria-label="Prekršaj bez kazne: sklonost malo poraste">
+          <circle class="il-neo" cx="60" cy="48" r="16"/><rect class="il-neo" x="40" y="70" width="40" height="56" rx="14"/>
+          <circle cx="132" cy="56" r="20" fill="none" stroke="var(--visoka)" stroke-width="3"/><text x="132" y="63" text-anchor="middle" class="il-tekst-veci" style="fill:var(--visoka)">!</text>
+          <rect x="230" y="20" width="22" height="110" rx="6" class="il-neo" opacity="0.35"/>
+          <rect x="230" y="60" width="22" height="70" rx="6" class="il-visoka"/>
+          <path class="il-strelica" d="M200 100 L200 64"/><path class="il-vrh" d="M193 66 L200 54 L207 66 Z"/>
+          <text class="il-tekst" x="216" y="146">sklonost</text>
+        </svg>
+        <h3>Prekršaj bez kazne</h3>
+        <p class="siva">Sklonost se povećava za mali iznos: <code>+ pomak-bez-kazne</code>.</p>
+      </div>
+      <div class="kartica">
+        <svg viewBox="0 0 300 150" role="img" aria-label="Prekršaj i kazna: sklonost jako padne">
+          <circle class="il-neo" cx="60" cy="48" r="16"/><rect class="il-neo" x="40" y="70" width="40" height="56" rx="14"/>
+          <circle cx="132" cy="56" r="20" fill="none" stroke="var(--visoka)" stroke-width="3"/><text x="132" y="63" text-anchor="middle" class="il-tekst-veci" style="fill:var(--visoka)">!</text>
+          <rect x="112" y="88" width="40" height="30" rx="4" class="il-kazna"/><text x="132" y="108" text-anchor="middle" class="stablo-mali" style="fill:#222">kazna</text>
+          <rect x="230" y="20" width="22" height="110" rx="6" class="il-neo" opacity="0.35"/>
+          <rect x="230" y="100" width="22" height="30" rx="6" class="il-niska"/>
+          <path class="il-strelica" d="M200 44 L200 98"/><path class="il-vrh" d="M193 96 L200 108 L207 96 Z"/>
+          <text class="il-tekst" x="216" y="146">sklonost</text>
+        </svg>
+        <h3>Prekršaj i kazna</h3>
+        <p class="siva">Sklonost se smanjuje za veći iznos: <code>− jacina-kazne</code>.</p>
+      </div>
+      <div class="kartica">
+        <svg viewBox="0 0 300 150" role="img" aria-label="Poštuje pravilo: sklonost se ne mijenja">
+          <circle class="il-neo" cx="60" cy="48" r="16"/><rect class="il-neo" x="40" y="70" width="40" height="56" rx="14"/>
+          <circle cx="132" cy="56" r="20" fill="none" stroke="var(--niska)" stroke-width="3"/>
+          <path d="M122 56 L130 64 L144 48" fill="none" stroke="var(--niska)" stroke-width="3.5"/>
+          <rect x="230" y="20" width="22" height="110" rx="6" class="il-neo" opacity="0.35"/>
+          <rect x="230" y="75" width="22" height="55" rx="6" class="il-neo"/>
+          <text class="il-tekst" x="186" y="84">=</text>
+          <text class="il-tekst" x="216" y="146">sklonost</text>
+        </svg>
+        <h3>Poštuje pravilo</h3>
+        <p class="siva">Nema prekršaja, pa nema ni novog iskustva: sklonost ostaje ista.</p>
+      </div>
+    </div>
+    <div class="pitanje" style="margin-top:1.2rem">
+      <h3>Gdje se javlja</h3>
+      <p>Pravila čije se poštivanje povremeno kontroliše: kućni red u zgradi, zabrana pušenja u zatvorenom prostoru, pravila korištenja zajedničkih prostorija. Ljudi uče iz vlastitog iskustva s kontrolom.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 3 ============================================================ -->
+<section class="slajd" id="s3" data-naslov="Sastavni dijelovi">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Sastavni dijelovi</span>
+      <h2>Jedna vrsta agenata, kontrola kao vjerovatnoća i tri parametra</h2>
+      <p class="podnaslov">Ljudi se kreću kao u modelu stava s vježbi 2; razgovor se uključuje prekidačem, kao mediji u tom modelu.</p>
+    </div>
+    <div class="kartice">
+      <div class="kartica">
+        <svg viewBox="0 0 260 120" role="img" aria-label="Čovjek i skale atributa sklonost i integritet">
+          <circle class="il-neo" cx="34" cy="30" r="13"/><rect class="il-neo" x="18" y="46" width="32" height="44" rx="12"/>
+          <defs><linearGradient id="g-skl" x1="0" x2="1"><stop offset="0" stop-color="#2b8ccb"/><stop offset="0.5" stop-color="#8d8d8d"/><stop offset="1" stop-color="#d73229"/></linearGradient></defs>
+          <text class="il-tekst" x="78" y="24">sklonost</text>
+          <rect x="78" y="32" width="170" height="10" rx="5" fill="url(#g-skl)"/>
+          <text class="il-tekst" x="78" y="58">0</text><text class="il-tekst" x="240" y="58">1</text>
+          <text class="il-tekst" x="78" y="84">integritet</text>
+          <rect x="78" y="92" width="170" height="10" rx="5" class="il-neo" opacity="0.5"/>
+          <text class="il-tekst" x="78" y="118">0</text><text class="il-tekst" x="240" y="118">1</text>
+        </svg>
+        <h3>Ljudi · kreću se</h3>
+        <ul>
+          <li><b>sklonost</b> od 0 do 1: vjerovatnoća da prekrši pravilo kad ima priliku</li>
+          <li><b>integritet</b> od 0 (mijenja se najlakše) do 1 (ne mijenja se)</li>
+        </ul>
+        <div class="kod-cip">breed [ ljudi covjek ] · ljudi-own [ sklonost integritet prekrsio? kaznjen? ]<br>C#: class Covjek : Turtle { double Sklonost, Integritet; … }</div>
+      </div>
+      <div class="kartica">
+        <svg viewBox="0 0 260 120" role="img" aria-label="Kontrola kao vjerovatnoća: jedna od deset kocki je označena">
+
+          <rect x="14" y="24" width="30" height="30" rx="5" class="il-kazna"/>
+          <rect x="52" y="24" width="30" height="30" rx="5" class="il-neo" opacity="0.4"/><rect x="90" y="24" width="30" height="30" rx="5" class="il-neo" opacity="0.4"/>
+          <rect x="128" y="24" width="30" height="30" rx="5" class="il-neo" opacity="0.4"/><rect x="166" y="24" width="30" height="30" rx="5" class="il-neo" opacity="0.4"/>
+          <rect x="14" y="62" width="30" height="30" rx="5" class="il-neo" opacity="0.4"/><rect x="52" y="62" width="30" height="30" rx="5" class="il-neo" opacity="0.4"/>
+          <rect x="90" y="62" width="30" height="30" rx="5" class="il-neo" opacity="0.4"/><rect x="128" y="62" width="30" height="30" rx="5" class="il-neo" opacity="0.4"/>
+          <rect x="166" y="62" width="30" height="30" rx="5" class="il-neo" opacity="0.4"/>
+          <text class="il-tekst" x="206" y="64">1 od 10</text>
+        </svg>
+        <h3>Kontrola · vjerovatnoća, ne agent</h3>
+        <ul>
+          <li><b>vjerovatnoca-kontrole</b>: koliki dio prekršaja bude otkriven (0,1 = jedan od deset)</li>
+          <li>Kontrola se može predstaviti i agentom koji se kreće (inspektor). Izbor je dio oblikovanja modela.</li>
+        </ul>
+        <div class="kod-cip">random-float 1 &lt; vjerovatnoca-kontrole</div>
+      </div>
+      <div class="kartica">
+        <svg viewBox="0 0 260 120" role="img" aria-label="Tri klizača: kontrola, kazna, pomak bez kazne">
+          <text class="il-tekst" x="8" y="22">kontrola</text><line class="il-osa" x1="100" y1="18" x2="250" y2="18"/><circle cx="115" cy="18" r="7" style="fill:var(--narandza)"/>
+          <text class="il-tekst" x="8" y="62">kazna</text><line class="il-osa" x1="100" y1="58" x2="250" y2="58"/><circle cx="130" cy="58" r="7" class="il-neo"/>
+          <text class="il-tekst" x="8" y="102">pomak</text><line class="il-osa" x1="100" y1="98" x2="250" y2="98"/><circle cx="106" cy="98" r="7" class="il-neo"/>
+        </svg>
+        <h3>Parametri · klizači</h3>
+        <ul>
+          <li><b>jacina-kazne</b> = 0,1: koliko sklonost padne nakon kazne</li>
+          <li><b>pomak-bez-kazne</b> = 0,02: koliko poraste nakon prekršaja bez kazne</li>
+          <li><b>razgovor?</b>, <b>domet</b>, <b>uticaj</b>: razgovor kao u modelu stava</li>
+        </ul>
+      </div>
+      <div class="kartica">
+        <svg viewBox="0 0 260 120" role="img" aria-label="Kriva prosječne sklonosti kroz vrijeme">
+          <line class="il-osa" x1="14" y1="104" x2="250" y2="104"/><line class="il-osa" x1="14" y1="10" x2="14" y2="104"/>
+          <path d="M14 58 C 70 54, 120 40, 250 26" fill="none" stroke="var(--visoka)" stroke-width="3"/>
+          <path d="M14 58 C 70 66, 120 86, 250 94" fill="none" stroke="var(--niska)" stroke-width="3"/>
+          <text class="il-tekst" x="170" y="20">slaba kontrola</text><text class="il-tekst" x="164" y="116">jaka kontrola</text>
+        </svg>
+        <h3>Mjere · izlaz modela</h3>
+        <ul>
+          <li><b>prosjecna-sklonost</b> svih ljudi</li>
+          <li><b>udio-prekrsaja</b> u ovoj sedmici i <b>broj-kaznjenih</b></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 ============================================================ -->
+<section class="slajd" id="s4" data-naslov="Jedna prilika, korak po korak">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Interakcija</span>
+      <h2>Dvije odluke pomoću slučajnih brojeva</h2>
+      <p class="podnaslov">Svake sedmice svaki čovjek, slučajnim redom (<code>ask ljudi</code>), dobije jednu priliku. Brojevi na
+        granama su vjerovatnoće.</p>
+    </div>
+    <div class="panel" style="overflow-x:auto">
+      <svg viewBox="0 0 900 290" role="img" aria-label="Stablo odluke: prilika, prekršaj ili ne, kontrola ili ne" style="min-width:640px;width:100%;height:auto;display:block">
+        <path class="stablo-grana" d="M170 145 C 220 145, 220 72, 268 72"/>
+        <path class="stablo-grana" d="M170 145 C 220 145, 220 230, 268 230"/>
+        <path class="stablo-grana" d="M438 72 C 480 72, 480 38, 528 38"/>
+        <path class="stablo-grana" d="M438 72 C 480 72, 480 128, 528 128"/>
+        <rect class="stablo-cvor odluka" x="20" y="117" width="150" height="56" rx="10"/>
+        <text class="stablo-tekst" x="95" y="142" text-anchor="middle">Prilika</text><text class="stablo-mali" x="95" y="161" text-anchor="middle">svake sedmice</text>
+        <rect class="stablo-cvor odluka" x="268" y="44" width="170" height="56" rx="10"/>
+        <text class="stablo-tekst" x="353" y="69" text-anchor="middle">Prekrši pravilo</text><text class="stablo-mali" x="353" y="88" text-anchor="middle">prekrsio? = true</text>
+        <rect class="stablo-cvor" x="268" y="202" width="250" height="56" rx="10"/>
+        <text class="stablo-tekst" x="393" y="227" text-anchor="middle">Poštuje pravilo</text><text class="stablo-mali" x="393" y="246" text-anchor="middle">ništa se ne mijenja</text>
+        <rect class="stablo-cvor kazna" x="528" y="10" width="350" height="56" rx="10"/>
+        <text class="stablo-tekst" x="703" y="35" text-anchor="middle">Kontrola otkrije: kazna</text><text class="stablo-mali" x="703" y="54" text-anchor="middle">sklonost − jacina-kazne × (1 − integritet)</text>
+        <rect class="stablo-cvor bez" x="528" y="100" width="350" height="56" rx="10"/>
+        <text class="stablo-tekst" x="703" y="125" text-anchor="middle">Ne otkrije: prekršaj bez kazne</text><text class="stablo-mali" x="703" y="144" text-anchor="middle">sklonost + pomak-bez-kazne × (1 − integritet)</text>
+        <text class="stablo-vjer" x="196" y="96">sklonost</text>
+        <text class="stablo-vjer" x="186" y="206">1 − sklonost</text>
+        <text class="stablo-vjer" x="440" y="30">kontrola</text>
+        <text class="stablo-vjer" x="444" y="122">1 − kontrola</text>
+      </svg>
+    </div>
+    <div class="kartice" style="margin-top:1rem">
+      <div class="kartica"><h3><span class="korak-broj">1</span> Odluka o prekršaju</h3><p class="siva">Izabere se slučajan broj od 0 do 1. Ako je manji od sklonosti, čovjek prekrši pravilo. Sklonost predstavlja vjerovatnoću prekršaja.</p><div class="kod-cip">if random-float 1 &lt; sklonost [ … ]</div></div>
+      <div class="kartica"><h3><span class="korak-broj">2</span> Otkrivanje prekršaja</h3><p class="siva">Drugi slučajan broj uporedi se s vjerovatnoćom kontrole. Moguća su dva ishoda: kazna ili izostanak kazne.</p><div class="kod-cip">ifelse random-float 1 &lt; vjerovatnoca-kontrole [ … ] [ … ]</div></div>
+      <div class="kartica"><h3><span class="korak-broj">3</span> Promjena sklonosti</h3><p class="siva">Kazna smanji sklonost više nego što je nekažnjeni prekršaj poveća. Integritet ublažava obje promjene.</p><div class="kod-cip">max (list 0 …) · min (list 1 …): sklonost ostaje od 0 do 1</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 ============================================================ -->
+<section class="slajd" id="s5" data-naslov="Probajte jednu priliku">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Probajte</span>
+      <h2>Očekivana promjena sklonosti u jednoj prilici</h2>
+      <p class="podnaslov">Stablo prikazuje vjerovatnoću svake grane i promjenu sklonosti. Opcija „Odigraj priliku“ generiše slučajne brojeve kao <code>random-float 1</code>.</p>
+    </div>
+    <div class="kalk">
+      <div class="panel" style="display:grid;gap:0.7rem">
+        <div style="overflow-x:auto"><svg id="kalk-stablo" viewBox="0 0 900 290" role="img" aria-label="Stablo jedne prilike s brojevima" style="min-width:560px;width:100%;height:auto;display:block"></svg></div>
+        <div class="dugmad">
+          <button type="button" class="glavno" id="kalk-odigraj">Odigraj priliku</button>
+          <button type="button" id="kalk-godina">Odigraj 52 prilike</button>
+          <button type="button" id="kalk-vrati">Vrati na početak</button>
+        </div>
+        <p class="dnevnik" id="kalk-dnevnik" aria-live="polite"></p>
+        <canvas class="trag" id="kalk-trag" aria-label="Sklonost ovog čovjeka kroz odigrane prilike"></canvas>
+      </div>
+      <div class="panel" style="display:grid;gap:0.8rem;align-content:start">
+        <div class="klizaci">
+          <div class="klizac"><label for="k-s">sklonost</label><output for="k-s"></output><input type="range" id="k-s" min="0" max="1" step="0.05" value="0.5"></div>
+          <div class="klizac"><label for="k-i">integritet</label><output for="k-i"></output><input type="range" id="k-i" min="0" max="1" step="0.05" value="0.3"></div>
+          <div class="klizac"><label for="k-q">vjerovatnoca-kontrole</label><output for="k-q"></output><input type="range" id="k-q" min="0" max="1" step="0.01" value="0.1"></div>
+          <div class="klizac"><label for="k-k">jacina-kazne</label><output for="k-k"></output><input type="range" id="k-k" min="0" max="0.5" step="0.01" value="0.1"></div>
+          <div class="klizac"><label for="k-p">pomak-bez-kazne</label><output for="k-p"></output><input type="range" id="k-p" min="0" max="0.2" step="0.005" value="0.02"></div>
+        </div>
+        <div class="ishod-kalk">
+          <div><span>očekivana promjena</span><b id="k-e">–</b></div>
+          <div><span>prag kontrole</span><b id="k-prag">–</b></div>
+        </div>
+        <div class="formula" id="kalk-racun" aria-live="polite"></div>
+        <p class="mala siva">Očekivana promjena je zbir proizvoda za sve grane: vjerovatnoća grane × promjena u toj grani. Jednaka je nuli kada je kontrola × kazna = (1 − kontrola) × pomak, tj. kada je kontrola = pomak / (pomak + kazna). Sklonost i integritet mijenjaju brzinu, ali ne i smjer.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 ============================================================ -->
+<section class="slajd" id="s6" data-naslov="Kod">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Kod</span>
+      <h2>Dva slučajna broja i jedan <code style="font-size:0.85em">ifelse</code></h2>
+      <p class="podnaslov">Prikazane su procedura <code>prilika</code> u NetLogu i odgovarajuća metoda u C# (projekat <code>netlogo-kroz-csharp</code>). U C# je uz svaki atribut naveden <code>this.</code> radi jasnog označavanja objekta kojem pripada.</p>
+    </div>
+    <div class="kodovi">
+      <div class="kod"><div class="jezik">NetLogo · v03-blok6-kazna.nlogox</div><pre><code><span class="kom">;; turtle procedura: izvršava je svaki čovjek</span>
+to prilika
+  set prekrsio? false
+  set kaznjen? false
+  <mark><b>①</b> if random-float 1 &lt; sklonost [</mark>
+    set prekrsio? true
+    <mark><b>②</b> ifelse random-float 1 &lt; vjerovatnoca-kontrole [</mark>
+      set kaznjen? true
+      <mark><b>③</b> set sklonost max (list 0</mark>
+        (sklonost - jacina-kazne * (1 - integritet)))
+    ] [
+      set sklonost min (list 1
+        (sklonost + pomak-bez-kazne * (1 - integritet)))
+    ]
+  ]
+end</code></pre></div>
+      <div class="kod"><div class="jezik">C# · Blokovi/Blok6Kazna.cs</div><pre><code>public void Prilika()             <span class="kom">// metoda klase Covjek</span>
+{
+    this.Prekrsio = false;
+    this.Kaznjen = false;
+    <mark><b>①</b> if (World.RandomFloat(1) &lt; this.Sklonost)</mark>
+    {
+        this.Prekrsio = true;
+        <mark><b>②</b> if (World.RandomFloat(1) &lt; Globals.VjerovatnocaKontrole)</mark>
+        {
+            this.Kaznjen = true;
+            <mark><b>③</b> this.Sklonost = Math.Max(0, this.Sklonost</mark>
+                - Globals.JacinaKazne * (1 - this.Integritet));
+        }
+        else
+            this.Sklonost = Math.Min(1, this.Sklonost
+                + Globals.PomakBezKazne * (1 - this.Integritet));
+    }
+}</code></pre></div>
+    </div>
+    <div class="oblacici">
+      <div><b class="br">①</b>Događaj s vjerovatnoćom: slučajan broj od 0 do 1 manji od sklonosti. Isti obrazac služi za svaku vjerovatnoću u modelu.</div>
+      <div><b class="br">②</b><code>ifelse</code> ima dvije grane u uglastim zagradama; u C# je to <code>if … else</code>. Slučajan broj je novi, nezavisan od prvog.</div>
+      <div><b class="br">③</b><code>max (list 0 …)</code> i <code>min (list 1 …)</code> drže sklonost između 0 i 1 (u C# <code>Math.Max</code>, <code>Math.Min</code>). Ta granica malo pomjera prag (slajd 7).</div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 ============================================================ -->
+<section class="slajd" id="s7" data-naslov="Ishod: prag">
+  <div class="okvir">
+    <div class="glava">
+      Ishod
+      <h2>Ispod praga kontrole sklonost raste, iznad praga pada</h2>
+      <p class="podnaslov">Prosječna sklonost nakon 150 sedmica, za vjerovatnoću kontrole od 0 do 0,5. Na početku je oko 0,5.</p>
+    </div>
+    <div class="dvije">
+      <figure style="margin:0"><div id="g-prag"></div>
+        <figcaption class="potpis"><b>Prosječna sklonost na ticku 150</b>; jacina-kazne 0,1, pomak-bez-kazne 0,02, 20 pokretanja po vrijednosti. Linija prikazuje medijan, a pojas raspon. Isprekidano: početna vrijednost i izračunati prag pomak / (pomak + kazna).</figcaption></figure>
+      <div class="tekst">
+        <p>Izraz sa slajda 5 daje prag 0,02 / (0,02 + 0,1) ≈ <b>0,17</b>. U modelu prosjek prelazi početnu vrijednost pri
+          kontroli <b id="t-presjek">≈ 0,16</b>.</p>
+        <p>Razlika nastaje zbog gornje granice: sklonost ne može preći 1, pa je kod vrijednosti blizu 1 porast ograničen, a pad nije. Zato je prag u modelu nešto niži od izračunatog.</p>
+        <p>Kontrola 0,1 daje na ticku 150 prosjek <b id="t-q01">0,67</b>, a kontrola 0,3 daje <b id="t-q03">0,20</b>.
+          Udaljenost od praga određuje i brzinu promjene: u blizini praga promjena prosjeka je vrlo mala.</p>
+        <div class="pitanje"><h3>Primjena u vlastitom modelu</h3>
+          <p>Definišite kontrolu u pojavi koju modelirate: ko otkriva prekršaje, koliko često i na osnovu kojih izvora se to može utvrditi.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 ============================================================ -->
+<section class="slajd" id="s8" data-naslov="Jača kazna, niži prag">
+  <div class="okvir">
+    <div class="glava">
+      Ishod
+      <h2>Tri puta jača kazna: oko tri puta niži prag kontrole</h2>
+      <p class="podnaslov">Prag zavisi od odnosa dobiti od prekršaja i kazne, prema izrazu pomak / (pomak + kazna).</p>
+    </div>
+    <div class="dvije">
+      <figure style="margin:0"><div id="g-kazna"></div>
+        <figcaption class="potpis"><b>Prosječna sklonost na ticku 150</b> uz jacina-kazne 0,1 i 0,3 (pomak 0,02), 20 pokretanja po vrijednosti. Okomite isprekidane linije: izračunati prag.</figcaption></figure>
+      <div class="tekst">
+        <div class="formula" id="t-pragovi"></div>
+        <p>Ista kontrola od 0,1 daje suprotne ishode: uz kaznu 0,1 sklonost raste (medijan <b id="t-k01">0,67</b>), uz kaznu 0,3
+          pada (<b id="t-k03">0,23</b>).</p>
+        <p class="mala siva">Model ne određuje koja je kombinacija bolja u stvarnosti jer ne obuhvata troškove kontrole i kazne. Pokazuje da se njihov uticaj na prag može izračunati i izmjeriti.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 9 ============================================================ -->
+<section class="slajd" id="s9" data-naslov="Razgovor">
+  <div class="okvir">
+    <div class="glava">
+      Ishod
+      <h2>Razgovor ujednačava sklonosti, a prag ostaje gotovo isti</h2>
+      <p class="podnaslov">Uz <code>razgovor?</code> sklonost se približava sklonosti ljudi u blizini, kao stav u modelu s vježbi 2.</p>
+    </div>
+    <div class="dvije">
+      <figure style="margin:0">
+        <div class="izbor" role="group" aria-label="Razgovor">
+          <button type="button" data-put="q01" aria-pressed="true">kontrola 0,1, bez razgovora</button>
+          <button type="button" data-put="q01r" aria-pressed="false">kontrola 0,1, s razgovorom</button>
+        </div>
+        <div class="putanje-okvir"><canvas class="putanje" id="put-razgovor" aria-label="Sklonost 200 ljudi kroz 150 sedmica"></canvas></div>
+        <div class="legenda"><span><i style="background:var(--visoka)"></i>na kraju &gt; 0,75</span><span><i style="background:var(--neodlucni)"></i>između</span><span><i style="background:var(--niska)"></i>na kraju &lt; 0,25</span></div>
+        <figcaption class="potpis" id="put-razgovor-potpis"></figcaption>
+      </figure>
+      <div class="tekst">
+        <figure style="margin:0"><div id="g-razgovor"></div>
+          <figcaption class="potpis"><b>Prosječna sklonost na ticku 150</b> bez razgovora i s razgovorom, 20 pokretanja po vrijednosti.</figcaption></figure>
+        <p id="t-razgovor"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 10 =========================================================== -->
+<section class="slajd" id="s10" data-naslov="U modelu na papiru">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Model na papiru</span>
+      <h2>Zapis bloka u modelu na papiru</h2>
+      <p class="podnaslov">Model se prvo opisuje na papiru, a zatim u kodu. Blok se zapisuje jednom rečenicom u polju „Interakcije“, uz potrebne atribute i parametre.</p>
+    </div>
+    <div class="dvije">
+      <figure class="papir">
+        <figcaption>Polje 8 · Interakcije</figcaption>
+        <p>Kada čovjek ima priliku da prekrši pravilo:</p>
+        <ul>
+          <li>pravilo prekrši s vjerovatnoćom jednakom svojoj <b>sklonost</b>i;</li>
+          <li>ako kontrola otkrije prekršaj (vjerovatnoća <b>kontrole</b>), sklonost se smanji prema jačini kazne i integritetu;</li>
+          <li>inače se sklonost malo poveća.</li>
+        </ul>
+      </figure>
+      <div class="tekst">
+        <figure class="papir">
+          <figcaption>Polje 6 · Atributi</figcaption>
+          <ul>
+            <li>sklonost od 0 do 1: vjerovatnoća prekršaja kad postoji prilika;</li>
+            <li>integritet od 0 (mijenja se najlakše) do 1 (ne mijenja se).</li>
+          </ul>
+        </figure>
+        <div class="panel"><h3 style="font-size:var(--t-1);margin-bottom:0.3rem">Podaci za koje treba navesti izvor</h3>
+          <p>Vjerovatnoća kontrole (udio otkrivenih prekršaja) i <b>omjer kazne i dobiti</b> od prekršaja. Izračunati prag zavisi samo od tih veličina, pa su to dva ključna podatka u modelu.</p></div>
+        <div class="pitanje"><h3>Pitanje</h3><p>Odredite kako je kontrola predstavljena u vašem modelu: brojem (kao ovdje), agentom koji se kreće ili mjestom (patch).</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 11 =========================================================== -->
+<section class="slajd" id="s11" data-naslov="Probajte u NetLogu">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Probajte</span>
+      <h2>Isti model u NetLogu</h2>
+    </div>
+    <div class="dvije">
+      <div class="veze">
+        <a href="../netlogo-web/v03-blok6-kazna.html" target="_blank" rel="noopener"><b>NetLogo Web ↗</b>
+          <span>Pravi NetLogo u web pregledniku: klizači, Command Center, kod. Bez instalacije i bez interneta.</span></a>
+        <a href="../modeli/v03-blok6-kazna.nlogox"><b>v03-blok6-kazna.nlogox</b>
+          <span>Za NetLogo 7.0.4 (File → Open). BehaviorSpace eksperiment: kontrola (0,05 do 0,3).</span></a>
+        <a><b>C#: Blokovi/Blok6Kazna.cs</b>
+          <span>Projekat netlogo-kroz-csharp; daje iste raspone kao NetLogo.</span></a>
+      </div>
+      <div class="tekst">
+        <div class="panel"><h3 style="font-size:var(--t-1);margin-bottom:0.4rem">Zadaci za provjeru</h3>
+          <ul>
+            <li>Postavite kontrolu na 0,14, zatim na 0,18 i uporedite smjer promjene sklonosti.</li>
+            <li>Postavite jacina-kazne na 0,3 i odredite vrijednost kontrole pri kojoj se mijenja smjer promjene sklonosti.</li>
+            <li>Postavite pomak-bez-kazne na 0 i ispitajte učinak vrlo male vjerovatnoće kontrole.</li>
+            <li>Uključite <code>razgovor?</code> i analizirajte histogram sklonosti.</li>
+          </ul></div>
+        <div><h3 style="font-size:var(--t-1);margin-bottom:0.4rem">Literatura</h3>
+          <ol class="literatura">
+            <li>Becker, G. S. (1968). Crime and Punishment: An Economic Approach. <i>Journal of Political Economy</i>, 76(2), 169–217.</li>
+          </ol></div>
+        <p class="mala siva">Rezultati na ovoj stranici dobijeni su u NetLogu 7.0.4 (headless). Putanje potiču iz jednog pokretanja uz seed (random-seed 1); grafikoni prikazuju medijan i raspon 20 pokretanja. Modeliranje i simulacije, FIT UNMO, 2026/27.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<nav class="navigacija" aria-label="Slajdovi">
+  <div class="napredak" id="napredak"></div>
+  <div class="okvir">
+    <button type="button" id="nazad" aria-label="Prethodni slajd">←</button>
+    <span class="broj" id="broj">1 / 11</span>
+    <button type="button" id="naprijed" aria-label="Sljedeći slajd">→</button>
+    <span class="naslov-slajda" id="naslov-slajda"></span>
+  </div>
+</nav>
+
+<script>window.PODACI = {{JSON:mjerenja/podaci-b6.json}}; window.REZ = {{JSON:mjerenja/rezultati-b6.json}};</script>
+<script>
+(() => {
+  const $ = (s, el = document) => el.querySelector(s);
+  const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const zarez = (x, d = 2) => x.toFixed(d).replace(".", ",").replace("-", "−");
+  const pct1 = x => `${(Math.round(x * 1000) / 10).toString().replace(".", ",")}%`;
+  const smanjeno = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const R = window.REZ;
+
+  // ---------------- slajdovi ----------------
+  const main = $("#slajdovi"), slajdovi = $$(".slajd");
+  let tren = 0;
+  function prikazi(i, izHasha) {
+    tren = Math.max(0, Math.min(slajdovi.length - 1, i));
+    slajdovi.forEach((s, k) => s.classList.toggle("aktivan", k === tren));
+    $("#broj").textContent = `${tren + 1} / ${slajdovi.length}`;
+    $("#naslov-slajda").textContent = slajdovi[tren].dataset.naslov;
+    $("#napredak").style.width = `${((tren + 1) / slajdovi.length) * 100}%`;
+    $("#nazad").disabled = tren === 0; $("#naprijed").disabled = tren === slajdovi.length - 1;
+    if (!izHasha) { try { history.replaceState(null, "", "#" + slajdovi[tren].id); } catch (e) {} }
+    if (main.classList.contains("prezentacija")) window.scrollTo(0, 0);
+    crtajVidljivo();
+  }
+  $("#nazad").addEventListener("click", () => prikazi(tren - 1));
+  $("#naprijed").addEventListener("click", () => prikazi(tren + 1));
+  document.addEventListener("keydown", e => {
+    if (!main.classList.contains("prezentacija") || e.target.closest("input, textarea")) return;
+    if (["ArrowRight", "PageDown"].includes(e.key) || (e.key === " " && !e.target.closest("button"))) { e.preventDefault(); prikazi(tren + 1); }
+    if (["ArrowLeft", "PageUp"].includes(e.key)) { e.preventDefault(); prikazi(tren - 1); }
+    if (e.key === "Home") prikazi(0);
+    if (e.key === "End") prikazi(slajdovi.length - 1);
+  });
+  let dodirX = null;
+  main.addEventListener("touchstart", e => { dodirX = e.touches[0].clientX; }, { passive: true });
+  main.addEventListener("touchend", e => {
+    if (dodirX === null || !main.classList.contains("prezentacija")) return;
+    const dx = e.changedTouches[0].clientX - dodirX; dodirX = null;
+    if (e.target.closest("input, canvas, .kalk, svg")) return;
+    if (Math.abs(dx) > 70) prikazi(tren + (dx < 0 ? 1 : -1));
+  });
+  function nacin(citanje) {
+    main.classList.toggle("citanje", citanje); main.classList.toggle("prezentacija", !citanje);
+    $("#nacin-citanje").setAttribute("aria-pressed", citanje); $("#nacin-prezentacija").setAttribute("aria-pressed", !citanje);
+    try { localStorage.setItem("blok6-nacin", citanje ? "citanje" : "prezentacija"); } catch (e) {}
+    if (citanje) { requestAnimationFrame(() => slajdovi[tren].scrollIntoView()); }
+    crtajVidljivo();
+  }
+  $("#nacin-citanje").addEventListener("click", () => nacin(true));
+  $("#nacin-prezentacija").addEventListener("click", () => nacin(false));
+
+  // ---------------- putanje sklonosti (NetLogo) ----------------
+  const P = {}; for (const u of window.PODACI.uslovi) P[u.kljuc] = u;
+  const bojaKraja = v => v > 75 ? css("--visoka") : v < 25 ? css("--niska") : css("--neodlucni");
+  function crtajPutanje(canvas, kljuc, animiraj) {
+    const u = P[kljuc]; if (!u || !canvas) return;
+    const dpr = Math.min(devicePixelRatio || 1, 2), w = canvas.clientWidth || 600, h = canvas.clientHeight || 300;
+    canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
+    const g = canvas.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const L = 34, Rm = 16, T = 8, B = 22, pw = w - L - Rm, ph = h - T - B;
+    const n = u.ticks.length, xMax = u.ticks[n - 1];
+    const X = t => L + (t / xMax) * pw, Y = s => T + (1 - s / 100) * ph;
+    const osnova = () => {
+      g.clearRect(0, 0, w, h);
+      g.font = `11px ${css("--f-mono")}`; g.fillStyle = "#9aa3ad"; g.strokeStyle = "rgba(255,255,255,0.12)"; g.lineWidth = 1;
+      for (const s of [0, 25, 50, 75, 100]) {
+        g.beginPath(); g.moveTo(L, Y(s) + 0.5); g.lineTo(w - Rm, Y(s) + 0.5); g.stroke();
+        g.textAlign = "right"; g.fillText(s === 0 ? "0" : s === 100 ? "1" : zarez(s / 100, 2), L - 6, Y(s) + 4);
+      }
+      for (let t = 0; t <= xMax; t += 50) { g.textAlign = t === xMax ? "right" : t === 0 ? "left" : "center"; g.fillText(String(t), X(t) + (t === xMax ? 6 : 0), h - 6); }
+    };
+    const crtajDo = k => {
+      osnova();
+      g.globalAlpha = 0.3; g.lineWidth = 1;
+      for (const niz of u.sklonost) {
+        g.strokeStyle = bojaKraja(niz[n - 1]);
+        g.beginPath(); g.moveTo(X(u.ticks[0]), Y(niz[0]));
+        for (let i = 1; i <= k; i++) g.lineTo(X(u.ticks[i]), Y(niz[i]));
+        g.stroke();
+      }
+      g.globalAlpha = 1; g.strokeStyle = "#ffffff"; g.lineWidth = 2.5;     // prosjek
+      g.beginPath(); g.moveTo(X(u.ticks[0]), Y(u.prosjek[0] * 100));
+      for (let i = 1; i <= k; i++) g.lineTo(X(u.ticks[i]), Y(u.prosjek[i] * 100));
+      g.stroke();
+    };
+    if (canvas._anim) cancelAnimationFrame(canvas._anim);
+    if (!animiraj || smanjeno) { crtajDo(n - 1); return; }
+    const pocetak = performance.now(), trajanje = 1400;
+    const korak = sad => {
+      const k = Math.max(1, Math.round(Math.min(1, (sad - pocetak) / trajanje) * (n - 1)));
+      crtajDo(k);
+      if (k < n - 1) canvas._anim = requestAnimationFrame(korak);
+    };
+    canvas._anim = requestAnimationFrame(korak);
+  }
+  const opisPutanje = u => `NetLogo 7.0.4, jedno pokretanje (random-seed ${u.seed}), 200 ljudi, kontrola ${zarez(u.q, 1)}` +
+    `${u.razgovor ? ", razgovor uključen" : ""}. Bijelo: prosjek. Na ticku 150: prosječna sklonost <b>${zarez(u.prosjek_kraj, 2)}</b>, ` +
+    `u toj sedmici prekršilo je ${pct1(u.udio_prekrsaja_kraj)} ljudi.`;
+  const izbori = { "put-razgovor": "q01" };
+  function postaviPutanje(id, kljuc, animiraj) {
+    izbori[id] = kljuc;
+    crtajPutanje(document.getElementById(id), kljuc, animiraj);
+    const potpis = document.getElementById(id + "-potpis"); if (potpis) potpis.innerHTML = opisPutanje(P[kljuc]);
+  }
+  for (const grupa of $$(".izbor")) {
+    const canvas = grupa.parentElement.querySelector("canvas.putanje");
+    for (const b of $$("button", grupa)) b.addEventListener("click", () => {
+      $$("button", grupa).forEach(x => x.setAttribute("aria-pressed", x === b));
+      postaviPutanje(canvas.id, b.dataset.put, true);
+    });
+  }
+  function crtajVidljivo() {
+    const vidljiv = id => { const c = document.getElementById(id); return c && c.offsetParent !== null; };
+    for (const [id, k] of [["put-q01", "q01"], ["put-q03", "q03"]]) if (vidljiv(id)) postaviPutanje(id, k, false);
+    if (vidljiv("put-razgovor")) postaviPutanje("put-razgovor", izbori["put-razgovor"], main.classList.contains("prezentacija"));
+    kalkCrtaj(); tragCrtaj();
+  }
+  addEventListener("resize", () => crtajVidljivo());
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => crtajVidljivo());
+
+  // ---------------- grafikoni s brojčanom osom x (SVG) ----------------
+  const SVG = "http://www.w3.org/2000/svg";
+  const el = (ime, atr = {}, tekst) => { const e = document.createElementNS(SVG, ime); for (const [k, v] of Object.entries(atr)) e.setAttribute(k, v); if (tekst !== undefined) e.textContent = tekst; return e; };
+  const tackeIz = (tab, filter) => Object.entries(tab).filter(([k]) => !filter || k.includes(filter))
+    .map(([k, v]) => ({ x: +k.split("vjerovatnoca-kontrole=")[1], ...v })).sort((a, b) => a.x - b.x);
+  function linije(cilj, spec) {
+    const W = 480, H = 270, L = 44, Rr = 14, T = 14, B = 46;
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": spec.naslov, class: "grafik" });
+    const x = v => L + (W - L - Rr) * (v - spec.xMin) / (spec.xMax - spec.xMin);
+    const y = v => T + (H - T - B) * (1 - (v - spec.yMin) / (spec.yMax - spec.yMin));
+    for (const v of spec.yKoraci) {
+      svg.append(el("line", { x1: L, x2: W - Rr, y1: y(v), y2: y(v), class: "g-mreza" }));
+      svg.append(el("text", { x: L - 6, y: y(v) + 4, "text-anchor": "end", class: "g-oznaka" }, zarez(v, v % 0.5 ? 2 : 1).replace(/,0$/, "")));
+    }
+    for (const v of spec.xKoraci) svg.append(el("text", { x: x(v), y: H - B + 18, "text-anchor": "middle", class: "g-oznaka" }, zarez(v, 1).replace(/,0$/, "")));
+    svg.append(el("text", { x: L + (W - L - Rr) / 2, y: H - 8, "text-anchor": "middle", class: "g-naslov-x" }, spec.xNaslov));
+    if (spec.hRef) {
+      svg.append(el("line", { x1: L, x2: W - Rr, y1: y(spec.hRef.v), y2: y(spec.hRef.v), class: "g-ref" }));
+      svg.append(el("text", { x: W - Rr, y: y(spec.hRef.v) - 5, "text-anchor": "end", class: "g-ref-tekst" }, spec.hRef.tekst));
+    }
+    for (const r of spec.vRef || []) {
+      svg.append(el("line", { x1: x(r.v), x2: x(r.v), y1: T, y2: H - B, class: "g-ref", style: r.boja ? `stroke:${r.boja}` : "" }));
+      svg.append(el("text", { x: x(r.v) + 4, y: T + 12 + (r.pomak || 0), class: "g-ref-tekst", style: r.boja ? `fill:${r.boja}` : "" }, r.tekst));
+    }
+    spec.serije.forEach((s, j) => {
+      const boja = s.boja;
+      const pojas = s.tacke.map(t => `${x(t.x)},${y(t.max)}`).concat(s.tacke.slice().reverse().map(t => `${x(t.x)},${y(t.min)}`)).join(" ");
+      svg.append(el("polygon", { points: pojas, fill: boja, opacity: 0.15 }));
+      svg.append(el("polyline", { points: s.tacke.map(t => `${x(t.x)},${y(t.med)}`).join(" "), fill: "none", stroke: boja, "stroke-width": 2.5 }));
+      for (const t of s.tacke) svg.append(el("circle", { cx: x(t.x), cy: y(t.med), r: 3.5, fill: boja }));
+      if (spec.serije.length > 1) {
+        svg.append(el("rect", { x: W - Rr - 150, y: T + 6 + j * 18, width: 12, height: 4, fill: boja }));
+        svg.append(el("text", { x: W - Rr - 132, y: T + 12 + j * 18, class: "g-oznaka" }, s.ime));
+      }
+    });
+    svg.append(el("line", { x1: L, x2: W - Rr, y1: y(spec.yMin), y2: y(spec.yMin), class: "g-os" }));
+    cilj.replaceChildren(svg);
+  }
+  function grafikoni() {
+    const start = R.k01_prag.pocetak;
+    linije($("#g-prag"), { naslov: "Prosječna sklonost prema vjerovatnoći kontrole", xMin: 0, xMax: 0.5, xKoraci: [0, 0.1, 0.2, 0.3, 0.4, 0.5],
+      yMin: 0, yMax: 1, yKoraci: [0, 0.25, 0.5, 0.75, 1], xNaslov: "vjerovatnoća kontrole",
+      serije: [{ ime: "kazna 0,1", boja: css("--narandza"), tacke: tackeIz(R.k01_t150) }],
+      hRef: { v: start, tekst: "početak" }, vRef: [{ v: R.k01_prag.teorija, tekst: "račun" }] });
+    linije($("#g-kazna"), { naslov: "Prosječna sklonost uz dvije jačine kazne", xMin: 0, xMax: 0.5, xKoraci: [0, 0.1, 0.2, 0.3, 0.4, 0.5],
+      yMin: 0, yMax: 1, yKoraci: [0, 0.25, 0.5, 0.75, 1], xNaslov: "vjerovatnoća kontrole",
+      serije: [{ ime: "jacina-kazne 0,1", boja: css("--narandza"), tacke: tackeIz(R.k01_t150) },
+               { ime: "jacina-kazne 0,3", boja: css("--niska"), tacke: tackeIz(R.k03_t150) }],
+      hRef: { v: start, tekst: "početak" },
+      vRef: [{ v: R.k01_prag.teorija, tekst: "0,17", boja: css("--narandza") }, { v: R.k03_prag.teorija, tekst: "0,06", boja: css("--niska"), pomak: 40 }] });
+    linije($("#g-razgovor"), { naslov: "Prosječna sklonost bez razgovora i s razgovorom", xMin: 0, xMax: 0.32, xKoraci: [0, 0.1, 0.2, 0.3],
+      yMin: 0, yMax: 1, yKoraci: [0, 0.25, 0.5, 0.75, 1], xNaslov: "vjerovatnoća kontrole",
+      serije: [{ ime: "bez razgovora", boja: css("--narandza"), tacke: tackeIz(R.razgovor_t150, "razgovor?=false") },
+               { ime: "s razgovorom", boja: css("--niska"), tacke: tackeIz(R.razgovor_t150, "razgovor?=true") }],
+      hRef: { v: start, tekst: "početak" } });
+  }
+
+  // brojke u tekstu, iz mjerenja
+  const m = (tab, k) => R[tab][k].med;
+  $("#t-presjek").textContent = "≈ " + zarez(R.k01_prag.presjek_t150, 3);
+  $("#t-q01").textContent = zarez(m("k01_t150", "vjerovatnoca-kontrole=0.1"));
+  $("#t-q03").textContent = zarez(m("k01_t150", "vjerovatnoca-kontrole=0.3"));
+  $("#t-k01").textContent = zarez(m("k01_t150", "vjerovatnoca-kontrole=0.1"));
+  $("#t-k03").textContent = zarez(m("k03_t150", "vjerovatnoca-kontrole=0.1"));
+  $("#t-pragovi").textContent =
+    `kazna 0,1:  0,02 / (0,02 + 0,1) = ${zarez(R.k01_prag.teorija, 3)}   izmjereno ${zarez(R.k01_prag.presjek_t150, 3)}\n` +
+    `kazna 0,3:  0,02 / (0,02 + 0,3) = ${zarez(R.k03_prag.teorija, 3)}   izmjereno ${zarez(R.k03_prag.presjek_t150, 3)}`;
+  {
+    const sd = (r, q) => R.razgovor_sd_t150[`razgovor?=${r} | vjerovatnoca-kontrole=${q}`].med;
+    const mr = (r, q) => R.razgovor_t150[`razgovor?=${r} | vjerovatnoca-kontrole=${q}`].med;
+    $("#t-razgovor").innerHTML = `Razlike u sklonosti među ljudima se smanjuju: uz kontrolu 0,1 standardna devijacija iznosi ` +
+      `<b>${zarez(sd("false", 0.1))}</b> bez razgovora i <b>${zarez(sd("true", 0.1))}</b> s razgovorom. Prosjek je s razgovorom nešto viši ` +
+      `(kontrola 0,3: bez razgovora ${zarez(mr("false", 0.3))}, s razgovorom ${zarez(mr("true", 0.3))}), dok se promjena smjera i dalje javlja pri kontroli oko 0,15–0,17.`;
+  }
+
+  // ---------------- kalkulator jedne prilike ----------------
+  const ul = id => document.getElementById(id);
+  const vr = () => ({ s: +ul("k-s").value, i: +ul("k-i").value, q: +ul("k-q").value, k: +ul("k-k").value, p: +ul("k-p").value });
+  let stanje = null, trag = [], aktivna = null, brojPrilika = 0, prekrsaja = 0, kazni = 0;
+  const resetuj = () => { stanje = vr().s; trag = [stanje]; aktivna = null; brojPrilika = prekrsaja = kazni = 0; ul("kalk-dnevnik").textContent = ""; };
+  function izracun() {
+    const v = vr(), s = stanje;
+    const dk = -Math.min(s, v.k * (1 - v.i)), db = Math.min(1 - s, v.p * (1 - v.i));
+    const pk = s * v.q, pb = s * (1 - v.q), pn = 1 - s;
+    return { v, s, dk, db, pk, pb, pn, e: pk * dk + pb * db, prag: v.p + v.k > 0 ? v.p / (v.p + v.k) : NaN };
+  }
+  function kalkCrtaj() {
+    const svg = ul("kalk-stablo"); if (!svg || stanje === null) return;
+    const r = izracun();
+    svg.replaceChildren();
+    const grane = [["A", "M170 145 C 220 145, 220 72, 268 72"], ["N", "M170 145 C 220 145, 220 230, 268 230"],
+                   ["K", "M438 72 C 480 72, 480 38, 528 38"], ["B", "M438 72 C 480 72, 480 128, 528 128"]];
+    for (const [k, d] of grane) {
+      const akt = aktivna && (aktivna === "N" ? k === "N" : (k === "A" || k === aktivna));
+      svg.append(el("path", { d, class: "stablo-grana" + (akt ? " aktivna" : "") }));
+    }
+    const cvor = (x, yy, w, klasa, t1, t2) => {
+      svg.append(el("rect", { x, y: yy, width: w, height: 56, rx: 10, class: "stablo-cvor " + klasa }));
+      svg.append(el("text", { x: x + w / 2, y: yy + 25, "text-anchor": "middle", class: "stablo-tekst" }, t1));
+      svg.append(el("text", { x: x + w / 2, y: yy + 44, "text-anchor": "middle", class: "stablo-mali" }, t2));
+    };
+    cvor(20, 117, 150, "odluka", "Prilika", `sklonost ${zarez(r.s, 3)}`);
+    cvor(268, 44, 170, "odluka", "Prekrši", `vjerovatnoća ${zarez(r.s, 3)}`);
+    cvor(268, 202, 250, "", "Poštuje pravilo", `vjerovatnoća ${zarez(r.pn, 3)} · promjena 0`);
+    cvor(528, 10, 350, "kazna", `Kazna: ${zarez(r.dk, 3)}`, `vjerovatnoća ${zarez(r.s, 2)} × ${zarez(r.v.q, 2)} = ${zarez(r.pk, 3)}`);
+    cvor(528, 100, 350, "bez", `Bez kazne: +${zarez(r.db, 3)}`, `vjerovatnoća ${zarez(r.s, 2)} × ${zarez(1 - r.v.q, 2)} = ${zarez(r.pb, 3)}`);
+    svg.append(el("text", { x: 196, y: 96, class: "stablo-vjer" }, zarez(r.s, 2)));
+    svg.append(el("text", { x: 196, y: 206, class: "stablo-vjer" }, zarez(r.pn, 2)));
+    svg.append(el("text", { x: 452, y: 30, class: "stablo-vjer" }, zarez(r.v.q, 2)));
+    svg.append(el("text", { x: 452, y: 122, class: "stablo-vjer" }, zarez(1 - r.v.q, 2)));
+    const eb = ul("k-e"); eb.textContent = (r.e > 0 ? "+" : "") + zarez(r.e, 4); eb.className = r.e > 1e-12 ? "raste" : r.e < -1e-12 ? "pada" : "";
+    ul("k-prag").textContent = isNaN(r.prag) ? "–" : zarez(r.prag, 3);
+    ul("kalk-racun").textContent =
+      `kazna:     ${zarez(r.pk, 3)} × (${zarez(r.dk, 3)}) = ${zarez(r.pk * r.dk, 4)}\n` +
+      `bez kazne: ${zarez(r.pb, 3)} × (+${zarez(r.db, 3)}) = +${zarez(r.pb * r.db, 4)}\n` +
+      `očekivano: ${(r.e > 0 ? "+" : "") + zarez(r.e, 4)}  →  sklonost u prosjeku ${r.e > 1e-12 ? "raste" : r.e < -1e-12 ? "pada" : "ostaje"}\n` +
+      `prag:      ${zarez(r.v.p, 3)} / (${zarez(r.v.p, 3)} + ${zarez(r.v.k, 2)}) = ${isNaN(r.prag) ? "–" : zarez(r.prag, 3)}` +
+      `  (kontrola ${zarez(r.v.q, 2)} je ${r.v.q < r.prag ? "ispod" : r.v.q > r.prag ? "iznad" : "na"} praga)`;
+  }
+  function tragCrtaj() {
+    const c = ul("kalk-trag"); if (!c || c.offsetParent === null) return;
+    const dpr = Math.min(devicePixelRatio || 1, 2), w = c.clientWidth || 400, h = c.clientHeight || 70;
+    c.width = Math.round(w * dpr); c.height = Math.round(h * dpr);
+    const g = c.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, w, h);
+    g.font = `10px ${css("--f-mono")}`; g.fillStyle = css("--siva");
+    g.fillText("1", 4, 12); g.fillText("0", 4, h - 4);
+    g.fillText(`prilika: ${brojPrilika} · prekršaja: ${prekrsaja} · kazni: ${kazni}`, 18, 12);
+    if (trag.length < 2) return;
+    const n = Math.max(52, trag.length - 1), X = i => 16 + (w - 22) * i / n, Y = s => 4 + (h - 8) * (1 - s);
+    g.strokeStyle = css("--narandza"); g.lineWidth = 2; g.beginPath(); g.moveTo(X(0), Y(trag[0]));
+    trag.forEach((s, i) => g.lineTo(X(i), Y(s))); g.stroke();
+  }
+  function odigraj() {
+    const v = vr(), s = stanje, r1 = Math.random();
+    brojPrilika++;
+    let opis;
+    if (r1 < s) {
+      prekrsaja++;
+      const r2 = Math.random();
+      if (r2 < v.q) { kazni++; aktivna = "K"; stanje = Math.max(0, s - v.k * (1 - v.i)); opis = `prekršaj (${zarez(r1, 2)} < ${zarez(s, 2)}), kontrola ga otkrije (${zarez(r2, 2)} < ${zarez(v.q, 2)}): kazna`; }
+      else { aktivna = "B"; stanje = Math.min(1, s + v.p * (1 - v.i)); opis = `prekršaj (${zarez(r1, 2)} < ${zarez(s, 2)}), kontrola ga ne otkrije (${zarez(r2, 2)} ≥ ${zarez(v.q, 2)})`; }
+    } else { aktivna = "N"; opis = `poštuje pravilo (${zarez(r1, 2)} ≥ ${zarez(s, 2)})`; }
+    trag.push(stanje);
+    return `Prilika ${brojPrilika}: ${opis} → sklonost ${zarez(stanje, 3)}`;
+  }
+  $$(".kalk output").forEach(o => { o.textContent = zarez(+ul(o.htmlFor).value, +ul(o.htmlFor).step < 0.01 ? 3 : 2); });
+  for (const id of ["k-s", "k-i", "k-q", "k-k", "k-p"]) ul(id).addEventListener("input", () => {
+    const o = $(`output[for="${id}"]`); o.textContent = zarez(+ul(id).value, +ul(id).step < 0.01 ? 3 : 2);
+    if (id === "k-s" || id === "k-i") resetuj();
+    kalkCrtaj(); tragCrtaj();
+  });
+  ul("kalk-odigraj").addEventListener("click", () => { ul("kalk-dnevnik").textContent = odigraj(); kalkCrtaj(); tragCrtaj(); });
+  ul("kalk-godina").addEventListener("click", () => { let t = ""; for (let i = 0; i < 52; i++) t = odigraj(); ul("kalk-dnevnik").textContent = `Odigrane 52 prilike (jedna godina). Zadnja: ${t}`; kalkCrtaj(); tragCrtaj(); });
+  ul("kalk-vrati").addEventListener("click", () => { resetuj(); kalkCrtaj(); tragCrtaj(); });
+  resetuj();
+
+  // ---------------- početak ----------------
+  grafikoni();
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", grafikoni);
+  let pocetni = 0;
+  const h = location.hash.replace("#", ""); const k = slajdovi.findIndex(s => s.id === h); if (k >= 0) pocetni = k;
+  let sacuvano = null; try { sacuvano = localStorage.getItem("blok6-nacin"); } catch (e) {}
+  if (sacuvano === "citanje") nacin(true);
+  prikazi(pocetni, true);
+  if (main.classList.contains("prezentacija")) setTimeout(() => window.scrollTo(0, 0), 0);
+  addEventListener("hashchange", () => {
+    const i = slajdovi.findIndex(s => s.id === location.hash.replace("#", ""));
+    if (i >= 0 && i !== tren) { prikazi(i, true); if (main.classList.contains("citanje")) slajdovi[i].scrollIntoView(); }
+  });
+})();
+</script>

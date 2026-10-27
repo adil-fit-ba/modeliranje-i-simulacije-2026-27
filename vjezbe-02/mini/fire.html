@@ -1,0 +1,807 @@
+<!doctype html>
+<html lang="bs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fire: prag gustine</title>
+<meta name="description" content="Mini-prezentacija vježbi 2: model Fire iz biblioteke NetLoga, prag perkolacije i rasipanje rezultata na pragu.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:wght@500;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Raspored: mini-prezentacija od 10 slajdova; jedan slajd na ekranu (strelice), ili svi jedan ispod
+   drugog (način „Čitanje“). Papir je svijetao, svijet i putanje su na tamnoj podlozi kao u NetLogu. */
+:root {
+  --papir: #eef1f4; --list: #ffffff; --tinta: #17212b; --siva: #56636f; --linija: #d3dae1;
+  --narandza: #b9531a; --narandza-meko: #f6dfd0; --margina: #e5a3a3; --svijet: #0b0d10;
+  --za: #345da9; --protiv: #d73229; --neodlucni: #8d8d8d;
+  --f-naslov: "Bitter", "Georgia", "Cambria", serif;
+  --f-tekst: "IBM Plex Sans", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "IBM Plex Mono", "Cascadia Mono", Consolas, "Courier New", monospace;
+  --t-0: 0.83rem; --t-1: 1rem; --t-2: 1.17rem; --t-3: 1.5rem; --t-4: 2.2rem; --t-5: 3.1rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --papir: #10161c; --list: #18212a; --tinta: #e3e9ee; --siva: #9ba8b4; --linija: #2a3540;
+    --narandza: #f0894a; --narandza-meko: #3a2416; --margina: #6b3535; --za: #5b86d6; --protiv: #e5574e; --neodlucni: #9a9a9a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --papir: #10161c; --list: #18212a; --tinta: #e3e9ee; --siva: #9ba8b4; --linija: #2a3540;
+  --narandza: #f0894a; --narandza-meko: #3a2416; --margina: #6b3535; --za: #5b86d6; --protiv: #e5574e; --neodlucni: #9a9a9a;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { font-size: 18px; }
+@media (max-width: 600px) { html { font-size: 16px; } }
+body { margin: 0; background: var(--papir); color: var(--tinta); font-family: var(--f-tekst); line-height: 1.55; }
+[hidden] { display: none !important; }
+a { color: var(--narandza); text-underline-offset: 0.15em; }
+:focus-visible { outline: 3px solid var(--narandza); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--f-naslov); text-wrap: balance; line-height: 1.18; margin: 0; }
+p { margin: 0; }
+code { font-family: var(--f-mono); font-size: 0.9em; }
+p code, li code, td code { background: var(--narandza-meko); padding: 0.05em 0.3em; border-radius: 3px; }
+.okvir { max-width: 1200px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.oznaka { font-family: var(--f-mono); font-size: var(--t-0); letter-spacing: 0.08em; text-transform: uppercase; color: var(--narandza); font-weight: 500; }
+.siva { color: var(--siva); }
+.mala { font-size: var(--t-0); }
+
+/* traka na vrhu */
+.vrh { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--papir); border-bottom: 1px solid var(--linija); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--papir); }
+.vrh .okvir { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem 1rem; padding-block: 0.55rem; flex-wrap: wrap; }
+.vrh b { font-family: var(--f-naslov); font-weight: 700; }
+.nacin { display: flex; gap: 0.3rem; }
+button { font: 500 var(--t-0) var(--f-mono); border-radius: 4px; padding: 0.4rem 0.8rem; cursor: pointer;
+  border: 1px solid var(--narandza); background: transparent; color: var(--narandza); }
+button[aria-pressed="true"], button.glavno { background: var(--narandza); color: var(--list); }
+button:disabled { opacity: 0.45; cursor: default; }
+
+/* slajdovi */
+.slajd { padding-block: 2rem 6rem; scroll-margin-top: 3.4rem; }
+main.prezentacija .slajd { display: none; min-height: calc(100svh - 3.2rem); }
+main.prezentacija .slajd.aktivan { display: block; }
+main.citanje .slajd { border-bottom: 1px solid var(--linija); padding-block: 2.5rem; }
+.glava { display: grid; gap: 0.35rem; margin-bottom: 1.4rem; }
+.glava h2 { font-size: var(--t-4); max-width: 30ch; }
+.glava .podnaslov { font-size: var(--t-2); color: var(--siva); max-width: 52rem; }
+.dvije { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2rem; align-items: start; }
+.dvije > * { min-width: 0; }
+@media (max-width: 900px) { .dvije { grid-template-columns: minmax(0, 1fr); } }
+.tekst { display: grid; gap: 1rem; }
+.tekst ul { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.35rem; }
+.panel { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 1rem; }
+.pitanje { background: var(--narandza-meko); border-radius: 4px; padding: 0.9rem 1rem; }
+.pitanje h3 { font-size: var(--t-1); margin-bottom: 0.25rem; }
+
+/* naslovni slajd */
+.naslovni { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 2.4rem; align-items: center; padding-top: 1rem; }
+.naslovni > * { min-width: 0; }
+.naslovni h1 { font-size: var(--t-5); letter-spacing: -0.01em; margin: 0.4rem 0 0.9rem; }
+.naslovni .teza { font-size: var(--t-3); font-family: var(--f-naslov); line-height: 1.3; }
+.naslovni .uvod { margin-top: 1rem; color: var(--siva); }
+@media (max-width: 900px) { .naslovni { grid-template-columns: minmax(0, 1fr); } }
+
+/* list papira: pravilo za model na papiru */
+.papir {
+  margin: 0; background-color: var(--list); border: 1px solid var(--linija); border-radius: 4px;
+  padding: 1rem 1.2rem 1.2rem 2.4rem; position: relative; line-height: 1.75rem;
+  background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(1.75rem - 1px), var(--linija) calc(1.75rem - 1px), var(--linija) 1.75rem);
+  background-position: 0 2.55rem;
+}
+.papir::before { content: ""; position: absolute; left: 1.5rem; top: 0; bottom: 0; width: 2px; background: var(--margina); }
+.papir figcaption { font-family: var(--f-mono); font-size: var(--t-0); color: var(--siva); letter-spacing: 0.04em; text-transform: uppercase; line-height: 1.75rem; }
+.papir p, .papir li { font-family: var(--f-naslov); font-size: 1.08rem; }
+.papir ul { list-style: none; margin: 0; padding: 0 0 0 1.2rem; }
+.papir li::before { content: "→ "; color: var(--narandza); font-family: var(--f-tekst); }
+.papir b { color: var(--narandza); }
+
+/* kartice (pojava, sastavni dijelovi, koraci) */
+.kartice { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); }
+.kartica { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 1rem; display: grid; gap: 0.6rem; align-content: start; }
+.kartica h3 { font-size: var(--t-2); }
+.kartica svg { width: 100%; height: auto; display: block; }
+.kartica ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.25rem; }
+.kartica .kod-cip { font-family: var(--f-mono); font-size: 0.78rem; color: var(--siva); border-top: 1px dashed var(--linija); padding-top: 0.5rem; }
+.korak-broj { font-family: var(--f-mono); font-weight: 500; color: var(--narandza); }
+
+/* SVG ilustracije: boje iz tokena */
+.il-osa { stroke: var(--siva); stroke-width: 1.5; }
+.il-tekst { fill: var(--siva); font: 13px var(--f-mono); }
+.il-tekst-veci { fill: var(--tinta); font: 600 15px var(--f-tekst); }
+.il-za { fill: var(--za); } .il-protiv { fill: var(--protiv); } .il-neo { fill: var(--neodlucni); }
+.il-prozor { fill: var(--narandza-meko); stroke: var(--narandza); stroke-dasharray: 4 3; }
+.il-strelica { stroke: var(--narandza); stroke-width: 2.5; fill: none; }
+.il-vrh { fill: var(--narandza); }
+.il-domet { fill: none; stroke: var(--narandza); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.il-svijet { fill: var(--svijet); }
+.il-kuca { fill: #eded2f; }
+.il-precrtano { stroke: var(--protiv); stroke-width: 3; }
+.il-oblak { fill: var(--list); stroke: var(--siva); stroke-width: 1.2; }
+
+/* kalkulator jednog susreta */
+.kalk { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 1.5rem; }
+.kalk > * { min-width: 0; }
+@media (max-width: 900px) { .kalk { grid-template-columns: minmax(0, 1fr); } }
+.klizaci { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem 1.2rem; }
+@media (max-width: 520px) { .klizaci { grid-template-columns: minmax(0, 1fr); } }
+.klizac { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+.klizac label { font-family: var(--f-mono); font-size: var(--t-0); }
+.klizac output { font-family: var(--f-mono); font-size: var(--t-0); font-variant-numeric: tabular-nums; }
+.klizac input { grid-column: 1 / -1; width: 100%; accent-color: var(--narandza); }
+.racun { font-family: var(--f-mono); font-size: 0.86rem; line-height: 1.7; background: var(--papir); border-radius: 4px; padding: 0.7rem 0.9rem; overflow-x: auto; white-space: pre; }
+.racun .da { color: var(--za); font-weight: 600; } .racun .ne { color: var(--protiv); font-weight: 600; }
+.dugmad { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+
+/* putanje stava */
+.putanje-okvir { background: var(--svijet); border-radius: 6px; padding: 0.6rem; }
+canvas.putanje { width: 100%; aspect-ratio: 2 / 1; display: block; }
+.izbor { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.6rem; }
+.izbor button { border-color: var(--linija); color: var(--siva); }
+.izbor button[aria-pressed="true"] { border-color: var(--narandza); color: var(--list); background: var(--narandza); }
+.legenda { display: flex; gap: 1rem; flex-wrap: wrap; font-size: var(--t-0); color: var(--siva); margin-top: 0.4rem; }
+.legenda i { display: inline-block; width: 0.8em; height: 0.8em; border-radius: 50%; margin-right: 0.35em; vertical-align: -0.05em; }
+.potpis { font-size: var(--t-0); color: var(--siva); margin-top: 0.4rem; }
+.potpis b { color: var(--tinta); font-weight: 600; }
+
+/* grafikoni iz mjerenja */
+svg.grafik { width: 100%; height: auto; display: block; overflow: visible; }
+.g-mreza { stroke: var(--linija); stroke-width: 1; } .g-os { stroke: var(--siva); stroke-width: 1; }
+.g-oznaka { fill: var(--siva); font: 12px var(--f-mono); } .g-naslov-x { fill: var(--siva); font: 12px var(--f-tekst); }
+.g-vrijednost { fill: var(--tinta); font: 500 12px var(--f-mono); }
+.g-raspon { stroke: var(--narandza); stroke-width: 3; stroke-linecap: round; opacity: 0.35; }
+.g-tacka { fill: var(--narandza); }
+.g-ref { stroke: var(--siva); stroke-width: 1.2; stroke-dasharray: 4 4; }
+.g-ref-tekst { fill: var(--siva); font: italic 12px var(--f-tekst); }
+
+/* kod */
+.kodovi { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; }
+.kodovi > * { min-width: 0; }
+@media (max-width: 900px) { .kodovi { grid-template-columns: minmax(0, 1fr); } }
+.kod { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; overflow: hidden; }
+.kod .jezik { font-family: var(--f-mono); font-size: var(--t-0); padding: 0.4rem 0.8rem; border-bottom: 1px solid var(--linija); color: var(--siva); }
+.kod pre { margin: 0; padding: 0.8rem; overflow-x: auto; }
+.kod code { font-size: 14px; line-height: 1.55; white-space: pre; }
+.kod .kom { color: var(--siva); font-style: italic; }
+.kod mark { background: var(--narandza-meko); color: inherit; border-radius: 2px; padding: 0 0.15em; }
+.kod mark b { color: var(--narandza); font-family: var(--f-tekst); }
+.oblacici { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: 1rem; margin-top: 1rem; }
+.oblacici div { border-left: 3px solid var(--narandza); padding-left: 0.8rem; }
+.oblacici b.br { font-family: var(--f-mono); color: var(--narandza); margin-right: 0.3rem; }
+
+/* probaj */
+.veze { display: grid; gap: 0.7rem; }
+.veze a { display: block; text-decoration: none; background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 0.8rem 1rem; color: var(--tinta); }
+.veze a:hover { border-color: var(--narandza); }
+.veze a b { color: var(--narandza); }
+.veze a span { display: block; color: var(--siva); font-size: var(--t-0); }
+.literatura { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.35rem; font-size: 0.92rem; }
+
+/* donja navigacija */
+.navigacija { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--papir); border-top: 1px solid var(--linija);
+  padding-bottom: env(safe-area-inset-bottom, 0px); }
+.navigacija .okvir { display: flex; align-items: center; gap: 0.8rem; padding-block: 0.5rem; }
+.navigacija .naslov-slajda { flex: 1; min-width: 0; font-size: var(--t-0); color: var(--siva); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.navigacija .broj { font-family: var(--f-mono); font-size: var(--t-0); font-variant-numeric: tabular-nums; }
+.napredak { position: absolute; top: -1px; left: 0; height: 2px; background: var(--narandza); transition: width 0.25s; }
+main.citanje ~ .navigacija { display: none; }
+@media (prefers-reduced-motion: reduce) { .napredak { transition: none; } }
+
+</style>
+<style>
+/* dodaci za mini Fire: šuma, brojači, grafikoni */
+:root { --drvo: #4f9d38; --vatra: #d73229; }
+.svijet-okvir { background: var(--svijet); border-radius: 6px; padding: 0.6rem; }
+canvas.svijet { width: 100%; aspect-ratio: 1 / 1; display: block; max-width: min(30rem, 52svh); margin: 0 auto; image-rendering: pixelated; }
+.brojke { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.5rem; margin-top: 0.7rem; }
+@media (max-width: 600px) { .brojke { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.brojke div { background: var(--list); border: 1px solid var(--linija); border-radius: 4px; padding: 0.45rem 0.6rem; }
+.brojke span { display: block; font-family: var(--f-mono); font-size: var(--t-0); color: var(--siva); }
+.brojke b { font-family: var(--f-mono); font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+.klizac-red { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 0.6rem; align-items: center; margin-top: 0.6rem; font-family: var(--f-mono); font-size: var(--t-0); }
+.klizac-red input { width: 100%; accent-color: var(--narandza); }
+.klizac-red output { font-variant-numeric: tabular-nums; min-width: 3ch; text-align: right; }
+.g-linija { stroke: var(--narandza); stroke-width: 2.4; fill: none; }
+.g-pojas { fill: var(--narandza); opacity: 0.16; }
+.g-stub { fill: var(--narandza); } .g-stub-sivi { fill: var(--neodlucni); }
+.g-prag { fill: var(--narandza-meko); }
+.il-drvo { fill: var(--drvo); } .il-vatra { fill: var(--vatra); } .il-prazno { fill: var(--svijet); } .il-izgorjelo { fill: #4a1210; }
+.il-mreza { stroke: var(--linija); stroke-width: 1; fill: none; }
+.slike-dvije { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem; }
+.slike-dvije img { width: 100%; height: auto; display: block; border-radius: 4px; image-rendering: pixelated; }
+.tablica { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+.tablica th, .tablica td { padding: 0.35rem 0.5rem; border-bottom: 1px solid var(--linija); text-align: right; font-variant-numeric: tabular-nums; }
+.tablica th:first-child, .tablica td:first-child { text-align: left; }
+.tablica th { font-family: var(--f-mono); font-size: var(--t-0); font-weight: 500; color: var(--siva); }
+.tablica tr.istaknuto td { background: var(--narandza-meko); font-weight: 600; }
+.dva-grafa { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+@media (max-width: 900px) { .dva-grafa { grid-template-columns: minmax(0, 1fr); } }
+.dva-grafa h3 { font-size: var(--t-1); margin-bottom: 0.3rem; }
+</style>
+</head>
+<body>
+
+<header class="vrh">
+  <div class="okvir">
+    <span><span class="oznaka">Vježbe 2 · mini</span> &nbsp;<b>Fire</b></span>
+    <div class="nacin" role="group" aria-label="Način prikaza">
+      <button type="button" id="nacin-prezentacija" aria-pressed="true">Prezentacija</button>
+      <button type="button" id="nacin-citanje" aria-pressed="false">Čitanje</button>
+    </div>
+  </div>
+</header>
+
+<main class="prezentacija" id="slajdovi">
+
+<!-- 1 ============================================================ -->
+<section class="slajd" id="s1" data-naslov="Fire: prag gustine">
+  <div class="okvir naslovni">
+    <div>
+      <span class="oznaka">Modeliranje i simulacije · Vježbe 2 · mini-prezentacija</span>
+      <h1>Fire: prag gustine šume</h1>
+      <p class="teza">Jedno pravilo širenja i jedan parametar. Ispod gustine od oko 59% požar zastane, iznad nje pređe šumu; na samom pragu ishod se najviše razlikuje od pokretanja do pokretanja.</p>
+      <p class="uvod">Model iz biblioteke NetLoga korak po korak: pravila, kod u NetLogu i C#, šta se mjeri, rezultati iz NetLoga i tumačenje.</p>
+      <p class="uvod mala">Za promjenu slajda koristite strelice ← → ili dugmad pri dnu. Opcija „Čitanje“ prikazuje sve slajdove na jednoj stranici.</p>
+    </div>
+    <figure style="margin:0" class="interaktivno">
+      <div class="svijet-okvir"><canvas class="svijet" id="svijet" width="251" height="251" aria-label="Šuma od 251 × 251 parcela; zeleno je drvo, crveno vatra"></canvas></div>
+      <div class="klizac-red"><label for="k-gustina">density</label><input type="range" id="k-gustina" min="40" max="80" step="1" value="57"><output id="o-gustina">57%</output></div>
+      <div class="dugmad" style="margin-top:0.6rem">
+        <button type="button" class="glavno" id="f-kreni">Zapali (go)</button>
+        <button type="button" id="f-setup">setup</button>
+      </div>
+      <div class="brojke">
+        <div><span>tick</span><b id="f-tick">0</b></div>
+        <div><span>izgorjelo</span><b id="f-izgorjelo">0%</b></div>
+        <div><span>desna ivica</span><b id="f-ivica">ne</b></div>
+        <div><span>stanje</span><b id="f-stanje">spremno</b></div>
+      </div>
+      <figcaption class="potpis">Požar kreće iz cijele lijeve kolone. Pomjerite klizač pa kliknite setup i Zapali; probajte 57, 59 i 61.
+        <b>Ilustracija u web pregledniku</b> (JavaScript, ista pravila i ista veličina svijeta kao Fire u NetLogu); izmjerene vrijednosti su na slajdovima 5–7.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 2 ============================================================ -->
+<section class="slajd" id="s2" data-naslov="Pravila modela">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Pravila</span>
+      <h2>Parcela je drvo ili prazno tlo; vatra prelazi samo na četiri susjeda</h2>
+      <p class="podnaslov">Svijet je 251 × 251 parcela (patches) i ne omotava se: požar ne prelazi preko ivice. Vjetra nema, a drvo izgori samo jednom.</p>
+    </div>
+    <div class="dvije">
+      <div class="kartice" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,14rem),1fr))">
+        <div class="kartica"><h3><span class="korak-broj">1</span> šuma</h3><p>Svaka parcela postane drvo (zelena) s vjerovatnoćom <code>density</code>%. Raspored je slučajan i drugačiji u svakom pokretanju.</p><div class="kod-cip">(random-float 100) &lt; density</div></div>
+        <div class="kartica"><h3><span class="korak-broj">2</span> iskra</h3><p>Na početku gori cijela lijeva kolona, bez obzira na to ima li na parceli drvo.</p><div class="kod-cip">pxcor = min-pxcor → ignite</div></div>
+        <div class="kartica"><h3><span class="korak-broj">3</span> širenje</h3><p>U svakom ticku vatra zapali zeleno drvo gore, dolje, lijevo i desno od sebe. Dijagonalni susjedi se ne računaju.</p><div class="kod-cip">neighbors4 with [ pcolor = green ]</div></div>
+        <div class="kartica"><h3><span class="korak-broj">4</span> žar i kraj</h3><p>Vatra postane žar (breed <code>embers</code>), koji tamni i nakon 12 tickova nestane. Kada nema nijedne turtle, model staje.</p><div class="kod-cip">if not any? turtles [ stop ]</div></div>
+      </div>
+      <div class="tekst">
+        <div class="kartica">
+          <svg viewBox="0 0 340 252" role="img" aria-label="Mreža 5 × 5: vatra u sredini pali četiri susjeda gore, dolje, lijevo i desno; dijagonalna stabla ostaju zelena">
+            <g id="il-susjedi"></g>
+            <text class="il-tekst" x="170" y="226" text-anchor="middle">neighbors4: gore, dolje, lijevo, desno</text>
+            <text class="il-tekst" x="170" y="246" text-anchor="middle">dijagonalna stabla ostaju zelena</text>
+          </svg>
+        </div>
+        <ul>
+          <li>Dvije vrste turtles: <b>fires</b> (prednja ivica požara) i <b>embers</b> (žar iza nje). Parcela pamti samo boju: zelena je drvo, crna prazno tlo ili izgorjelo drvo.</li>
+          <li>Vatra se ne gasi slučajno i ne preskače prazninu: požar ide dalje samo ako postoji neprekinut put od drveta do drveta.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 ============================================================ -->
+<section class="slajd" id="s3" data-naslov="Kod: NetLogo i C#">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Kod</span>
+      <h2>go, ignite i fade-embers: cijelo ponašanje modela</h2>
+      <p class="podnaslov">Kod je iz modela u biblioteci NetLoga (Fire, Uri Wilensky, 1997), skraćen samo za komentare. C# je napisan u stilu biblioteke MiniNetLogo s kursa.</p>
+    </div>
+    <div class="kodovi">
+      <div class="kod"><div class="jezik">NetLogo</div><pre><code>breed [ fires fire ]      <span class="kom">; prednja ivica požara</span>
+breed [ embers ember ]    <span class="kom">; žar koji tamni</span>
+
+to go
+  if not any? turtles [ stop ]
+  ask fires [
+    ask neighbors4 with [ pcolor = green ]
+      [ ignite ]
+    set breed embers
+  ]
+  fade-embers
+  tick
+end
+
+to ignite                 <span class="kom">; procedura parcele</span>
+  sprout-fires 1 [ set color red ]
+  set pcolor black
+  set burned-trees burned-trees + 1
+end
+
+to fade-embers
+  ask embers [
+    set color color - 0.3
+    if color &lt; red - 3.5 [ set pcolor color  die ]
+  ]
+end</code></pre></div>
+      <div class="kod"><div class="jezik">C#</div><pre><code>class Fire : Turtle { }                   <span class="kom">// breed [ fires fire ]</span>
+class Ember : Turtle { public double Shade = 15; }   <span class="kom">// red = 15</span>
+static IEnumerable&lt;Fire&gt; fires =&gt; World.Turtles.OfType&lt;Fire&gt;();
+static IEnumerable&lt;Ember&gt; embers =&gt; World.Turtles.OfType&lt;Ember&gt;();
+
+static bool Go()
+{
+    if (!World.Turtles.Any()) return false;  <span class="kom">// stop</span>
+    World.Ask(fires, f =&gt;
+    {
+        World.Ask(f.PatchHere.Neighbors4
+            .With(n =&gt; n.Pcolor == Green), Ignite);
+        f.PatchHere.Sprout&lt;Ember&gt;(1);  <span class="kom">// set breed embers:</span>
+        f.Die();                         <span class="kom">// u C# klasa se ne mijenja</span>
+    });
+    FadeEmbers();
+    World.Tick();
+    return true;
+}
+
+static void Ignite(Patch p)
+{
+    p.Sprout&lt;Fire&gt;(1, f =&gt; f.Color = Red);
+    p.Pcolor = Black;
+    burnedTrees++;
+}
+
+static void FadeEmbers() =&gt; World.Ask(embers, e =&gt;
+{
+    e.Shade -= 0.3;
+    if (e.Shade &lt; 15 - 3.5) { e.Pcolor = Red; e.Die(); }   <span class="kom">// tamnocrvena</span>
+});</code></pre></div>
+    </div>
+    <p class="mala siva" style="margin-top:0.8rem">Vatra koja nastane u toku <code>ask fires</code> ne dolazi na red u istom ticku (ask radi nad kopijom skupa), pa se požar pomjera jednu parcelu po ticku. Isto važi za <code>World.Ask</code> u C#.</p>
+  </div>
+</section>
+
+<!-- 4 ============================================================ -->
+<section class="slajd" id="s4" data-naslov="Šta se mjeri">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Mjerenje</span>
+      <h2>Jedan parametar, tri mjere na kraju pokretanja</h2>
+      <p class="podnaslov">Mijenja se samo <code>density</code>; sve ostalo je kao u modelu. Pokretanje traje dok se ne ugasi posljednji žar.</p>
+    </div>
+    <div class="dvije">
+      <div class="tekst">
+        <div class="kartice" style="grid-template-columns:minmax(0,1fr)">
+          <div class="kartica"><h3>izgorjelo (%)</h3><p>Udio izgorjelih stabala: <code>burned-trees / initial-trees * 100</code>. Ista mjera kao u prezentaciji v02a. Brojač uključuje i 251 parcelu lijeve kolone, pa ni pri maloj gustini nije nula.</p></div>
+          <div class="kartica"><h3>stigao do desne ivice (da/ne)</h3><p>Je li izgorjela ijedna parcela u posljednjoj koloni. To je pitanje perkolacije: postoji li neprekinut put kroz šumu.</p></div>
+          <div class="kartica"><h3>trajanje (tickovi)</h3><p>Broj tickova do kraja pokretanja, uključujući i gašenje posljednjeg žara.</p></div>
+        </div>
+      </div>
+      <div class="kodovi" style="grid-template-columns:minmax(0,1fr)">
+        <div class="kod"><div class="jezik">BehaviorSpace (XML, skraćeno)</div><pre><code>&lt;experiment name="kriva" repetitions="20"
+    sequentialRunOrder="true"
+    runMetricsEveryStep="false" timeLimit="5000"&gt;
+  &lt;setup&gt;setup&lt;/setup&gt; &lt;go&gt;go&lt;/go&gt;
+  &lt;metric&gt;burned-trees / initial-trees * 100&lt;/metric&gt;
+  &lt;metric&gt;any? patches with [ pxcor = max-pxcor
+          and shade-of? pcolor red ]&lt;/metric&gt;
+  &lt;metric&gt;ticks&lt;/metric&gt;
+  <span class="kom">&lt;!-- density = 50, 51, …, 70 --&gt;</span>
+&lt;/experiment&gt;</code></pre></div>
+        <div class="kod"><div class="jezik">C# (iste mjere)</div><pre><code>double izgorjelo = burnedTrees * 100.0 / initialTrees;
+bool stigao = World.Patches.Any(p =&gt;
+    p.Pxcor == World.MaxPxcor &amp;&amp; p.Pcolor == Red);
+int trajanje = World.Ticks;</code></pre></div>
+        <p class="mala siva">Izgorjela parcela na kraju ima boju ugašenog žara (nijansa crvene), neizgorjelo drvo je zeleno, a prazno tlo crno.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 ============================================================ -->
+<section class="slajd" id="s5" data-naslov="Rezultat iz NetLoga">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Rezultat · NetLogo</span>
+      <h2>Između 57% i 61% gustine ishod se mijenja iz „zastane“ u „pređe“</h2>
+      <p class="podnaslov">21 gustina × 10 pokretanja (vrijednosti iz prezentacije v02a, slajd 24 i Prilog 2). Linija je prosjek, a pojas raspon među pokretanjima.</p>
+    </div>
+    <div class="dvije">
+      <figure style="margin:0">
+        <div class="panel"><div id="g-kriva"></div></div>
+        <figcaption class="potpis">Osjenčeno: 57–61%, gdje se ishod mijenja.</figcaption>
+      </figure>
+      <div class="tekst">
+        <table class="tablica" id="t-kriva" aria-label="Izgorjelo prema gustini, 10 pokretanja"></table>
+        <div class="slike-dvije">
+          <figure style="margin:0"><img src="slike/fire-57.png" alt="Fire na gustini 57%: požar zastane uz lijevu ivicu" width="502" height="502" loading="lazy"><figcaption class="potpis">57%: požar zastane uz lijevu ivicu</figcaption></figure>
+          <figure style="margin:0"><img src="slike/fire-60.png" alt="Fire na gustini 60%: požar pređe cijelu šumu" width="502" height="502" loading="lazy"><figcaption class="potpis">60%: požar pređe cijelu šumu</figcaption></figure>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 ============================================================ -->
+<section class="slajd" id="s6" data-naslov="Rasipanje na pragu">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Rasipanje · NetLogo</span>
+      <h2>Na pragu ishod pojedinačnog pokretanja nije predvidiv</h2>
+      <p class="podnaslov">Raspodjela izgorjelog dijela šume u 100 pokretanja po gustini. Izaberite gustinu.</p>
+    </div>
+    <div class="dvije">
+      <figure style="margin:0">
+        <div class="izbor" role="group" aria-label="Gustina">
+          <button type="button" data-gustina="57" aria-pressed="false">57%</button>
+          <button type="button" data-gustina="59" aria-pressed="true">59%</button>
+          <button type="button" data-gustina="61" aria-pressed="false">61%</button>
+        </div>
+        <div class="panel"><div id="g-histogram"></div></div>
+        <figcaption class="potpis" id="h-potpis"></figcaption>
+      </figure>
+      <div class="tekst">
+        <p id="t-57"></p>
+        <p id="t-59"></p>
+        <p id="t-61"></p>
+        <div class="pitanje"><h3>Prosjek na pragu malo govori</h3>
+          <p id="t-prosjek"></p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 ============================================================ -->
+<section class="slajd" id="s7" data-naslov="Prelaz i trajanje">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Perkolacija · NetLogo</span>
+      <h2>Vjerovatnoća prelaska skoči u uskom pojasu, a požar tu traje najduže</h2>
+      <p class="podnaslov">21 gustina × 20 pokretanja (novo mjerenje za ovu mini-prezentaciju). Lijevo: koliko pokretanja je stiglo do desne ivice. Desno: trajanje, medijan i raspon.</p>
+    </div>
+    <div class="dva-grafa">
+      <figure style="margin:0"><h3>Stigao do desne ivice (od 20)</h3><div class="panel"><div id="g-prelaz"></div></div></figure>
+      <figure style="margin:0"><h3>Trajanje požara (tickovi)</h3><div class="panel"><div id="g-trajanje"></div></div></figure>
+    </div>
+    <div class="dvije" style="margin-top:1rem">
+      <p id="t-prelaz"></p>
+      <p id="t-trajanje"></p>
+    </div>
+  </div>
+</section>
+
+<!-- 8 ============================================================ -->
+<section class="slajd" id="s8" data-naslov="Tumačenje">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Tumačenje</span>
+      <h2>Prag perkolacije: mala promjena parametra, kvalitativno drugi ishod</h2>
+      <p class="podnaslov">Fire je primjer faznog prelaza. Pravila su lokalna (četiri susjeda), a ishod zavisi od toga postoji li put kroz cijelu šumu.</p>
+    </div>
+    <div class="kartice">
+      <div class="kartica"><h3>Zašto prag postoji</h3><p>Ispod praga stabla čine odvojene grupe; požar izgori grupu u kojoj je počeo i stane. Iznad praga jedna grupa povezuje lijevu i desnu ivicu. Teorija perkolacije za kvadratnu mrežu s četiri susjeda daje prag od oko 59,3% (Stauffer i Aharony, 1994), što se slaže s izmjerenim.</p></div>
+      <div class="kartica"><h3>Zašto je rasipanje najveće na pragu</h3><p>Daleko od praga ishod određuje gustina. Na pragu ga određuje slučajan raspored stabala: jedna praznina na pravom mjestu prekine put. Zato se isti parametar ponaša kao dva različita scenarija.</p></div>
+      <div class="kartica"><h3>Šta to znači za vaš model</h3><ul>
+        <li>Parametar se ispituje u nizu vrijednosti, a ne u jednoj tački.</li>
+        <li>Blizu praga treba više pokretanja i raspon, ne samo prosjek.</li>
+        <li>„Nema efekta“ i „ogroman efekat“ mogu biti dvije tačke iste krive.</li>
+      </ul></div>
+    </div>
+    <div class="pitanje" style="margin-top:1rem"><h3>Ograničenje modela</h3>
+      <p>Model nema vjetar, vlagu, teren ni gašenje. Tvrdi samo to da lokalno širenje kroz slučajno raspoređena stabla ima prag; ne predviđa nijedan stvarni požar.</p></div>
+  </div>
+</section>
+
+<!-- 9 ============================================================ -->
+<section class="slajd" id="s9" data-naslov="Probajte">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Probajte</span>
+      <h2>Model u NetLogu i samostalna vježba</h2>
+    </div>
+    <div class="dvije">
+      <div class="veze">
+        <div class="kartica"><b>Fire u NetLogu</b>
+          <span class="mala siva" style="display:block">File → Models Library → Sample Models → Earth Science → Fire (NetLogo 7.0.4).</span></div>
+        <a href="../prezentacije/v02a-ponavljanje.html#s23"><b>Prezentacija v02a, Fire</b>
+          <span>Slajdovi 23 i 24: dvije slike, pravila i kriva.</span></a>
+        <a href="../prezentacije/v02a-ponavljanje.html#s55"><b>Prilog 2 u v02a</b>
+          <span>Sve izmjerene vrijednosti krive (21 gustina × 10 pokretanja).</span></a>
+        <a href="model-stava.html"><b>Mini: model stava</b>
+          <span>Model s vježbi 2: agenti, atributi, interakcija i mjere.</span></a>
+      </div>
+      <div class="tekst">
+        <div class="panel"><h3 style="font-size:var(--t-1);margin-bottom:0.4rem">Šta isprobati</h3>
+          <ul>
+            <li>Pokrenite model pet puta na gustini 59% i zapišite izgorjeli procenat. Koliko se vrijednosti razlikuju?</li>
+            <li>Zamijenite <code>neighbors4</code> sa <code>neighbors</code> (osam susjeda). Prije pokretanja zapišite: pomjera li se prag naviše ili naniže?</li>
+            <li>Dodajte vjerovatnoću da se drvo zapali, npr. <code>if random-float 1 &lt; 0.8 [ ignite ]</code>. Kako se mijenja prag?</li>
+          </ul></div>
+        <div class="pitanje"><h3>Samostalna vježba</h3>
+          <p>U BehaviorSpace napravite eksperiment za gustine 55–65 s 20 pokretanja i mjerom <code>burned-trees / initial-trees * 100</code>. Nacrtajte prosjek i raspon. Na kojoj gustini je raspon najveći?</p></div>
+        <p class="mala siva">Brojke na slajdu 5 su iz prezentacije v02a (NetLogo 7.0.4 headless, 10 pokretanja po gustini).
+          Brojke na slajdovima 6 i 7 su novo mjerenje istim NetLogom: 100 pokretanja po gustini (57, 59, 61) i 21 gustina × 20 pokretanja.
+          Simulacija na slajdu 1 je ilustracija u web pregledniku. Modeliranje i simulacije, FIT UNMO, 2026/27.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<nav class="navigacija" aria-label="Slajdovi">
+  <div class="napredak" id="napredak"></div>
+  <div class="okvir">
+    <button type="button" id="nazad" aria-label="Prethodni slajd">←</button>
+    <span class="broj" id="broj">1 / 9</span>
+    <button type="button" id="naprijed" aria-label="Sljedeći slajd">→</button>
+    <span class="naslov-slajda" id="naslov-slajda"></span>
+  </div>
+</nav>
+
+<script>window.FIRE = {"v02a":{"izvor":"v02/deck-izvor/chart_data.json (isto kao prezentacija v02a, slajd 24 i Prilog 2)","n":10,"redovi":[[50,2.7,1.5,3.8],[51,2.8,1.7,3.8],[52,3.0,1.6,4.2],[53,4.0,3.0,5.8],[54,5.1,2.9,10.7],[55,6.2,3.4,12.1],[56,7.3,3.5,11.5],[57,12.5,5.4,37.8],[58,16.9,5.0,37.2],[59,40.8,9.7,65.6],[60,67.6,54.9,81.5],[61,78.8,62.7,84.4],[62,86.9,83.5,89.4],[63,91.3,88.2,93.0],[64,92.1,88.4,94.1],[65,94.2,93.4,95.2],[66,95.8,95.4,96.4],[67,96.5,96.0,97.0],[68,97.1,96.7,97.6],[69,97.8,97.4,98.2],[70,98.1,97.9,98.3]],"kolone":["gustina","prosjek %","min %","max %"]},"kriva":[{"gustina":50,"n":20,"izgorjelo":{"prosjek":2.5,"med":2.6,"min":1.6,"max":3.3},"stigao":0,"ticks":{"prosjek":52.6,"med":54.5,"min":38,"max":68}},{"gustina":51,"n":20,"izgorjelo":{"prosjek":2.6,"med":2.5,"min":1.8,"max":3.7},"stigao":0,"ticks":{"prosjek":53.6,"med":52.5,"min":34,"max":80}},{"gustina":52,"n":20,"izgorjelo":{"prosjek":3.5,"med":3.3,"min":2.6,"max":4.9},"stigao":0,"ticks":{"prosjek":78.5,"med":74.5,"min":44,"max":157}},{"gustina":53,"n":20,"izgorjelo":{"prosjek":3.7,"med":3.6,"min":2.3,"max":6.0},"stigao":0,"ticks":{"prosjek":80.0,"med":70.5,"min":43,"max":169}},{"gustina":54,"n":20,"izgorjelo":{"prosjek":4.4,"med":4.1,"min":2.3,"max":6.8},"stigao":0,"ticks":{"prosjek":98.8,"med":84.0,"min":44,"max":211}},{"gustina":55,"n":20,"izgorjelo":{"prosjek":5.3,"med":5.3,"min":3.4,"max":8.9},"stigao":0,"ticks":{"prosjek":101.5,"med":91.0,"min":61,"max":193}},{"gustina":56,"n":20,"izgorjelo":{"prosjek":8.1,"med":7.5,"min":2.8,"max":15.0},"stigao":0,"ticks":{"prosjek":153.8,"med":121.0,"min":61,"max":449}},{"gustina":57,"n":20,"izgorjelo":{"prosjek":10.6,"med":9.5,"min":5.4,"max":24.6},"stigao":1,"ticks":{"prosjek":190.6,"med":156.0,"min":84,"max":498}},{"gustina":58,"n":20,"izgorjelo":{"prosjek":19.7,"med":18.3,"min":4.1,"max":40.7},"stigao":1,"ticks":{"prosjek":311.1,"med":278.5,"min":69,"max":883}},{"gustina":59,"n":20,"izgorjelo":{"prosjek":42.1,"med":39.8,"min":12.7,"max":75.2},"stigao":8,"ticks":{"prosjek":528.8,"med":569.0,"min":170,"max":950}},{"gustina":60,"n":20,"izgorjelo":{"prosjek":66.5,"med":75.3,"min":19.9,"max":81.6},"stigao":18,"ticks":{"prosjek":577.9,"med":568.5,"min":186,"max":949}},{"gustina":61,"n":20,"izgorjelo":{"prosjek":80.7,"med":81.9,"min":60.4,"max":85.9},"stigao":20,"ticks":{"prosjek":594.6,"med":571.5,"min":498,"max":811}},{"gustina":62,"n":20,"izgorjelo":{"prosjek":87.2,"med":88.1,"min":80.2,"max":90.3},"stigao":20,"ticks":{"prosjek":511.6,"med":490.5,"min":436,"max":653}},{"gustina":63,"n":20,"izgorjelo":{"prosjek":90.4,"med":90.7,"min":87.9,"max":91.9},"stigao":20,"ticks":{"prosjek":470,"med":463.5,"min":421,"max":531}},{"gustina":64,"n":20,"izgorjelo":{"prosjek":92.4,"med":92.8,"min":89.3,"max":93.9},"stigao":20,"ticks":{"prosjek":435.8,"med":433.5,"min":401,"max":521}},{"gustina":65,"n":20,"izgorjelo":{"prosjek":94.4,"med":94.4,"min":93.6,"max":95.4},"stigao":20,"ticks":{"prosjek":407.4,"med":403.5,"min":389,"max":452}},{"gustina":66,"n":20,"izgorjelo":{"prosjek":95.6,"med":95.4,"min":95.2,"max":96.0},"stigao":20,"ticks":{"prosjek":394.5,"med":394.5,"min":378,"max":421}},{"gustina":67,"n":20,"izgorjelo":{"prosjek":96.3,"med":96.4,"min":95.6,"max":97.1},"stigao":20,"ticks":{"prosjek":385.4,"med":385.0,"min":368,"max":414}},{"gustina":68,"n":20,"izgorjelo":{"prosjek":97.0,"med":97.0,"min":96.3,"max":97.7},"stigao":20,"ticks":{"prosjek":372.2,"med":369.0,"min":355,"max":400}},{"gustina":69,"n":20,"izgorjelo":{"prosjek":97.7,"med":97.7,"min":96.9,"max":98.0},"stigao":20,"ticks":{"prosjek":365.1,"med":363.0,"min":352,"max":393}},{"gustina":70,"n":20,"izgorjelo":{"prosjek":98.0,"med":98.1,"min":97.7,"max":98.3},"stigao":20,"ticks":{"prosjek":357.5,"med":355.0,"min":347,"max":395}}],"prag":{"57":{"n":100,"izgorjelo":[12.0,6.72,4.68,9.39,17.79,6.19,9.26,9.32,16.92,15.36,22.1,4.99,12.87,16.22,8.89,15.65,12.27,8.28,10.8,6.39,13.04,5.26,7.18,9.54,5.95,11.4,9.76,12.14,15.9,9.15,7.36,15.65,10.65,9.67,8.89,10.27,5.61,9.26,10.19,5.85,19.3,8.48,22.49,12.59,8.91,6.27,9.04,14.42,8.15,14.97,12.94,13.52,7.71,5.0,16.64,12.24,5.33,7.2,18.3,10.24,14.43,13.34,14.77,29.89,8.51,4.02,9.96,8.72,12.05,13.77,10.76,5.72,20.7,18.3,22.88,9.72,14.39,15.92,13.81,10.03,8.58,27.35,9.72,5.98,12.76,12.22,11.09,9.87,14.76,11.31,11.5,17.37,6.96,15.29,5.87,6.74,7.27,10.59,10.25,14.98],"opis":{"prosjek":11.5,"med":10.4,"min":4.0,"max":29.9},"stigao":1,"ispod10":45,"iznad50":0},"59":{"n":100,"izgorjelo":[29.19,18.41,46.02,34.46,60.5,73.93,8.55,11.59,33.31,62.98,36.16,7.25,17.34,41.51,9.97,56.31,20.41,37.32,17.73,50.19,19.22,9.33,36.23,49.46,28.4,35.13,13.84,14.76,40.36,58.47,21.98,67.69,20.71,17.38,25.76,46.42,14.41,6.85,65.15,60.19,49.25,24.47,54.92,31.88,36.59,41.81,67.16,11.09,25.09,11.61,48.2,50.68,34.72,25.06,66.8,10.47,69.84,38.25,45.44,45.44,28.37,16.82,38.63,14.42,16.24,13.49,58.74,62.53,71.39,41.52,19.12,31.21,17.6,62.08,71.19,62.98,23.88,33.57,25.52,10.01,21.29,6.69,41.74,63.56,61.87,66.76,7.85,54.51,49.09,60.49,20.34,61.89,27.9,18.01,60.2,62.11,18.83,46.24,19.71,21.96],"opis":{"prosjek":36.2,"med":34.6,"min":6.7,"max":73.9},"stigao":37,"ispod10":7,"iznad50":28},"61":{"n":100,"izgorjelo":[80.07,61.35,83.41,66.88,79.35,77.33,69.47,86.77,75.98,77.12,85.17,81.6,78.08,84.97,83.04,84.23,75.71,76.47,86.33,86.79,76.92,81.88,84.26,81.21,82.17,80.47,76.85,85.0,73.5,84.35,83.12,75.33,81.35,85.07,79.58,83.64,75.98,82.39,70.81,79.71,54.03,81.81,85.38,82.09,81.63,81.52,79.79,83.95,80.11,84.01,83.94,84.48,81.41,83.42,82.64,79.13,83.41,71.92,78.63,78.69,74.91,83.67,83.98,77.1,83.69,75.65,73.96,84.95,81.52,80.7,76.41,82.71,85.34,77.43,85.26,72.75,84.66,85.84,78.13,81.74,81.54,82.69,85.46,67.86,84.29,81.54,84.58,86.1,80.14,66.01,78.13,81.48,86.85,79.93,83.95,82.96,81.92,84.85,84.75,85.42],"opis":{"prosjek":80.3,"med":81.6,"min":54.0,"max":86.8},"stigao":99,"ispod10":0,"iznad50":100}},"izvor":"NetLogo 7.0.4 headless, Fire.nlogox iz Models Library bez izmjena; mjerenja_fire_seg.py"};</script>
+<script>
+// Zajednički dio lekcija (isti kao u mini-prezentacijama blokova s vježbi 3): jedan slajd na ekranu ili svi jedan
+// ispod drugog (način „Čitanje“), strelice i prevlačenje, adresa #sN, zapamćen način prikaza.
+// Upotreba: Prezentacija("lekcija1", crtajVidljivo), gdje crtajVidljivo iscrta grafike na vidljivim slajdovima.
+window.Prezentacija = function (kljuc, crtajVidljivo) {
+  const $ = s => document.querySelector(s);
+  const main = $("#slajdovi"), slajdovi = [...document.querySelectorAll(".slajd")];
+  let tren = 0;
+  function prikazi(i, izHasha) {
+    tren = Math.max(0, Math.min(slajdovi.length - 1, i));
+    slajdovi.forEach((s, k) => s.classList.toggle("aktivan", k === tren));
+    $("#broj").textContent = `${tren + 1} / ${slajdovi.length}`;
+    $("#naslov-slajda").textContent = slajdovi[tren].dataset.naslov;
+    $("#napredak").style.width = `${((tren + 1) / slajdovi.length) * 100}%`;
+    $("#nazad").disabled = tren === 0; $("#naprijed").disabled = tren === slajdovi.length - 1;
+    if (!izHasha) { try { history.replaceState(null, "", "#" + slajdovi[tren].id); } catch (e) {} }
+    if (main.classList.contains("prezentacija")) window.scrollTo(0, 0);
+    crtajVidljivo();
+  }
+  $("#nazad").addEventListener("click", () => prikazi(tren - 1));
+  $("#naprijed").addEventListener("click", () => prikazi(tren + 1));
+  document.addEventListener("keydown", e => {
+    if (!main.classList.contains("prezentacija") || e.target.closest("input, textarea, select")) return;
+    if (["ArrowRight", "PageDown"].includes(e.key) || (e.key === " " && !e.target.closest("button"))) { e.preventDefault(); prikazi(tren + 1); }
+    if (["ArrowLeft", "PageUp"].includes(e.key)) { e.preventDefault(); prikazi(tren - 1); }
+    if (e.key === "Home") prikazi(0);
+    if (e.key === "End") prikazi(slajdovi.length - 1);
+  });
+  let dodirX = null;
+  main.addEventListener("touchstart", e => { dodirX = e.touches[0].clientX; }, { passive: true });
+  main.addEventListener("touchend", e => {
+    if (dodirX === null || !main.classList.contains("prezentacija")) return;
+    const dx = e.changedTouches[0].clientX - dodirX; dodirX = null;
+    if (e.target.closest("input, select, canvas, .interaktivno")) return;
+    if (Math.abs(dx) > 70) prikazi(tren + (dx < 0 ? 1 : -1));
+  });
+  function nacin(citanje) {
+    main.classList.toggle("citanje", citanje); main.classList.toggle("prezentacija", !citanje);
+    $("#nacin-citanje").setAttribute("aria-pressed", citanje); $("#nacin-prezentacija").setAttribute("aria-pressed", !citanje);
+    try { localStorage.setItem(kljuc + "-nacin", citanje ? "citanje" : "prezentacija"); } catch (e) {}
+    if (citanje) requestAnimationFrame(() => slajdovi[tren].scrollIntoView());
+    crtajVidljivo();
+  }
+  $("#nacin-citanje").addEventListener("click", () => nacin(true));
+  $("#nacin-prezentacija").addEventListener("click", () => nacin(false));
+  addEventListener("resize", () => crtajVidljivo());
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => crtajVidljivo());
+
+  let pocetni = 0;
+  const h = location.hash.replace("#", ""), k = slajdovi.findIndex(s => s.id === h); if (k >= 0) pocetni = k;
+  let sacuvano = null; try { sacuvano = localStorage.getItem(kljuc + "-nacin"); } catch (e) {}
+  if (sacuvano === "citanje") nacin(true);
+  prikazi(pocetni, true);
+  if (main.classList.contains("prezentacija")) setTimeout(() => window.scrollTo(0, 0), 0);
+  addEventListener("hashchange", () => {
+    const i = slajdovi.findIndex(s => s.id === location.hash.replace("#", ""));
+    if (i >= 0 && i !== tren) { prikazi(i, true); if (main.classList.contains("citanje")) slajdovi[i].scrollIntoView(); }
+  });
+  return { prikazi };
+};
+
+// Zajedničke pomoćne funkcije za grafike (SVG) i brojeve.
+window.Pomoc = (() => {
+  const SVG = "http://www.w3.org/2000/svg";
+  const el = (ime, atr = {}, tekst) => { const e = document.createElementNS(SVG, ime); for (const [k, v] of Object.entries(atr)) e.setAttribute(k, v); if (tekst !== undefined) e.textContent = tekst; return e; };
+  const zarez = (x, d = 2) => x.toFixed(d).replace(".", ",").replace("-", "−");
+  const pct = x => `${Math.round(x * 100)}%`;
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  // mulberry32: ponovljivi slučajni brojevi za ilustracije u web pregledniku
+  const rng = seed => () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  return { el, zarez, pct, css, rng };
+})();
+
+</script>
+<script>
+(() => {
+  const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+  const { el, zarez, pct, rng } = window.Pomoc;
+  const D = window.FIRE;
+  const z1 = x => zarez(x, 1);
+
+  // ---------------- model u web pregledniku (ista pravila kao Fire.nlogox) ----------------
+  // Svijet 251 × 251 bez omotavanja. Boje kao u NetLogu: green = 55, red = 15; žar tamni za 0,3 po ticku i
+  // nestaje kada je boja < red − 3,5, a parcela zadrži njegovu boju.
+  const N = 251, ZELENA = 55;
+  let boja = new Float32Array(N * N), izgorjela = new Uint8Array(N * N), zar = new Float32Array(N * N);
+  let vatre = [], zarovi = [], pocetno = 0, izgorjelo = 0, tick = 0, slucaj = rng(1), tajmer = null, gotovo = false;
+  const gustina = () => +$("#k-gustina").value;
+  function upali(i) { vatre.push(i); boja[i] = 0; izgorjela[i] = 1; izgorjelo++; }   // ignite
+  function setup() {
+    slucaj = rng(Math.floor(Math.random() * 1e9)); tick = 0; izgorjelo = 0; gotovo = false;
+    boja = new Float32Array(N * N); izgorjela = new Uint8Array(N * N); zar = new Float32Array(N * N); vatre = []; zarovi = [];
+    const d = gustina();
+    for (let i = 0; i < N * N; i++) if (slucaj() * 100 < d) boja[i] = ZELENA;
+    for (let y = 0; y < N; y++) upali(y * N);                          // cijela lijeva kolona
+    pocetno = 0; for (let i = 0; i < N * N; i++) if (boja[i] === ZELENA) pocetno++;
+    nacrtaj();
+  }
+  function korak() {
+    if (!vatre.length && !zarovi.length) { gotovo = true; return false; }   // if not any? turtles [ stop ]
+    const stare = vatre; vatre = [];
+    for (const i of stare) {                                               // ask fires
+      const x = i % N, y = (i - x) / N;
+      if (x > 0 && boja[i - 1] === ZELENA) upali(i - 1);
+      if (x < N - 1 && boja[i + 1] === ZELENA) upali(i + 1);
+      if (y > 0 && boja[i - N] === ZELENA) upali(i - N);
+      if (y < N - 1 && boja[i + N] === ZELENA) upali(i + N);
+      zarovi.push(i); zar[i] = 15;                                        // set breed embers
+    }
+    const ostali = [];
+    for (const i of zarovi) {                                              // fade-embers
+      zar[i] -= 0.3;
+      if (zar[i] < 15 - 3.5) { boja[i] = zar[i]; zar[i] = 0; } else ostali.push(i);
+    }
+    zarovi = ostali; tick++;
+    return true;
+  }
+  const NL = { [ZELENA]: [79, 157, 56] }, CRVENA = [215, 50, 41];
+  function rgb(i, naVatri) {
+    if (naVatri) return CRVENA;
+    if (zar[i] > 0) { const k = (zar[i] - 10) / 5; return CRVENA.map(c => c * k); }
+    const b = boja[i];
+    if (b === ZELENA) return NL[ZELENA];
+    if (b > 0) { const k = (b - 10) / 5; return CRVENA.map(c => c * k); }
+    return [0, 0, 0];
+  }
+  function nacrtaj() {
+    const c = $("#svijet"); if (!c) return;
+    const g = c.getContext("2d"), slika = g.createImageData(N, N), p = slika.data;
+    const naVatri = new Uint8Array(N * N); for (const i of vatre) naVatri[i] = 1;
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+      const i = y * N + x, k = ((N - 1 - y) * N + x) * 4, [r, gg, b] = rgb(i, naVatri[i]);   // pycor raste prema gore
+      p[k] = r; p[k + 1] = gg; p[k + 2] = b; p[k + 3] = 255;
+    }
+    g.putImageData(slika, 0, 0);
+    let ivica = false; for (let y = 0; y < N; y++) if (izgorjela[y * N + N - 1]) { ivica = true; break; }
+    $("#f-tick").textContent = tick;
+    $("#f-izgorjelo").textContent = pct(izgorjelo / Math.max(1, pocetno));
+    $("#f-ivica").textContent = ivica ? "da" : "ne";
+    $("#f-stanje").textContent = gotovo ? "ugašen" : tajmer ? "gori" : tick ? "pauza" : "spremno";
+  }
+  function zaustavi() { clearInterval(tajmer); tajmer = null; $("#f-kreni").textContent = gotovo ? "Zapali (go)" : tick ? "Nastavi" : "Zapali (go)"; nacrtaj(); }
+  $("#f-kreni").addEventListener("click", () => {
+    if (tajmer) { zaustavi(); return; }
+    if (gotovo) setup();
+    tajmer = setInterval(() => {
+      for (let k = 0; k < 3; k++) if (!korak()) { zaustavi(); return; }
+      nacrtaj();
+    }, 40);
+    $("#f-kreni").textContent = "Zaustavi"; nacrtaj();
+  });
+  $("#f-setup").addEventListener("click", () => { zaustavi(); setup(); $("#f-kreni").textContent = "Zapali (go)"; nacrtaj(); });
+  $("#k-gustina").addEventListener("input", () => { $("#o-gustina").textContent = gustina() + "%"; });
+  $("#k-gustina").addEventListener("change", () => { zaustavi(); setup(); nacrtaj(); });
+  setup();
+
+  // ---------------- ilustracija susjeda (slajd 2) ----------------
+  (() => {
+    const g = $("#il-susjedi"), s = 40, x0 = 70, y0 = 6;
+    const raspored = ["dpdpd", "pdddp", "ddvdd", "pdddd", "dpdpd"];   // d = drvo, p = prazno, v = vatra
+    raspored.forEach((red, y) => [...red].forEach((t, x) => {
+      const cetiri = Math.abs(x - 2) + Math.abs(y - 2) === 1;
+      const kl = t === "v" ? "il-vatra" : t === "p" ? "il-prazno" : cetiri ? "il-vatra" : "il-drvo";
+      g.append(el("rect", { x: x0 + x * s, y: y0 + y * s, width: s - 2, height: s - 2, rx: 3, class: kl, opacity: cetiri ? 0.7 : 1 }));
+    }));
+    g.append(el("rect", { x: x0 + 2 * s - 4, y: y0 + 2 * s - 4, width: s + 6, height: s + 6, rx: 5, class: "il-prozor", style: "fill:none" }));
+    for (const [dx, dy] of [[0, -1], [1, 0], [0, 1], [-1, 0]]) {
+      const cx = x0 + 2 * s + s / 2 - 1, cy = y0 + 2 * s + s / 2 - 1;
+      g.append(el("path", { d: `M${cx + dx * 12} ${cy + dy * 12} L ${cx + dx * 28} ${cy + dy * 28}`, class: "il-strelica" }));
+    }
+  })();
+
+  // ---------------- grafikoni (SVG) ----------------
+  function osa(svg, { L, R, T, B, W, H, xs, ys, x, y, xNaslov, yNaslov, yFmt = v => v }) {
+    for (const v of ys) {
+      svg.append(el("line", { x1: L, x2: W - R, y1: y(v), y2: y(v), class: v === ys[0] ? "g-os" : "g-mreza" }));
+      svg.append(el("text", { x: L - 6, y: y(v) + 4, "text-anchor": "end", class: "g-oznaka" }, yFmt(v)));
+    }
+    for (const v of xs) svg.append(el("text", { x: x(v), y: H - B + 16, "text-anchor": "middle", class: "g-oznaka" }, v));
+    if (xNaslov) svg.append(el("text", { x: L + (W - L - R) / 2, y: H - 4, "text-anchor": "middle", class: "g-naslov-x" }, xNaslov));
+    if (yNaslov) svg.append(el("text", { x: L, y: T - 6, class: "g-naslov-x" }, yNaslov));
+  }
+
+  // slajd 5: kriva iz v02a (10 pokretanja)
+  (() => {
+    const red = D.v02a.redovi, cilj = $("#g-kriva");
+    const W = 460, H = 280, L = 40, R = 14, T = 22, B = 40;
+    const x = g => L + (W - L - R) * (g - 50) / 20, y = v => T + (H - T - B) * (100 - v) / 100;
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, class: "grafik", role: "img", "aria-label": "Izgorjelo prema gustini od 50 do 70%: prosjek i raspon 10 pokretanja" });
+    svg.append(el("rect", { x: x(57), y: T, width: x(61) - x(57), height: H - T - B, class: "g-prag" }));
+    osa(svg, { L, R, T, B, W, H, xs: [50, 55, 60, 65, 70], ys: [0, 25, 50, 75, 100], x, y, xNaslov: "density (%)", yNaslov: "izgorjelo (%)" });
+    const gore = red.map(r => `${x(r[0])},${y(r[3])}`).join(" "), dolje = red.map(r => `${x(r[0])},${y(r[2])}`).reverse().join(" ");
+    svg.append(el("polygon", { points: gore + " " + dolje, class: "g-pojas" }));
+    svg.append(el("polyline", { points: red.map(r => `${x(r[0])},${y(r[1])}`).join(" "), class: "g-linija" }));
+    for (const r of red) svg.append(el("circle", { cx: x(r[0]), cy: y(r[1]), r: 2.6, class: "g-tacka" }));
+    cilj.replaceChildren(svg);
+    const izaberi = [55, 57, 58, 59, 60, 61, 63, 70];
+    $("#t-kriva").innerHTML = `<thead><tr><th>density</th><th>prosjek</th><th>min</th><th>max</th></tr></thead><tbody>` +
+      red.filter(r => izaberi.includes(r[0])).map(r => `<tr${r[0] === 59 ? ' class="istaknuto"' : ""}><td>${r[0]}%</td><td>${z1(r[1])}%</td><td>${z1(r[2])}%</td><td>${z1(r[3])}%</td></tr>`).join("") + `</tbody>`;
+  })();
+
+  // slajd 6: histogram 100 pokretanja
+  function histogram(g) {
+    const P = D.prag[g], v = P.izgorjelo, K = 20, br = new Array(K).fill(0);
+    for (const a of v) br[Math.min(K - 1, Math.floor(a / 100 * K))]++;
+    const W = 460, H = 250, L = 34, R = 10, T = 22, B = 40, vrh = 50;
+    const x = p => L + (W - L - R) * p / 100, y = c => T + (H - T - B) * (1 - c / vrh);
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, class: "grafik", role: "img", "aria-label": `Raspodjela izgorjelog dijela šume u 100 pokretanja na gustini ${g}%` });
+    osa(svg, { L, R, T, B, W, H, xs: [0, 25, 50, 75, 100], ys: [0, 10, 20, 30, 40, 50], x, y, xNaslov: "izgorjelo (%)", yNaslov: "broj pokretanja (od 100)" });
+    br.forEach((c, i) => { if (c) svg.append(el("rect", { x: x(i * 5) + 1.5, y: y(c), width: x(5) - x(0) - 3, height: y(0) - y(c), class: "g-stub" })); });
+    const p = P.opis.prosjek, xp = x(p);
+    svg.append(el("line", { x1: xp, x2: xp, y1: T, y2: y(0), class: "g-ref" }));
+    svg.append(el("text", { x: xp + 4, y: T + 26, class: "g-ref-tekst" }, `prosjek ${z1(p)}%`));
+    $("#g-histogram").replaceChildren(svg);
+    $("#h-potpis").innerHTML = `<b>${g}%:</b> izgorjelo od ${z1(P.opis.min)}% do ${z1(P.opis.max)}%, medijan ${z1(P.opis.med)}%; do desne ivice stiglo ${P.stigao} od ${P.n} pokretanja.`;
+  }
+  for (const b of $$("[data-gustina]")) b.addEventListener("click", () => {
+    $$("[data-gustina]").forEach(x => x.setAttribute("aria-pressed", x === b)); histogram(b.dataset.gustina);
+  });
+  histogram("59");
+  const P = D.prag;
+  $("#t-57").innerHTML = `<b>57%.</b> Svih 100 pokretanja završi između ${z1(P[57].opis.min)}% i ${z1(P[57].opis.max)}%: požar gotovo uvijek zastane (do desne ivice ${P[57].stigao} od 100).`;
+  $("#t-59").innerHTML = `<b>59%.</b> Ishodi su raspoređeni od ${z1(P[59].opis.min)}% do ${z1(P[59].opis.max)}%. Ispod 10% završi ${P[59].ispod10}, a iznad 50% ${P[59].iznad50} od 100 pokretanja; do desne ivice stigne ${P[59].stigao}.`;
+  $("#t-61").innerHTML = `<b>61%.</b> Svih 100 pokretanja završi između ${z1(P[61].opis.min)}% i ${z1(P[61].opis.max)}%: požar gotovo uvijek pređe (do desne ivice ${P[61].stigao} od 100).`;
+  const v59 = D.v02a.redovi.find(r => r[0] === 59);
+  const blizu = g => P[g].izgorjelo.filter(v => Math.abs(v - P[g].opis.prosjek) <= 5).length;
+  $("#t-prosjek").textContent = `Na 59% prosjek je ${z1(P[59].opis.prosjek)}%, a unutar ±5 procentnih poena od njega završi samo ${blizu(59)} od 100 pokretanja (na 61%: ${blizu(61)} od 100). U prezentaciji v02a (10 pokretanja) raspon na 59% bio je ${z1(v59[2])}–${z1(v59[3])}%; sa 100 pokretanja je ${z1(P[59].opis.min)}–${z1(P[59].opis.max)}%. Više pokretanja daje pouzdaniju sliku raspodjele, a ne uži raspon.`;
+
+  // slajd 7: prelaz i trajanje (20 pokretanja po gustini)
+  (() => {
+    const K = D.kriva, W = 460, H = 256, L = 40, R = 12, T = 32, B = 40;
+    const x = g => L + (W - L - R) * (g - 50) / 20;
+    let y = v => T + (H - T - B) * (1 - v / 20);
+    let svg = el("svg", { viewBox: `0 0 ${W} ${H}`, class: "grafik", role: "img", "aria-label": "Broj pokretanja od 20 koja su stigla do desne ivice, prema gustini" });
+    osa(svg, { L, R, T, B, W, H, xs: [50, 55, 60, 65, 70], ys: [0, 5, 10, 15, 20], x, y, xNaslov: "density (%)", yNaslov: "pokretanja" });
+    const sir = (x(51) - x(50)) * 0.7;
+    for (const k of K) svg.append(el("rect", { x: x(k.gustina) - sir / 2, y: y(k.stigao), width: sir, height: y(0) - y(k.stigao), class: k.stigao === 0 || k.stigao === 20 ? "g-stub-sivi" : "g-stub" }));
+    $("#g-prelaz").replaceChildren(svg);
+    const tmax = 1000; y = v => T + (H - T - B) * (1 - v / tmax);
+    svg = el("svg", { viewBox: `0 0 ${W} ${H}`, class: "grafik", role: "img", "aria-label": "Trajanje požara u tickovima prema gustini: medijan i raspon 20 pokretanja" });
+    osa(svg, { L, R, T, B, W, H, xs: [50, 55, 60, 65, 70], ys: [0, 250, 500, 750, 1000], x, y, xNaslov: "density (%)", yNaslov: "tickovi" });
+    const gore = K.map(k => `${x(k.gustina)},${y(k.ticks.max)}`).join(" "), dolje = K.map(k => `${x(k.gustina)},${y(k.ticks.min)}`).reverse().join(" ");
+    svg.append(el("polygon", { points: gore + " " + dolje, class: "g-pojas" }));
+    svg.append(el("polyline", { points: K.map(k => `${x(k.gustina)},${y(k.ticks.med)}`).join(" "), class: "g-linija" }));
+    $("#g-trajanje").replaceChildren(svg);
+    const k = g => K.find(r => r.gustina === g);
+    const prvi = K.find(r => r.stigao > 0), svi = K.find(r => r.stigao === 20);
+    $("#t-prelaz").innerHTML = `Do ${prvi.gustina - 1}% nijedno od 20 pokretanja ne stigne do desne ivice; od ${svi.gustina}% stignu sva. Između: ${[57, 58, 59, 60].map(g => `${g}% → ${k(g).stigao}/20`).join(", ")}. Cijeli prelaz stane u ${svi.gustina - prvi.gustina + 1} susjedne vrijednosti gustine.`;
+    const tmed = Math.max(...K.map(r => r.ticks.med)), gmax = K.find(r => r.ticks.med === tmed).gustina;
+    $("#t-trajanje").innerHTML = `Požar traje najduže oko praga (medijan ${zarez(tmed, 0)} tickova na ${gmax}%; najduže pokretanje ${zarez(Math.max(...K.map(r => r.ticks.max)), 0)}), a kraće i ispod (${zarez(k(50).ticks.med, 0)} na 50%) i iznad praga (${zarez(k(70).ticks.med, 0)} na 70%). Blizu praga put kroz šumu, kada postoji, dug je i krivudav.`;
+  })();
+
+  Prezentacija("v02-mini-fire", () => nacrtaj());
+})();
+</script>
+</body>
+</html>

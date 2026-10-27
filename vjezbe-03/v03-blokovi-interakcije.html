@@ -1,0 +1,1566 @@
+<!doctype html>
+<html lang="bs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Blokovi interakcije</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:wght@500;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Raspored: katalog blokova. Svaki blok je red „pravilo na papiru | svijet u NetLogu“,
+   ispod njega mjerenja, kod i izvori. Papir je svijetao, svijet je crn kao u NetLogu. */
+:root {
+  --papir: #eef1f4;        /* pozadina stranice, hladna siva */
+  --list: #ffffff;         /* panel simulacije i list s pravilom */
+  --tinta: #17212b;        /* tekst */
+  --siva: #56636f;         /* sporedni tekst */
+  --linija: #d3dae1;       /* linije, mreža grafikona, crte na papiru */
+  --narandza: #b9531a;     /* akcent: dugmad, oznake, tačke na grafikonima */
+  --narandza-meko: #f6dfd0;
+  --margina: #e5a3a3;      /* crvena margina na listu papira */
+  --svijet: #000000;       /* svijet u NetLogu */
+  --f-naslov: "Bitter", "Georgia", "Cambria", serif;
+  --f-tekst: "IBM Plex Sans", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "IBM Plex Mono", "Cascadia Mono", Consolas, "Courier New", monospace;
+  --t-0: 0.83rem; --t-1: 1rem; --t-2: 1.17rem; --t-3: 1.5rem; --t-4: 2.1rem; --t-5: 2.9rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --papir: #10161c; --list: #18212a; --tinta: #e3e9ee; --siva: #9ba8b4; --linija: #2a3540;
+    --narandza: #f0894a; --narandza-meko: #3a2416; --margina: #6b3535; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --papir: #10161c; --list: #18212a; --tinta: #e3e9ee; --siva: #9ba8b4; --linija: #2a3540;
+  --narandza: #f0894a; --narandza-meko: #3a2416; --margina: #6b3535; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { font-size: 18px; scroll-behavior: smooth; }
+@media (max-width: 600px) { html { font-size: 16px; } }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0; background: var(--papir); color: var(--tinta);
+  font-family: var(--f-tekst); font-size: var(--t-1); line-height: 1.55;
+}
+[hidden] { display: none !important; }
+a { color: var(--narandza); text-underline-offset: 0.15em; }
+:focus-visible { outline: 3px solid var(--narandza); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--f-naslov); text-wrap: balance; line-height: 1.2; margin: 0; }
+h3 { font-size: var(--t-2); font-weight: 700; }
+p { margin: 0; }
+code, kbd { font-family: var(--f-mono); font-size: 0.92em; }
+p code, li code, td code { background: var(--narandza-meko); padding: 0.05em 0.3em; border-radius: 3px; }
+.okvir {
+  max-width: 1200px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.oznaka {
+  font-family: var(--f-mono); font-size: var(--t-0); letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--narandza); font-weight: 500;
+}
+
+/* ---------- zaglavlje ---------- */
+.zaglavlje { padding-block: 2.6rem 1.6rem; border-bottom: 1px solid var(--linija); }
+.zaglavlje h1 { font-size: var(--t-5); font-weight: 700; margin-top: 0.4rem; letter-spacing: -0.01em; }
+.zaglavlje .uvodni { max-width: 46rem; font-size: var(--t-2); margin-top: 0.9rem; }
+.sadrzaj {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: var(--papir); border-bottom: 1px solid var(--linija);
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--papir); }
+.sadrzaj ol { list-style: none; margin: 0; padding-block: 0.55rem; display: flex; gap: 0.4rem 1.4rem; flex-wrap: wrap; }
+.sadrzaj a { text-decoration: none; color: var(--tinta); font-size: var(--t-0); font-weight: 500; }
+.sadrzaj a span { font-family: var(--f-mono); color: var(--narandza); margin-right: 0.35em; }
+.sadrzaj a:hover { color: var(--narandza); }
+
+/* ---------- uvod ---------- */
+.uvod { padding-block: 2rem 1rem; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 2rem; }
+.uvod > * { min-width: 0; }
+.uvod h2 { font-size: var(--t-3); margin-bottom: 0.6rem; }
+.uvod ol { margin: 0.5rem 0 0; padding-left: 1.3rem; display: grid; gap: 0.35rem; }
+.vec-imate { border-left: 3px solid var(--linija); padding-left: 1rem; display: grid; gap: 0.6rem; align-content: start; }
+.vec-imate dl { margin: 0; display: grid; gap: 0.5rem; }
+.vec-imate dt { font-weight: 600; }
+.vec-imate dd { margin: 0; color: var(--siva); }
+.napomena { color: var(--siva); font-size: var(--t-0); }
+@media (max-width: 860px) { .uvod { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---------- blok ---------- */
+.blok { padding-block: 3rem 1rem; border-top: 1px solid var(--linija); scroll-margin-top: 3rem; }
+.blok-glava { display: grid; gap: 0.3rem; margin-bottom: 1.4rem; }
+.blok-glava h2 { font-size: var(--t-4); }
+.blok-glava .teza { font-size: var(--t-2); color: var(--siva); max-width: 44rem; }
+.blok-tijelo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2rem; align-items: start; }
+.blok-tijelo > * { min-width: 0; }
+.tekst { display: grid; gap: 1.3rem; }
+.tekst section { display: grid; gap: 0.4rem; }
+.tekst ul { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.3rem; }
+@media (max-width: 900px) { .blok-tijelo { grid-template-columns: minmax(0, 1fr); } }
+
+/* list papira s pravilom: model na papiru */
+.pravilo {
+  margin: 0; background-color: var(--list); border: 1px solid var(--linija); border-radius: 4px;
+  padding: 1.1rem 1.2rem 1.2rem 2.4rem; position: relative;
+  background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(1.7rem - 1px), var(--linija) calc(1.7rem - 1px), var(--linija) 1.7rem);
+  background-position: 0 2.55rem; line-height: 1.7rem;
+}
+.pravilo::before { content: ""; position: absolute; left: 1.5rem; top: 0; bottom: 0; width: 2px; background: var(--margina); }
+.pravilo figcaption { font-family: var(--f-mono); font-size: var(--t-0); color: var(--siva); letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 0.15rem; line-height: 1.7rem; }
+.pravilo p, .pravilo li { font-family: var(--f-naslov); font-size: 1.06rem; }
+.pravilo ul { list-style: none; margin: 0; padding: 0 0 0 1.2rem; }
+.pravilo li::before { content: "→ "; color: var(--narandza); font-family: var(--f-tekst); }
+.pravilo b { color: var(--narandza); font-weight: 700; }
+
+.pitanje { background: var(--narandza-meko); border-radius: 4px; padding: 0.9rem 1rem; }
+.pitanje h3 { font-size: var(--t-1); }
+
+/* panel simulacije */
+.sim { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 0.9rem; display: grid; gap: 0.8rem; }
+.sim-glava { display: flex; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; align-items: baseline; }
+.sim-glava .napomena { font-size: 0.75rem; flex-basis: 100%; }
+.nlw { font-family: var(--f-mono); font-size: var(--t-0); text-decoration: none; border: 1px solid var(--narandza);
+  border-radius: 4px; padding: 0.15rem 0.55rem; }
+.nlw:hover { background: var(--narandza-meko); }
+canvas.svijet { width: 100%; max-width: min(100%, 540px); margin-inline: auto; aspect-ratio: 1 / 1; display: block; background: var(--svijet); border-radius: 2px; }
+canvas.hist { width: 100%; height: 92px; display: block; }
+.monitori { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: 0.5rem; }
+.monitor { border: 1px solid var(--linija); border-radius: 4px; padding: 0.35rem 0.6rem; }
+.monitor span { display: block; font-size: 0.72rem; color: var(--siva); font-family: var(--f-mono); letter-spacing: 0.03em; }
+.monitor b { font-family: var(--f-mono); font-size: var(--t-2); font-weight: 500; font-variant-numeric: tabular-nums; }
+.kontrole { display: grid; gap: 0.6rem; }
+.dugmad { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+button {
+  font: 500 var(--t-0) var(--f-mono); border-radius: 4px; padding: 0.45rem 0.9rem; cursor: pointer;
+  border: 1px solid var(--narandza); background: transparent; color: var(--narandza);
+}
+button.glavno, button[aria-pressed="true"] { background: var(--narandza); color: var(--list); }
+button:disabled { opacity: 0.5; cursor: wait; }
+.klizac { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0 0.6rem; align-items: center; }
+.klizac label { font-family: var(--f-mono); font-size: var(--t-0); }
+.klizac output { font-family: var(--f-mono); font-size: var(--t-0); font-variant-numeric: tabular-nums; min-width: 2.6rem; text-align: right; }
+.klizac input { grid-column: 1 / -1; width: 100%; accent-color: var(--narandza); }
+.klizac small { grid-column: 1 / -1; color: var(--siva); font-size: 0.72rem; }
+.prekidac { display: flex; gap: 0.5rem; align-items: center; font-family: var(--f-mono); font-size: var(--t-0); }
+.prekidac input { accent-color: var(--narandza); width: 1.1rem; height: 1.1rem; }
+.stanje { font-family: var(--f-mono); font-size: var(--t-0); color: var(--narandza); min-height: 1.2em; }
+
+/* izmjereno */
+.izmjereno { margin-top: 2rem; display: grid; gap: 0.7rem; }
+.grafici { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: 1rem 2rem; }
+.grafici figure { margin: 0; display: grid; gap: 0.3rem; min-width: 0; max-width: 36rem; }
+.grafici figcaption { font-size: var(--t-0); color: var(--siva); }
+.grafici figcaption b { color: var(--tinta); font-weight: 600; }
+svg.grafik { width: 100%; height: auto; display: block; overflow: visible; }
+.g-mreza { stroke: var(--linija); stroke-width: 1; }
+.g-os { stroke: var(--siva); stroke-width: 1; }
+.g-oznaka { fill: var(--siva); font: 12px var(--f-mono); }
+.g-naslov-x { fill: var(--siva); font: 12px var(--f-tekst); }
+.g-vrijednost { fill: var(--tinta); font: 500 12px var(--f-mono); }
+.g-raspon { stroke: var(--narandza); stroke-width: 3; stroke-linecap: round; opacity: 0.35; }
+.g-tacka { fill: var(--narandza); }
+.g-stupac { fill: var(--narandza); opacity: 0.85; }
+.g-ref { stroke: var(--siva); stroke-width: 1.2; stroke-dasharray: 4 4; }
+.g-ref-tekst { fill: var(--siva); font: italic 12px var(--f-tekst); }
+
+/* kod */
+details.kod { margin-top: 1.6rem; border: 1px solid var(--linija); border-radius: 6px; background: var(--list); }
+details.kod summary { cursor: pointer; padding: 0.7rem 1rem; font-weight: 600; }
+details.kod summary span { font-weight: 400; color: var(--siva); font-size: var(--t-0); margin-left: 0.5rem; }
+.kod-kartice { padding: 0 1rem 1rem; }
+.kartice { display: flex; gap: 0.4rem; margin-bottom: 0.6rem; }
+.kartice button { border-color: var(--linija); color: var(--siva); }
+.kartice button[aria-selected="true"] { border-color: var(--narandza); color: var(--narandza); background: var(--narandza-meko); }
+pre { margin: 0; overflow-x: auto; background: var(--papir); border-radius: 4px; padding: 0.8rem 1rem; }
+pre code { font-size: 15px; line-height: 1.5; white-space: pre; }
+.kom { color: var(--siva); font-style: italic; }
+.kod-napomena { font-size: var(--t-0); color: var(--siva); margin-top: 0.6rem; }
+
+/* tri kolone na dnu bloka */
+.trojka { margin-top: 1.6rem; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.2rem 2rem; }
+.trojka section { display: grid; gap: 0.3rem; align-content: start; }
+.trojka h3 { font-family: var(--f-mono); font-size: var(--t-0); font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--siva); }
+.trojka p { font-size: 0.95rem; }
+@media (max-width: 860px) { .trojka { grid-template-columns: minmax(0, 1fr); } }
+
+/* model na papiru */
+.papir-sekcija { padding-block: 3rem 1rem; border-top: 1px solid var(--linija); scroll-margin-top: 3rem; display: grid; gap: 1.2rem; }
+.papir-sekcija h2 { font-size: var(--t-4); }
+.obrazac { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2rem; align-items: start; }
+.obrazac > * { min-width: 0; }
+.obrazac ol { margin: 0; padding-left: 1.4rem; display: grid; gap: 0.55rem; }
+.obrazac li b { font-weight: 600; }
+.obrazac li span { display: block; color: var(--siva); font-size: 0.95rem; }
+@media (max-width: 900px) { .obrazac { grid-template-columns: minmax(0, 1fr); } }
+#obrazac-tekst { white-space: pre-wrap; font-family: var(--f-mono); font-size: 14px; }
+
+/* prilog */
+.prilog { padding-block: 3rem 3rem; border-top: 1px solid var(--linija); scroll-margin-top: 3rem; display: grid; gap: 1.2rem; }
+.prilog h2 { font-size: var(--t-3); }
+.prilog h3 { margin-bottom: 0.3rem; }
+.tabela { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+th, td { text-align: left; padding: 0.45rem 0.7rem 0.45rem 0; border-bottom: 1px solid var(--linija); vertical-align: top; }
+th { font-family: var(--f-mono); font-size: var(--t-0); font-weight: 500; color: var(--siva); }
+.literatura { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.4rem; font-size: 0.95rem; }
+.podnozje { color: var(--siva); font-size: var(--t-0); padding-block: 0 2rem; }
+</style>
+</head>
+<body>
+
+<header class="zaglavlje">
+  <div class="okvir">
+    <span class="oznaka">Modeliranje i simulacije · Vježbe 3 · FIT UNMO · 2026/27</span>
+    <h1>Blokovi interakcije</h1>
+    <p class="uvodni">Model zasnovan na agentima gradi se opisom interakcija: ko s kim stupa u kontakt i šta se pri tome mijenja. Prikazano je šest tipičnih interakcija. Za svaku su navedeni pravilo za model na papiru, simulacija, mini-prezentacija i učinci izmjereni u NetLogu.</p>
+  </div>
+</header>
+
+<nav class="sadrzaj" aria-label="Sadržaj">
+  <div class="okvir">
+    <ol>
+      <li><a href="#blok1"><span>1</span>Ograničeno povjerenje</a></li>
+      <li><a href="#blok2"><span>2</span>Prag i kaskada</a></li>
+      <li><a href="#blok3"><span>3</span>Mreža poznanstava</a></li>
+      <li><a href="#blok4"><span>4</span>Preseljenje</a></li>
+      <li><a href="#blok56"><span>5–6</span>Ustanova; kazna</a></li>
+      <li><a href="#papir"><span>→</span>Model na papiru</a></li>
+      <li><a href="#prilog"><span>+</span>Prilog</a></li>
+    </ol>
+  </div>
+</nav>
+
+<main>
+<div class="okvir">
+
+<section class="uvod" aria-labelledby="uvod-naslov">
+  <div>
+    <h2 id="uvod-naslov">Kako čitati blok</h2>
+    <p>Na predavanju 2 model je prvo opisan na papiru: cilj, akteri, atributi, okruženje, interakcije i vrijeme.
+      Kodiranje dolazi poslije. Blok je zato jedna rečenica u dijelu „Interakcije“ vašeg modela na papiru.</p>
+    <ol>
+      <li><b>Pravilo</b>: rečenica oblika „Kada … sretne … : ako … → …“.</li>
+      <li>Ishod: simulacija, pa brojke izmjerene u NetLogu.</li>
+      <li><b>Pitanje</b> koje pravilo postavlja vašem modelu.</li>
+      <li><b>Kod</b> (NetLogo i C#), te koji parametar mora imati izvor.</li>
+    </ol>
+  </div>
+  <aside class="vec-imate" aria-label="Već poznate interakcije">
+    <h3>Već imate (model stava, vježbe 2)</h3>
+    <dl>
+      <dt>Razgovor</dt>
+      <dd>Kada čovjek sretne čovjeka u dometu → stav mu se približi stavu sagovornika, zavisno od integriteta.</dd>
+      <dt>Izvor poruke</dt>
+      <dd>Mediji su agenti koji stoje. Ko je u njihovom dometu → stav mu se približi poruci.</dd>
+    </dl>
+    <p class="napomena">Simulacije na ovoj stranici rade u web pregledniku i prate isti kod kao NetLogo modeli. Brojke u
+      tekstu i na grafikonima su iz NetLoga 7.0.4 (10 do 200 pokretanja po vrijednosti). Jedno pokretanje u web pregledniku
+      može dati drugačiji broj; zato se brojke uvijek navode kao raspon.</p>
+    <p class="napomena">Dugme „Otvori u NetLogo Webu“ otvara isti model u NetLogu koji radi u web pregledniku, s klizačima,
+      Command Centerom i kodom, bez instalacije i bez interneta. Fajlovi su u mapi <code>netlogo-web/</code> pored ove
+      stranice.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ BLOK 1 -->
+<section class="blok" id="blok1" aria-labelledby="b1-naslov">
+  <div class="blok-glava">
+    <span class="oznaka">Blok 1 · v03-blok1-povjerenje.nlogox</span>
+    <h2 id="b1-naslov">Ograničeno povjerenje</h2>
+    <p class="teza">Razgovor mijenja stav samo kada je razlika stavova dovoljno mala.</p>
+    <p><a class="nlw" href="blokovi/blok1-ograniceno-povjerenje.html" target="_blank" rel="noopener">Mini-prezentacija bloka 1 ↗</a></p>
+  </div>
+  <div class="blok-tijelo">
+    <div class="tekst">
+      <figure class="pravilo">
+        <figcaption>Pravilo · model na papiru</figcaption>
+        <p>Kada čovjek sretne čovjeka:</p>
+        <ul>
+          <li>ako je razlika stavova manja od <b>praga</b>, obojica približe svoj stav sagovornikovom, zavisno od vlastitog integriteta;</li>
+          <li>inače se ništa ne mijenja.</li>
+        </ul>
+        <p>Isto pravilo vrijedi i za poruku medija.</p>
+      </figure>
+      <section>
+        <h3>Ishod</h3>
+        <p>Mali prag dovodi do većeg broja odvojenih grupa stavova. Nakon 500 tickova prag 0,1 daje 4–8 grupa, prag 0,2 daje 3–5, prag 0,3
+          daje 2–4, a prag 1 ili veći jednu grupu.</p>
+        <p>Uz prag do 0,5 mediji gotovo ne mijenjaju udio „za“: na ticku 150 medijan je 34–40%, a na početku 38–41%. Poruka +1 utiče samo na ljude čiji je stav već blizak toj poruci. Uz prag 1 ili 2 udio „za“ na ticku 150 je 66,5–100%.</p>
+      </section>
+      <section>
+        <h3>Polazni model</h3>
+        <p>Polazište je model stava s vježbi 2, tačka 3 zadatka (mijenja se i stav sagovornika). Dodaje se samo <code>if abs razlika < prag</code>. Grupe se formiraju sporo: jasno su odvojene tek nakon nekoliko stotina tickova.</p>
+        <p>Domet određuje moguće sagovornike prema udaljenosti u prostoru, a prag određuje djeluje li razgovor prema razlici stavova.</p>
+      </section>
+      <div class="pitanje">
+        <h3>Primjena u vlastitom modelu</h3>
+        <p>U ovom bloku poruka kampanje ne mijenja stav od kojeg se znatno razlikuje. Procijenite vrijedi li isto za pojavu koju modelirate i obrazložite odgovor.</p>
+      </div>
+    </div>
+    <div class="sim" id="sim1">
+      <div class="sim-glava"><span class="oznaka">Simulacija</span><a class="nlw" href="netlogo-web/v03-blok1-povjerenje.html" target="_blank" rel="noopener">Otvori u NetLogo Webu ↗</a><span class="napomena">plavo: stav &gt; 0,2 · crveno: &lt; −0,2 · žuto: mediji</span></div>
+      <canvas class="svijet" aria-label="Svijet: 200 ljudi obojenih po stavu i četiri kuće medija"></canvas>
+      <canvas class="hist" aria-label="Raspodjela stava od −1 do +1"></canvas>
+      <div class="monitori">
+        <div class="monitor"><span>sedmica</span><b data-m="ticks">0</b></div>
+        <div class="monitor"><span>broj grupa</span><b data-m="grupe">–</b></div>
+        <div class="monitor"><span>udio za</span><b data-m="za">–</b></div>
+      </div>
+      <div class="kontrole">
+        <div class="klizac"><label for="b1-prag">prag</label><output for="b1-prag"></output>
+          <input type="range" id="b1-prag" min="0.05" max="2" step="0.05"></div>
+        <label class="prekidac"><input type="checkbox" id="b1-mediji"> mediji-rade?</label>
+        <div class="dugmad">
+          <button type="button" data-a="setup" class="glavno">setup</button>
+          <button type="button" data-a="go" aria-pressed="false">go</button>
+          <button type="button" data-a="korak">korak</button>
+          <button type="button" data-a="do500">do sedmice 500</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="izmjereno">
+    <h3>Izmjereno u NetLogu</h3>
+    <div class="grafici">
+      <figure><div id="g1a"></div><figcaption><b>Broj grupa stavova na ticku 500</b>, bez medija. 10 pokretanja po pragu; tačka je medijan, crta raspon od najmanjeg do najvećeg.</figcaption></figure>
+      <figure><div id="g1b"></div><figcaption><b>Udio „za“ na ticku 150</b>, s medijima. 10 pokretanja po pragu. Isprekidana linija: medijan na početku.</figcaption></figure>
+    </div>
+  </div>
+  <details class="kod">
+    <summary>Kod: NetLogo i C#<span>procedure razgovaraj i slusaj-medije</span></summary>
+    <div class="kod-kartice">
+      <div class="kartice" role="tablist" aria-label="Jezik">
+        <button type="button" role="tab" id="t1n" aria-controls="p1n" aria-selected="true">NetLogo</button>
+        <button type="button" role="tab" id="t1c" aria-controls="p1c" aria-selected="false" tabindex="-1">C#</button>
+      </div>
+      <div role="tabpanel" id="p1n" aria-labelledby="t1n"><pre><code>to razgovaraj
+  let sagovornik one-of other ljudi in-radius domet
+  if sagovornik != nobody [
+    let razlika ([ stav ] of sagovornik) - stav
+    if abs razlika &lt; prag [                       ;; NOVO: samo ako su stavovi dovoljno blizu
+      let moj-stav stav                           ;; sačuvati prije promjene (tačka 3)
+      set stav stav + razlika * (1 - integritet) * uticaj
+      ask sagovornik [
+        set stav stav + (moj-stav - stav) * (1 - integritet) * uticaj
+        oboji
+      ]
+    ]
+  ]
+end
+
+to slusaj-medije
+  if any? mediji in-radius domet-medija [
+    if abs (poruka-medija - stav) &lt; prag [        ;; NOVO: isto pravilo vrijedi i za poruku medija
+      set stav stav + (poruka-medija - stav) * (1 - integritet) * snaga-medija
+    ]
+  ]
+end</code></pre></div>
+      <div role="tabpanel" id="p1c" aria-labelledby="t1c" hidden><pre><code>public void Razgovaraj()                       // to razgovaraj
+{
+    var sagovornik = ljudi.Other(this).InRadius(this, Globals.Domet).OneOf();   // let sagovornik one-of other ljudi in-radius domet
+    if (sagovornik != null)                    //   if sagovornik != nobody [
+    {
+        double razlika = sagovornik.Stav - this.Stav;     // let razlika ([ stav ] of sagovornik) - stav
+        if (Math.Abs(razlika) &lt; Globals.Prag)             // if abs razlika &lt; prag [   ;; NOVO
+        {
+            double mojStav = this.Stav;                   //   let moj-stav stav       ;; sačuvati prije promjene
+            this.Stav += razlika * (1 - this.Integritet) * Globals.Uticaj;   // set stav stav + razlika * (1 - integritet) * uticaj
+            // ask sagovornik [ ... ]: unutar lambde this je s (sagovornik), a ovaj Covjek izvana
+            // je myself. U C# je myself obična varijabla iz vanjskog opsega (closure).
+            World.Ask(new[] { sagovornik }, s =&gt;          //   ask sagovornik [
+            {
+                s.Stav += (mojStav - s.Stav) * (1 - s.Integritet) * Globals.Uticaj;   // set stav stav + (moj-stav - stav) * (1 - integritet) * uticaj
+                s.Oboji();                                //     oboji ]
+            });
+        }
+    }
+}
+
+public void SlusajMedije()                     // to slusaj-medije
+{
+    if (mediji.InRadius(this, Globals.DometMedija).Any())                // if any? mediji in-radius domet-medija [
+    {
+        if (Math.Abs(Globals.PorukaMedija - this.Stav) &lt; Globals.Prag)   //   if abs (poruka-medija - stav) &lt; prag [   ;; NOVO
+            this.Stav += (Globals.PorukaMedija - this.Stav) * (1 - this.Integritet) * Globals.SnagaMedija;   // set stav stav + (poruka-medija - stav) * (1 - integritet) * snaga-medija
+    }
+}</code></pre></div>
+      <p class="kod-napomena">Unutar lambde <code>s =&gt; …</code> NetLogo-ov <code>self</code> je <code>s</code> (sagovornik), a
+        <code>myself</code> je C# <code>this</code>, čovjek koji je započeo razgovor: lambda ga zatvara iz vanjskog opsega (closure).
+        Zato se njegov stav sačuva u <code>mojStav</code> prije promjene.</p>
+    </div>
+  </details>
+  <div class="trojka">
+    <section><h3>Gdje se javlja</h3><p>Mišljenja o novom pravilu u gradu ili na fakultetu; rasprave u kojima učesnici razmatraju tuđe stavove samo dok razlike nisu prevelike; nastanak suprotstavljenih grupa među kojima prestaje međusobni uticaj.</p></section>
+    <section><h3>Podaci za koje treba navesti izvor</h3><p><code>prag</code>: granična razlika stavova ispod koje čovjek uzima u obzir tuđe mišljenje. Potrebni su i <code>integritet</code> i <code>uticaj</code>, kao u modelu stava.</p></section>
+    <section><h3>Literatura</h3><p>Deffuant, Neau, Amblard i Weisbuch (2000); Hegselmann i Krause (2002). Puni navodi su u Prilogu.</p></section>
+  </div>
+</section>
+
+<!-- ============================================================ BLOK 2 -->
+<section class="blok" id="blok2" aria-labelledby="b2-naslov">
+  <div class="blok-glava">
+    <span class="oznaka">Blok 2 · v03-blok2-prag.nlogox</span>
+    <h2 id="b2-naslov">Prag i kaskada</h2>
+    <p class="teza">Čovjek se pridružuje kada udio ljudi koji su se već pridružili u njegovoj okolini dostigne prag.</p>
+    <p><a class="nlw" href="blokovi/blok2-prag-i-kaskada.html" target="_blank" rel="noopener">Mini-prezentacija bloka 2 ↗</a></p>
+  </div>
+  <div class="blok-tijelo">
+    <div class="tekst">
+      <figure class="pravilo">
+        <figcaption>Pravilo · model na papiru</figcaption>
+        <p>U sali svako vidi do 8 susjeda. Kada čovjek koji sjedi pogleda oko sebe:</p>
+        <ul>
+          <li>ako je udio susjeda koji stoje barem jednak njegovom <b>prag</b>u, ustane i ostane stajati;</li>
+          <li>inače ostane sjediti.</li>
+        </ul>
+        <p>Nekoliko <b>pokretača</b> ustane bez obzira na druge.</p>
+      </figure>
+      <section>
+        <h3>Ishod</h3>
+        <p>Ishod je dvojak („sve ili ništa“): uz rasipanje praga do 0,2 svako pokretanje završava s manje od 10% ili s više od 90% ljudi koji stoje.</p>
+        <p>Prosječni prag je isti (0,3), a vjerovatnoća talasa zavisi od toga koliko se pragovi razlikuju. <b>Rasipanje praga</b> izražava se standardnom devijacijom pragova (uz rasipanje 0,1 oko 95% ljudi ima prag između 0,1 i 0,5).
+          Kad su svi pragovi
+          jednaki, talas nastane u 22% pokretanja, uz rasipanje 0,05 u 38%, a uz rasipanje 0,1 u 97%. Isto vrijedi za broj
+          pokretača: uz rasipanje 0,05 talas pokrene 5 pokretača u 20% pokretanja, a 20 pokretača u 88%.</p>
+      </section>
+      <section>
+        <h3>Polazni model</h3>
+        <p>Ljudi ostaju na svojim mjestima u sali. <code>with</code> najprije izdvaja agente koji ispunjavaju uslov za ustajanje prema stanju na početku kruga. Zatim <code>ask</code> izvršava naredbu za ustajanje, pa svi odlučuju na osnovu istog stanja.</p>
+      </section>
+      <div class="pitanje">
+        <h3>Primjena u vlastitom modelu</h3>
+        <p>Odredite prag i pokretače u pojavi koju modelirate. Pokrenite istu postavku više puta: jedno pokretanje nije dovoljno za procjenu vjerovatnoće talasa.</p>
+      </div>
+    </div>
+    <div class="sim" id="sim2">
+      <div class="sim-glava"><span class="oznaka">Simulacija</span><a class="nlw" href="netlogo-web/v03-blok2-prag.html" target="_blank" rel="noopener">Otvori u NetLogo Webu ↗</a><span class="napomena">narandžasto: stoji · tamno: sjedi · 961 mjesto</span></div>
+      <canvas class="svijet" aria-label="Sala 31 puta 31 mjesto: ko stoji, a ko sjedi"></canvas>
+      <div class="monitori">
+        <div class="monitor"><span>krug</span><b data-m="ticks">0</b></div>
+        <div class="monitor"><span>udio aktivnih</span><b data-m="aktivni">–</b></div>
+      </div>
+      <p class="stanje" data-m="stanje"></p>
+      <div class="kontrole">
+        <div class="klizac"><label for="b2-prosjek">prosjek-praga</label><output for="b2-prosjek"></output>
+          <input type="range" id="b2-prosjek" min="0" max="1" step="0.05"></div>
+        <div class="klizac"><label for="b2-rasipanje">rasipanje-praga</label><output for="b2-rasipanje"></output>
+          <input type="range" id="b2-rasipanje" min="0" max="0.5" step="0.01"></div>
+        <div class="klizac"><label for="b2-pokretaci">pokretaci</label><output for="b2-pokretaci"></output>
+          <input type="range" id="b2-pokretaci" min="0" max="100" step="1" data-dec="0">
+          <small>Promjena klizača odmah radi novi setup.</small></div>
+        <div class="dugmad">
+          <button type="button" data-a="setup" class="glavno">setup</button>
+          <button type="button" data-a="go" aria-pressed="false">go</button>
+          <button type="button" data-a="korak">korak</button>
+          <button type="button" data-a="serija">100 pokretanja</button>
+        </div>
+        <p class="stanje" data-m="serija" aria-live="polite"></p>
+      </div>
+    </div>
+  </div>
+  <div class="izmjereno">
+    <h3>Izmjereno u NetLogu</h3>
+    <div class="grafici">
+      <figure><div id="g2a"></div><figcaption>Udio pokretanja u kojima ustane više od 90% ljudi u sali, prema rasipanju praga. Prosječni prag 0,3, 10 pokretača, 200 pokretanja po vrijednosti.</figcaption></figure>
+      <figure><div id="g2b"></div><figcaption>Isti udio pokretanja, prema broju pokretača. Rasipanje praga 0,05, 200 pokretanja po vrijednosti.</figcaption></figure>
+    </div>
+  </div>
+  <details class="kod">
+    <summary>Kod: NetLogo i C#<span>procedure go i udio-oko-mene</span></summary>
+    <div class="kod-kartice">
+      <div class="kartice" role="tablist" aria-label="Jezik">
+        <button type="button" role="tab" id="t2n" aria-controls="p2n" aria-selected="true">NetLogo</button>
+        <button type="button" role="tab" id="t2c" aria-controls="p2c" aria-selected="false" tabindex="-1">C#</button>
+      </div>
+      <div role="tabpanel" id="p2n" aria-labelledby="t2n"><pre><code>to go
+  ;; with prvo izabere sve koji ustaju (prema stanju na početku kruga), pa ih tek onda pita
+  let ustaju ljudi with [ not aktivan? and udio-oko-mene &gt;= moj-prag ]
+  if not any? ustaju [ stop ]
+  ask ustaju [
+    set aktivan? true
+    oboji
+  ]
+  update-mjere
+  tick
+end
+
+to-report udio-oko-mene
+  let oko-mene ljudi-on neighbors
+  report (count oko-mene with [ aktivan? ]) / (count oko-mene)
+end</code></pre></div>
+      <div role="tabpanel" id="p2c" aria-labelledby="t2c" hidden><pre><code>// to go. Vraća false kada bi NetLogo izvršio stop.
+public static bool Go()
+{
+    // with prvo izabere sve koji ustaju (prema stanju na početku kruga), pa ih tek onda pita
+    var ustaju = ljudi.With(c =&gt; !c.Aktivan &amp;&amp; c.UdioOkoMene() &gt;= c.MojPrag);   // let ustaju ljudi with [ not aktivan? and udio-oko-mene &gt;= moj-prag ]
+    if (!ustaju.Any()) return false;           //   if not any? ustaju [ stop ]
+    World.Ask(ustaju, c =&gt;                     //   ask ustaju [
+    {
+        c.Aktivan = true;                      //     set aktivan? true
+        c.Oboji();                             //     oboji ]
+    });
+    UpdateMjere();                             //   update-mjere
+    World.Tick();                              //   tick
+    return true;
+}
+
+public double UdioOkoMene()                    // to-report udio-oko-mene
+{
+    var okoMene = this.PatchHere.Neighbors.TurtlesOn&lt;Covjek&gt;();   //   let oko-mene ljudi-on neighbors
+    return (double)okoMene.Count(c =&gt; c.Aktivan) / okoMene.Count;   // report (count oko-mene with [ aktivan? ]) / (count oko-mene)
+}</code></pre></div>
+      <p class="kod-napomena"><code>with</code> je u C# <code>Where(...).ToList()</code>: lista se napravi prije nego što iko ustane.
+        Da je odluka u <code>ask</code> s <code>if</code>, oni koji su ustali ranije u istom krugu uticali bi na kasnije.</p>
+    </div>
+  </details>
+  <div class="trojka">
+    <section><h3>Gdje se javlja</h3><p>Stojeći aplauz; pridruživanje protestu ili štrajku (Granovetterov primjer); prihvatanje novog
+      načina rada u grupi.</p></section>
+    <section><h3>Podaci za koje treba navesti izvor</h3><p>Raspodjela pragova, a ne samo prosjek: udio ljudi u okolini čije je učešće potrebno da bi se čovjek pridružio. Potreban je i broj pokretača.</p></section>
+    <section><h3>Literatura</h3><p>Granovetter (1978). Puni navod je u Prilogu.</p></section>
+  </div>
+</section>
+
+<!-- ============================================================ BLOK 3 -->
+<section class="blok" id="blok3" aria-labelledby="b3-naslov">
+  <div class="blok-glava">
+    <span class="oznaka">Blok 3 · v03-blok3-mreza.nlogox</span>
+    <h2 id="b3-naslov">Mreža poznanstava</h2>
+    <p class="teza">Uticaj se prenosi preko poznanika, a ne preko slučajnih prolaznika.</p>
+    <p><a class="nlw" href="blokovi/blok3-mreza-poznanstava.html" target="_blank" rel="noopener">Mini-prezentacija bloka 3 ↗</a></p>
+  </div>
+  <div class="blok-tijelo">
+    <div class="tekst">
+      <figure class="pravilo">
+        <figcaption>Pravilo · model na papiru</figcaption>
+        <p>Ljudi su nepokretni. Veze se najprije uspostavljaju s 3 najbliža čovjeka, a dio se zatim preusmjerava na ljude u cijelom prostoru modela.</p>
+        <ul>
+          <li>Kada čovjek razgovara, za sagovornika bira jednog od svojih <b>poznanika</b>;</li>
+          <li>poruku medija čuju samo ljudi koji žive blizu kuće medija.</li>
+        </ul>
+      </figure>
+      <section>
+        <h3>Ishod</h3>
+        <p>Veći udio dalekih veza omogućava širenje poruke do većeg broja ljudi. Na ticku 500, uz dvije kuće medija, medijan udjela „za“ je
+          44% bez dalekih veza (raspon 22–72%), 53% uz 5% dalekih veza, 77% uz 20%, a 95% kad su sve veze daleke (60–99%).
+          Na početku je udio „za“ oko 40%.</p>
+        <p>Rasipanje između pokretanja je veliko, jer ishod zavisi i od toga gdje su kuće medija.</p>
+      </section>
+      <section>
+        <h3>Polazni model</h3>
+        <p>Od modela stava s vježbi 2: u <code>razgovaraj</code> se <code>one-of other ljudi in-radius domet</code> zamijeni s
+          <code>one-of link-neighbors</code>. Novi pojmovi: <code>create-links-with</code>, <code>link-neighbors</code>,
+          <code>min-n-of 3 other ljudi [ distance myself ]</code>.</p>
+      </section>
+      <div class="pitanje">
+        <h3>Primjena u vlastitom modelu</h3>
+        <p>Odredite razgovaraju li ljudi u vašem modelu s prolaznicima (kretanje, kao na vježbama 2) ili s poznanicima (veze). Za opis veza potrebni su podaci o broju poznanika po osobi i broju poznanika izvan njene okoline.</p>
+      </div>
+    </div>
+    <div class="sim" id="sim3">
+      <div class="sim-glava"><span class="oznaka">Simulacija</span><a class="nlw" href="netlogo-web/v03-blok3-mreza.html" target="_blank" rel="noopener">Otvori u NetLogo Webu ↗</a><span class="napomena">sive linije: veze · plavo: stav &gt; 0,2 · žuto: mediji</span></div>
+      <canvas class="svijet" aria-label="200 ljudi povezanih vezama i dvije kuće medija"></canvas>
+      <div class="monitori">
+        <div class="monitor"><span>sedmica</span><b data-m="ticks">0</b></div>
+        <div class="monitor"><span>udio za</span><b data-m="za">–</b></div>
+        <div class="monitor"><span>poznanika po osobi</span><b data-m="poznanika">–</b></div>
+      </div>
+      <div class="kontrole">
+        <div class="klizac"><label for="b3-daleke">udio-dalekih-veza</label><output for="b3-daleke"></output>
+          <input type="range" id="b3-daleke" min="0" max="1" step="0.01">
+          <small>Promjena klizača odmah radi novi setup (nova mreža).</small></div>
+        <label class="prekidac"><input type="checkbox" id="b3-mediji"> mediji-rade?</label>
+        <label class="prekidac"><input type="checkbox" id="b3-veze" checked> prikazi-veze?</label>
+        <div class="dugmad">
+          <button type="button" data-a="setup" class="glavno">setup</button>
+          <button type="button" data-a="go" aria-pressed="false">go</button>
+          <button type="button" data-a="korak">korak</button>
+          <button type="button" data-a="do500">do sedmice 500</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="izmjereno">
+    <h3>Izmjereno u NetLogu</h3>
+    <div class="grafici">
+      <figure><div id="g3a"></div><figcaption><b>Udio „za“ na ticku 500</b> prema udjelu dalekih veza. Dvije kuće medija, 20 pokretanja po vrijednosti. Tačka je medijan, crta raspon.</figcaption></figure>
+    </div>
+  </div>
+  <details class="kod">
+    <summary>Kod: NetLogo i C#<span>procedure napravi-mrezu i razgovaraj</span></summary>
+    <div class="kod-kartice">
+      <div class="kartice" role="tablist" aria-label="Jezik">
+        <button type="button" role="tab" id="t3n" aria-controls="p3n" aria-selected="true">NetLogo</button>
+        <button type="button" role="tab" id="t3c" aria-controls="p3c" aria-selected="false" tabindex="-1">C#</button>
+      </div>
+      <div role="tabpanel" id="p3n" aria-labelledby="t3n"><pre><code>to napravi-mrezu
+  ;; svako se upozna s nekoliko najbližih ljudi (myself = onaj koji traži poznanike)
+  ask ljudi [
+    create-links-with min-n-of broj-veza other ljudi [ distance myself ]
+  ]
+  ;; dio veza se zamijeni vezom s nekim bilo gdje u svijetu
+  ask links [
+    if random-float 1 &lt; udio-dalekih-veza [
+      let a end1
+      let novi one-of ljudi with [ self != a and not link-neighbor? a ]
+      if novi != nobody [
+        ask a [ create-link-with novi ]
+        die
+      ]
+    ]
+  ]
+  ask links [
+    set color gray - 2
+    set hidden? not prikazi-veze?
+  ]
+end
+
+to razgovaraj
+  let sagovornik one-of link-neighbors            ;; NOVO: poznanik, a ne ko prođe blizu
+  if sagovornik != nobody [
+    let razlika ([ stav ] of sagovornik) - stav
+    set stav stav + razlika * (1 - integritet) * uticaj
+  ]
+end</code></pre></div>
+      <div role="tabpanel" id="p3c" aria-labelledby="t3c" hidden><pre><code>static void NapraviMrezu()                     // to napravi-mrezu
+{
+    // svako se upozna s nekoliko najbližih ljudi. U [ distance myself ] je this kandidat (d),
+    // a myself onaj koji traži poznanike (c), varijabla iz vanjske lambde.
+    World.Ask(ljudi, c =&gt;                      //   ask ljudi [
+        c.CreateLinksWith(ljudi.Other(c).MinNOf(Globals.BrojVeza, d =&gt; d.Distance(c))));   // create-links-with min-n-of broj-veza other ljudi [ distance myself ] ]
+
+    // dio veza se zamijeni vezom s nekim bilo gdje u svijetu.
+    // Ask radi nad kopijom spiska veza: nova veza napravljena tokom Ask nije na redu.
+    World.Ask(World.Links, l =&gt;                //   ask links [
+    {
+        if (World.RandomFloat(1) &lt; Globals.UdioDalekihVeza)    // if random-float 1 &lt; udio-dalekih-veza [
+        {
+            var a = l.End1;                    //       let a end1
+            var novi = ljudi.With(d =&gt; !ReferenceEquals(d, a) &amp;&amp; !d.IsLinkNeighbor(a)).OneOf();   // let novi one-of ljudi with [ self != a and not link-neighbor? a ]
+            if (novi != null)                  //       if novi != nobody [
+            {
+                World.Ask(new[] { a }, x =&gt; x.CreateLinkWith(novi));   // ask a [ create-link-with novi ]
+                l.Die();                       //         die ] ] ]
+            }
+        }
+    });
+    World.Ask(World.Links, l =&gt;                //   ask links [
+    {
+        l.Color = Gray;                        //     set color gray - 2
+        l.Hidden = !Globals.PrikaziVeze;       //     set hidden? not prikazi-veze? ]
+    });
+}
+
+public void Razgovaraj()                       // to razgovaraj
+{
+    var sagovornik = this.LinkNeighbors.OfType&lt;Covjek&gt;().OneOf();   // let sagovornik one-of link-neighbors   ;; NOVO: poznanik
+    if (sagovornik != null)                    //   if sagovornik != nobody [
+    {
+        double razlika = sagovornik.Stav - this.Stav;                    // let razlika ([ stav ] of sagovornik) - stav
+        this.Stav += razlika * (1 - this.Integritet) * Globals.Uticaj;   // set stav stav + razlika * (1 - integritet) * uticaj ]
+    }
+}</code></pre></div>
+      <p class="kod-napomena">Veze (links) su u NetLogu agenti kao i turtles: imaju svoje varijable, boju i mogu umrijeti
+        (<code>die</code>). U <code>min-n-of ... [ distance myself ]</code> izraz u zagradi računa svaki kandidat, a
+        <code>myself</code> je čovjek koji traži poznanike.</p>
+    </div>
+  </details>
+  <div class="trojka">
+    <section><h3>Gdje se javlja</h3><p>Prenošenje stava među članovima porodice, susjedima i kolegama umjesto slučajnim susretima; razlika između zatvorene sredine i sredine s brojnim vanjskim vezama.</p></section>
+    <section><h3>Podaci za koje treba navesti izvor</h3><p>Broj poznanika po osobi i udio poznanika izvan neposredne okoline (npr. anketa o
+      kontaktima).</p></section>
+    <section><h3>Literatura</h3><p>Watts i Strogatz (1998). Puni navod je u Prilogu.</p></section>
+  </div>
+</section>
+
+<!-- ============================================================ BLOK 4 -->
+<section class="blok" id="blok4" aria-labelledby="b4-naslov">
+  <div class="blok-glava">
+    <span class="oznaka">Blok 4 · v03-blok4-preseljenje.nlogox</span>
+    <h2 id="b4-naslov">Preseljenje</h2>
+    <p class="teza">Čovjek se preseljava ako je udio sličnih susjeda manji od traženog.</p>
+    <p><a class="nlw" href="blokovi/blok4-preseljenje.html" target="_blank" rel="noopener">Mini-prezentacija bloka 4 ↗</a></p>
+  </div>
+  <div class="blok-tijelo">
+    <div class="tekst">
+      <figure class="pravilo">
+        <figcaption>Pravilo · model na papiru</figcaption>
+        <p>Svako pripada jednoj od dvije grupe. Kada čovjek pogleda svoje susjede (do 8):</p>
+        <ul>
+          <li>ako je udio sličnih susjeda manji od traženog, preseli se na slučajno odabrano prazno mjesto;</li>
+          <li>inače ostaje.</li>
+        </ul>
+      </figure>
+      <section>
+        <h3>Ishod</h3>
+        <p>Blaga sklonost sličnim susjedima dovodi do izražene podjele. Na početku je prosječno 50% susjeda iz iste grupe. Uz traženih barem 30% sličnih susjeda, završni prosječni udio je 72–77%; uz traženih 50% iznosi 88–90%. Uz traženih 30% model se zaustavi nakon 9–16 mjeseci, kada su svi zadovoljni (gustina 70%, 10 pokretanja).</p>
+      </section>
+      <section>
+        <h3>Polazni model</h3>
+        <p>Patchevi predstavljaju mjesta: na svakom živi najviše jedan čovjek. Novi elementi su <code>move-to one-of patches with [ not any? ljudi-here ]</code> i <code>[ grupa ] of myself</code> unutar <code>with</code>.</p>
+      </section>
+      <div class="pitanje">
+        <h3>Primjena u vlastitom modelu</h3>
+        <p>Objasnite nastanak podijeljenih susjedstava kada niko ne zahtijeva većinu susjeda iz vlastite grupe. Odredite mjeru koja bi pokazala takav ishod u vašem modelu.</p>
+      </div>
+    </div>
+    <div class="sim" id="sim4">
+      <div class="sim-glava"><span class="oznaka">Simulacija</span><a class="nlw" href="netlogo-web/v03-blok4-preseljenje.html" target="_blank" rel="noopener">Otvori u NetLogo Webu ↗</a><span class="napomena">plavo i narandžasto: dvije grupe · crno: prazno</span></div>
+      <canvas class="svijet" aria-label="Svijet 41 puta 41 mjesto, dvije grupe ljudi"></canvas>
+      <div class="monitori">
+        <div class="monitor"><span>mjesec</span><b data-m="ticks">0</b></div>
+        <div class="monitor"><span>prosječno sličnih</span><b data-m="slicnih">–</b></div>
+        <div class="monitor"><span>nezadovoljnih</span><b data-m="nezadovoljni">–</b></div>
+      </div>
+      <p class="stanje" data-m="stanje"></p>
+      <div class="kontrole">
+        <div class="klizac"><label for="b4-trazeni">trazeni-udio-slicnih</label><output for="b4-trazeni"></output>
+          <input type="range" id="b4-trazeni" min="0" max="1" step="0.05"></div>
+        <div class="klizac"><label for="b4-gustina">gustina</label><output for="b4-gustina"></output>
+          <input type="range" id="b4-gustina" min="0.5" max="0.95" step="0.05">
+          <small>Promjena gustine odmah radi novi setup.</small></div>
+        <div class="dugmad">
+          <button type="button" data-a="setup" class="glavno">setup</button>
+          <button type="button" data-a="go" aria-pressed="false">go</button>
+          <button type="button" data-a="korak">korak</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="izmjereno">
+    <h3>Izmjereno u NetLogu</h3>
+    <div class="grafici">
+      <figure><div id="g4a"></div><figcaption><b>Prosječan udio sličnih susjeda na kraju</b> prema traženom udjelu. Gustina 70%, 10 pokretanja po vrijednosti. Isprekidano: traženo (y = x) i stanje na početku.</figcaption></figure>
+    </div>
+  </div>
+  <details class="kod">
+    <summary>Kod: NetLogo i C#<span>procedure go, procijeni i preseli-se</span></summary>
+    <div class="kod-kartice">
+      <div class="kartice" role="tablist" aria-label="Jezik">
+        <button type="button" role="tab" id="t4n" aria-controls="p4n" aria-selected="true">NetLogo</button>
+        <button type="button" role="tab" id="t4c" aria-controls="p4c" aria-selected="false" tabindex="-1">C#</button>
+      </div>
+      <div role="tabpanel" id="p4n" aria-labelledby="t4n"><pre><code>to go
+  if not any? ljudi with [ not zadovoljan? ] [ stop ]
+  ask ljudi with [ not zadovoljan? ] [ preseli-se ]
+  procijeni
+  update-mjere
+  tick
+end
+
+to procijeni
+  ask ljudi [
+    let oko-mene ljudi-on neighbors
+    set susjeda count oko-mene
+    set slicnih count oko-mene with [ grupa = [ grupa ] of myself ]
+    set zadovoljan? slicnih &gt;= trazeni-udio-slicnih * susjeda
+  ]
+end
+
+to preseli-se
+  move-to one-of patches with [ not any? ljudi-here ]
+end</code></pre></div>
+      <div role="tabpanel" id="p4c" aria-labelledby="t4c" hidden><pre><code>// to go. Vraća false kada bi NetLogo izvršio stop.
+public static bool Go()
+{
+    if (!ljudi.With(c =&gt; !c.Zadovoljan).Any()) return false;   // if not any? ljudi with [ not zadovoljan? ] [ stop ]
+    World.Ask(ljudi.With(c =&gt; !c.Zadovoljan), c =&gt; c.PreseliSe());   // ask ljudi with [ not zadovoljan? ] [ preseli-se ]
+    Procijeni();                               //   procijeni
+    UpdateMjere();                             //   update-mjere
+    World.Tick();                              //   tick
+    return true;
+}
+
+static void Procijeni()                        // to procijeni
+{
+    World.Ask(ljudi, c =&gt;                      //   ask ljudi [
+    {
+        var okoMene = c.PatchHere.Neighbors.TurtlesOn&lt;Covjek&gt;();       // let oko-mene ljudi-on neighbors
+        c.Susjeda = okoMene.Count;                                     // set susjeda count oko-mene
+        // u [ grupa = [ grupa ] of myself ] je this susjed (d), a myself c, iz vanjske lambde
+        c.Slicnih = okoMene.Count(d =&gt; d.Grupa == c.Grupa);            // set slicnih count oko-mene with [ grupa = [ grupa ] of myself ]
+        c.Zadovoljan = c.Slicnih &gt;= Globals.TrazeniUdioSlicnih * c.Susjeda;   // set zadovoljan? slicnih &gt;= trazeni-udio-slicnih * susjeda ]
+    });
+}
+
+public void PreseliSe() =&gt;                     // to preseli-se
+    this.MoveTo(World.Patches.With(p =&gt; !p.Here&lt;Covjek&gt;().Any()).OneOf()!);   // move-to one-of patches with [ not any? ljudi-here ]</code></pre></div>
+      <p class="kod-napomena">Unutar <code>with [ grupa = [ grupa ] of myself ]</code> riječ <code>grupa</code> je grupa kandidata
+        (susjeda), a <code>[ grupa ] of myself</code> grupa čovjeka koji gleda oko sebe.</p>
+    </div>
+  </details>
+  <div class="trojka">
+    <section><h3>Gdje se javlja</h3><p>Susjedstva podijeljena po bilo kojoj osobini; sjedenje po grupama u amfiteatru ili menzi.</p></section>
+    <section><h3>Podaci za koje treba navesti izvor</h3><p>Traženi udio sličnih (koliki udio sličnih susjeda čovjek želi) i gustina (udio zauzetih mjesta, iz kojeg slijedi broj praznih).</p></section>
+    <section><h3>Literatura</h3><p>Schelling (1971); NetLogo Models Library: Social Science → Segregation. Puni navodi su u Prilogu.</p></section>
+  </div>
+</section>
+
+<!-- ============================================================ BLOKOVI 5 I 6 -->
+<section class="blok" id="blok56" aria-labelledby="b56-naslov">
+  <div class="blok-glava">
+    <span class="oznaka">Blokovi 5 i 6 · v03-blok5-ustanova.nlogox · v03-blok6-kazna.nlogox</span>
+    <h2 id="b56-naslov">Iskustvo s ustanovom; kontrola i kazna</h2>
+    <p class="teza">Prikazana su dva bloka koji obuhvataju ustanove i pravila. Svaki ima mini-prezentaciju, model i stranicu u NetLogo Webu.</p>
+  </div>
+  <div class="blok-tijelo">
+    <div class="tekst">
+      <figure class="pravilo">
+        <figcaption>Blok 5 · pravilo na papiru</figcaption>
+        <p>Kada čovjek stane na patch koji predstavlja ustanovu:</p>
+        <ul>
+          <li>iskustvo je loše s vjerovatnoćom jednakom udjelu loših iskustava, i tada se povjerenje približi 0;</li>
+          <li>inače se povjerenje približi 1. U oba slučaja promjena zavisi od integriteta.</li>
+        </ul>
+        <p>Razgovor prenosi informacije o iskustvu i onima koji nisu posjetili ustanovu.</p>
+      </figure>
+      <p><a class="nlw" href="blokovi/blok5-ustanova.html" target="_blank" rel="noopener">Mini-prezentacija bloka 5 ↗</a>
+        &nbsp;<a class="nlw" href="netlogo-web/v03-blok5-ustanova.html" target="_blank" rel="noopener">Otvori u NetLogo Webu ↗</a></p>
+    </div>
+    <div class="tekst">
+      <figure class="pravilo">
+        <figcaption>Blok 6 · pravilo na papiru</figcaption>
+        <p>Kada čovjek ima priliku da prekrši pravilo:</p>
+        <ul>
+          <li>prekrši ga s vjerovatnoćom jednakom svojoj <b>sklonosti</b>;</li>
+          <li>ako kontrola otkrije prekršaj, čovjekova sklonost opada; inače raste.</li>
+        </ul>
+        <p>Postoji prag vjerovatnoće kontrole: ispod njega sklonost raste, a iznad njega pada.</p>
+      </figure>
+      <p><a class="nlw" href="blokovi/blok6-kazna.html" target="_blank" rel="noopener">Mini-prezentacija bloka 6 ↗</a>
+        &nbsp;<a class="nlw" href="netlogo-web/v03-blok6-kazna.html" target="_blank" rel="noopener">Otvori u NetLogo Webu ↗</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ MODEL NA PAPIRU -->
+<section class="papir-sekcija" id="papir" aria-labelledby="papir-naslov">
+  <div class="blok-glava">
+    <span class="oznaka">Za predavanje 3</span>
+    <h2 id="papir-naslov">Model na papiru</h2>
+    <p class="teza">Redoslijed polja odgovara primjeru s predavanja 2. Blok se zapisuje u polju 8.</p>
+  </div>
+  <div class="obrazac">
+    <ol>
+      <li><b>Naziv i pojava</b><span>Opišite društvenu pojavu jednom rečenicom.</span></li>
+      <li><b>Cilj</b><span>Navedite šta model treba pokazati i precizno definišite glavni pojam.</span></li>
+      <li><b>Vrijeme</b><span>Navedite period koji model obuhvata i značenje jednog ticka (dan, sedmica, mjesec).</span></li>
+      <li><b>Okruženje</b><span>Opišite prostor i vanjske uticaje (kampanja, pravila).</span></li>
+      <li><b>Akteri</b><span>Navedite ko se kreće (turtles), a ko ostaje na mjestu (patchevi ili nepokretni agenti).</span></li>
+      <li><b>Atributi</b><span>Zapišite sve atribute, zatim precrtajte one za koje nema podataka. Uz svaki navedite raspon i značenje krajnjih vrijednosti, npr. za integritet od 0 do 1 definišite značenje 0 i 1. Obje konvencije su ispravne ako su precizno navedene.</span></li>
+      <li><b>Šta se mjeri</b><span>Navedite globalnu mjeru kojom se provjerava ostvarenje cilja (npr. prosječan stav, udio „za“, broj grupa).</span></li>
+      <li><b>Interakcije</b><span>Svaku opišite rečenicom „Kada …: ako …, …; inače …“. U ovo polje uključuju se blokovi.</span></li>
+      <li><b>Šta ostaje otvoreno</b><span>Navedite neriješene odluke i parametre za koje još nema izvora.</span></li>
+    </ol>
+    <div class="sim">
+      <div class="sim-glava"><span class="oznaka">Obrazac za kopiranje</span>
+        <button type="button" id="kopiraj-obrazac">Kopiraj obrazac</button></div>
+<pre><code id="obrazac-tekst">MODEL NA PAPIRU
+1. Naziv i pojava:
+2. Cilj (s preciznom definicijom pojma):
+3. Vrijeme (period; 1 tick = ...):
+4. Okruženje:
+5. Akteri (ko se kreće, ko stoji):
+6. Atributi (raspon i značenje krajeva; izvor):
+7. Šta se mjeri:
+8. Interakcije:
+   Kada ... sretne ... : ako ... -> ... ; inače ...
+   (primjer, blok 1) Kada čovjek sretne čovjeka čiji se stav
+   razlikuje manje od praga -> oba se približe, zavisno od
+   integriteta; inače se ništa ne mijenja.
+9. Šta ostaje otvoreno:</code></pre>
+      <p class="stanje" id="kopiraj-poruka" aria-live="polite"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ PRILOG -->
+<section class="prilog" id="prilog" aria-labelledby="prilog-naslov">
+  <h2 id="prilog-naslov">Prilog</h2>
+  <div>
+    <h3>Modeli</h3>
+    <div class="tabela"><table>
+      <thead><tr><th>Fajl</th><th>Blok</th><th>BehaviorSpace eksperimenti u modelu</th></tr></thead>
+      <tbody>
+        <tr><td><code>v03-blok1-povjerenje.nlogox</code></td><td>ograničeno povjerenje</td><td><code>grupe</code>, <code>mediji</code></td></tr>
+        <tr><td><code>v03-blok2-prag.nlogox</code></td><td>prag i kaskada</td><td><code>rasipanje</code></td></tr>
+        <tr><td><code>v03-blok3-mreza.nlogox</code></td><td>mreža poznanstava</td><td><code>daleke-veze</code></td></tr>
+        <tr><td><code>v03-blok4-preseljenje.nlogox</code></td><td>preseljenje</td><td><code>trazeni-udio</code></td></tr>
+      </tbody>
+    </table></div>
+    <p class="napomena" style="margin-top:0.5rem">NetLogo 7.0.4: File → Open. Eksperimenti u modelima imaju po 2 pokretanja i služe za brzu provjeru tokom demonstracije; rezultati na ovoj stranici potiču iz eksperimenata s većim brojem pokretanja (tabela ispod).</p>
+    <p class="napomena" style="margin-top:0.5rem">Isti modeli kao NetLogo Web stranice: <code>netlogo-web/v03-blok1-povjerenje.html</code> …
+      <code>v03-blok4-preseljenje.html</code> (oko 5 MB svaka; NetLogo Web je ugrađen u fajl). Provjereno: u NetLogo Webu
+      blokovi daju iste raspone kao NetLogo 7.0.4 (npr. blok 4, traženo 30%: 74–76% sličnih na kraju).</p>
+  </div>
+  <div>
+    <h3>Kako su provedena mjerenja</h3>
+    <div class="tabela"><table>
+      <thead><tr><th>Blok</th><th>Šta se mijenja</th><th>Pokretanja</th><th>Mjera</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><code>prag</code> 0,1 · 0,2 · 0,3 · 0,5 · 1 · 2; mediji isključeni, pa uključeni</td><td>10 po vrijednosti</td><td><code>broj-grupa</code> na ticku 500; <code>udio-za</code> na ticku 150</td></tr>
+        <tr><td>2</td><td><code>rasipanje-praga</code> 0–0,3; <code>pokretaci</code> 5–80; <code>prosjek-praga</code> 0,2–0,4</td><td>200 po vrijednosti</td><td>udio pokretanja s <code>udio-aktivnih</code> &gt; 0,9</td></tr>
+        <tr><td>3</td><td><code>udio-dalekih-veza</code> 0 · 0,05 · 0,2 · 1; 2 kuće medija</td><td>20 po vrijednosti</td><td><code>udio-za</code> na ticku 500</td></tr>
+        <tr><td>4</td><td><code>trazeni-udio-slicnih</code> 0,2–0,75; gustina 0,7</td><td>10 po vrijednosti</td><td><code>prosjecno-slicnih</code> kad su svi zadovoljni</td></tr>
+      </tbody>
+    </table></div>
+    <p class="napomena" style="margin-top:0.5rem">NetLogo 7.0.4 headless (BehaviorSpace), ostali klizači na zadanim vrijednostima.
+      Simulacija u web pregledniku je provjerena prema ovim mjerenjima i daje isti obrazac; njen kod je u izvoru stranice.</p>
+  </div>
+  <div>
+    <h3>C# verzija</h3>
+    <p>Isti blokovi nalaze se u C# projektu <code>netlogo-kroz-csharp</code> (mapa <code>Blokovi/</code>), koji koristi pojednostavljenu implementaciju NetLoga u C#. Naredba <code>dotnet run -- blokovi</code> ispisuje iste mjere kao u tabeli iznad, radi poređenja s NetLogom.</p>
+  </div>
+  <div>
+    <h3>Literatura</h3>
+    <ol class="literatura">
+      <li>Deffuant, G., Neau, D., Amblard, F., Weisbuch, G. (2000). Mixing beliefs among interacting agents. <i>Advances in Complex Systems</i>, 3, 87–98.</li>
+      <li>Hegselmann, R., Krause, U. (2002). Opinion dynamics and bounded confidence: models, analysis and simulation. <i>Journal of Artificial Societies and Social Simulation</i>, 5(3).</li>
+      <li>Granovetter, M. (1978). Threshold Models of Collective Behavior. <i>American Journal of Sociology</i>, 83(6), 1420–1443.</li>
+      <li>Watts, D. J., Strogatz, S. H. (1998). Collective dynamics of ‘small-world’ networks. <i>Nature</i>, 393, 440–442.</li>
+      <li>Schelling, T. C. (1971). Dynamic Models of Segregation. <i>Journal of Mathematical Sociology</i>, 1(2), 143–186.</li>
+      <li>Wilensky, U. (1997). NetLogo Segregation model. Center for Connected Learning and Computer-Based Modeling, Northwestern University.</li>
+    </ol>
+  </div>
+</section>
+
+</div>
+</main>
+<footer class="podnozje"><div class="okvir">Vježbe 3, Modeliranje i simulacije, FIT UNMO, 2026/27. Modeli: NetLogo 7.0.4.</div></footer>
+
+<script>window.MJERENJA = {"b1_grupe_500":{"prag=0.1":{"n":10,"sred":6.4,"med":7.0,"min":4.0,"max":8.0,"iznad_0_9":10,"ispod_0_1":0},"prag=0.2":{"n":10,"sred":4.2,"med":4.0,"min":3.0,"max":5.0,"iznad_0_9":10,"ispod_0_1":0},"prag=0.3":{"n":10,"sred":2.8,"med":3.0,"min":2.0,"max":4.0,"iznad_0_9":10,"ispod_0_1":0},"prag=0.5":{"n":10,"sred":1.7,"med":2.0,"min":1.0,"max":2.0,"iznad_0_9":10,"ispod_0_1":0},"prag=1":{"n":10,"sred":1.0,"med":1.0,"min":1.0,"max":1.0,"iznad_0_9":10,"ispod_0_1":0},"prag=2":{"n":10,"sred":1.0,"med":1.0,"min":1.0,"max":1.0,"iznad_0_9":10,"ispod_0_1":0}},"b1_udio_za_mediji_0":{"prag=0.1":{"n":10,"sred":0.399,"med":0.4025,"min":0.34,"max":0.45,"iznad_0_9":0,"ispod_0_1":0},"prag=0.2":{"n":10,"sred":0.39,"med":0.3875,"min":0.35,"max":0.425,"iznad_0_9":0,"ispod_0_1":0},"prag=0.3":{"n":10,"sred":0.386,"med":0.38,"min":0.27,"max":0.48,"iznad_0_9":0,"ispod_0_1":0},"prag=0.5":{"n":10,"sred":0.4085,"med":0.4125,"min":0.325,"max":0.47,"iznad_0_9":0,"ispod_0_1":0},"prag=1":{"n":10,"sred":0.3905,"med":0.385,"min":0.315,"max":0.48,"iznad_0_9":0,"ispod_0_1":0},"prag=2":{"n":10,"sred":0.4095,"med":0.4075,"min":0.37,"max":0.455,"iznad_0_9":0,"ispod_0_1":0}},"b1_udio_za_mediji_150":{"prag=0.1":{"n":10,"sred":0.398,"med":0.3925,"min":0.36,"max":0.44,"iznad_0_9":0,"ispod_0_1":0},"prag=0.2":{"n":10,"sred":0.386,"med":0.385,"min":0.3,"max":0.435,"iznad_0_9":0,"ispod_0_1":0},"prag=0.3":{"n":10,"sred":0.379,"med":0.34,"min":0.275,"max":0.525,"iznad_0_9":0,"ispod_0_1":0},"prag=0.5":{"n":10,"sred":0.3995,"med":0.3975,"min":0.285,"max":0.5,"iznad_0_9":0,"ispod_0_1":0},"prag=1":{"n":10,"sred":0.895,"med":0.935,"min":0.665,"max":0.995,"iznad_0_9":7,"ispod_0_1":0},"prag=2":{"n":10,"sred":0.902,"med":0.92,"min":0.7,"max":1.0,"iznad_0_9":6,"ispod_0_1":0}},"b2_rasipanje":{"rasipanje-praga=0":{"n":200,"sred":0.2232,"med":0.0104,"min":0.0104,"max":1.0,"iznad_0_9":43,"ispod_0_1":157},"rasipanje-praga=0.02":{"n":200,"sred":0.2182,"med":0.0104,"min":0.0104,"max":1.0,"iznad_0_9":42,"ispod_0_1":158},"rasipanje-praga=0.04":{"n":200,"sred":0.3222,"med":0.0104,"min":0.0104,"max":1.0,"iznad_0_9":63,"ispod_0_1":137},"rasipanje-praga=0.05":{"n":200,"sred":0.3865,"med":0.0104,"min":0.0104,"max":1.0,"iznad_0_9":76,"ispod_0_1":124},"rasipanje-praga=0.06":{"n":200,"sred":0.535,"med":1.0,"min":0.0104,"max":1.0,"iznad_0_9":106,"ispod_0_1":94},"rasipanje-praga=0.08":{"n":200,"sred":0.827,"med":1.0,"min":0.0104,"max":1.0,"iznad_0_9":165,"ispod_0_1":35},"rasipanje-praga=0.1":{"n":200,"sred":0.9704,"med":1.0,"min":0.0114,"max":1.0,"iznad_0_9":194,"ispod_0_1":6},"rasipanje-praga=0.15":{"n":200,"sred":0.9994,"med":1.0,"min":0.9698,"max":1.0,"iznad_0_9":200,"ispod_0_1":0},"rasipanje-praga=0.2":{"n":200,"sred":0.995,"med":1.0,"min":0.9553,"max":1.0,"iznad_0_9":200,"ispod_0_1":0},"rasipanje-praga=0.3":{"n":200,"sred":0.9486,"med":0.9501,"min":0.8241,"max":0.9948,"iznad_0_9":193,"ispod_0_1":0}},"b2_pokretaci":{"pokretaci=10":{"n":200,"sred":0.4657,"med":0.0114,"min":0.0104,"max":1.0,"iznad_0_9":92,"ispod_0_1":108},"pokretaci=20":{"n":200,"sred":0.8825,"med":1.0,"min":0.0208,"max":1.0,"iznad_0_9":176,"ispod_0_1":24},"pokretaci=40":{"n":200,"sred":1.0,"med":1.0,"min":1.0,"max":1.0,"iznad_0_9":200,"ispod_0_1":0},"pokretaci=5":{"n":200,"sred":0.2042,"med":0.0052,"min":0.0052,"max":1.0,"iznad_0_9":40,"ispod_0_1":160},"pokretaci=80":{"n":200,"sred":1.0,"med":1.0,"min":1.0,"max":1.0,"iznad_0_9":200,"ispod_0_1":0}},"b3_udio_za_0":{"udio-dalekih-veza=0":{"n":20,"sred":0.398,"med":0.3975,"min":0.35,"max":0.465,"iznad_0_9":0,"ispod_0_1":0},"udio-dalekih-veza=0.05":{"n":20,"sred":0.3905,"med":0.39,"min":0.33,"max":0.44,"iznad_0_9":0,"ispod_0_1":0},"udio-dalekih-veza=0.2":{"n":20,"sred":0.4022,"med":0.405,"min":0.325,"max":0.49,"iznad_0_9":0,"ispod_0_1":0},"udio-dalekih-veza=1":{"n":20,"sred":0.399,"med":0.395,"min":0.325,"max":0.455,"iznad_0_9":0,"ispod_0_1":0}},"b3_udio_za_500":{"udio-dalekih-veza=0":{"n":20,"sred":0.431,"med":0.4375,"min":0.22,"max":0.72,"iznad_0_9":0,"ispod_0_1":0},"udio-dalekih-veza=0.05":{"n":20,"sred":0.5378,"med":0.5325,"min":0.275,"max":0.8,"iznad_0_9":0,"ispod_0_1":0},"udio-dalekih-veza=0.2":{"n":20,"sred":0.7077,"med":0.7675,"min":0.38,"max":0.995,"iznad_0_9":3,"ispod_0_1":0},"udio-dalekih-veza=1":{"n":20,"sred":0.915,"med":0.945,"min":0.595,"max":0.99,"iznad_0_9":16,"ispod_0_1":0}},"b4_slicnih_pocetak":{"trazeni-udio-slicnih=0.2":{"n":10,"sred":0.4956,"med":0.4982,"min":0.485,"max":0.5024,"iznad_0_9":0,"ispod_0_1":0},"trazeni-udio-slicnih=0.3":{"n":10,"sred":0.499,"med":0.4988,"min":0.4858,"max":0.5125,"iznad_0_9":0,"ispod_0_1":0},"trazeni-udio-slicnih=0.4":{"n":10,"sred":0.4999,"med":0.5002,"min":0.487,"max":0.5066,"iznad_0_9":0,"ispod_0_1":0},"trazeni-udio-slicnih=0.5":{"n":10,"sred":0.502,"med":0.501,"min":0.4822,"max":0.5165,"iznad_0_9":0,"ispod_0_1":0},"trazeni-udio-slicnih=0.6":{"n":10,"sred":0.5004,"med":0.5006,"min":0.4861,"max":0.5109,"iznad_0_9":0,"ispod_0_1":0},"trazeni-udio-slicnih=0.75":{"n":10,"sred":0.5036,"med":0.5036,"min":0.4895,"max":0.5224,"iznad_0_9":0,"ispod_0_1":0}},"b4_slicnih_kraj":{"trazeni-udio-slicnih=0.2":{"n":10,"sred":0.5951,"med":0.5928,"min":0.5765,"max":0.6301,"iznad_0_9":0,"ispod_0_1":0},"trazeni-udio-slicnih=0.3":{"n":10,"sred":0.7448,"med":0.7467,"min":0.724,"max":0.7707,"iznad_0_9":0,"ispod_0_1":0},"trazeni-udio-slicnih=0.4":{"n":10,"sred":0.8216,"med":0.8197,"min":0.8128,"max":0.8437,"iznad_0_9":0,"ispod_0_1":0},"trazeni-udio-slicnih=0.5":{"n":10,"sred":0.8881,"med":0.8881,"min":0.8788,"max":0.9023,"iznad_0_9":1,"ispod_0_1":0},"trazeni-udio-slicnih=0.6":{"n":10,"sred":0.9639,"med":0.9636,"min":0.9564,"max":0.9711,"iznad_0_9":10,"ispod_0_1":0},"trazeni-udio-slicnih=0.75":{"n":10,"sred":0.9982,"med":0.9981,"min":0.9966,"max":0.9994,"iznad_0_9":10,"ispod_0_1":0}}};</script>
+<script>
+// Simulacije blokova interakcije za web preglednik (ilustracija).
+// Svaka funkcija prati NetLogo kod iz ../napravi_modele.py, red po red gdje je moguće.
+// Brojke na stranici dolaze iz NetLoga (mjerenja/rezultati.json); ovaj kod služi za prikaz.
+// Bez DOM-a, pa se može provjeriti i u Node-u (test-sim.js).
+
+const Sim = (() => {
+  // ---------- slučajni brojevi (sjeme radi provjere) ----------
+  function rng(seed) {                       // mulberry32
+    let a = (seed >>> 0) || 1;
+    const f = () => {
+      a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+    f.int = n => Math.floor(f() * n);                         // random n
+    f.normal = (m, s) => {                                    // random-normal m s
+      let u = 0; while (u === 0) u = f();
+      return m + s * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * f());
+    };
+    f.shuffle = arr => {                                      // ask: novi slučajan redoslijed
+      const a2 = arr.slice();
+      for (let i = a2.length - 1; i > 0; i--) { const j = f.int(i + 1); [a2[i], a2[j]] = [a2[j], a2[i]]; }
+      return a2;
+    };
+    f.oneOf = arr => arr.length ? arr[f.int(arr.length)] : null;  // one-of (null = nobody)
+    f.nOf = (n, arr) => f.shuffle(arr).slice(0, n);               // n-of
+    return f;
+  }
+
+  // ---------- torus -20 .. 20 (41 × 41 patcheva) ----------
+  const MIN = -20, VEL = 41;
+  const wrap = v => { let x = (v - (MIN - 0.5)) % VEL; if (x < 0) x += VEL; return x + MIN - 0.5; };
+  const randomCor = r => MIN - 0.5 + r() * VEL;               // random-xcor
+  function dist(a, b) {                                        // distance na torusu
+    let dx = Math.abs(a.x - b.x), dy = Math.abs(a.y - b.y);
+    if (dx > VEL / 2) dx = VEL - dx;
+    if (dy > VEL / 2) dy = VEL - dy;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+  function kreni(t, r) {                                       // right random 360  forward 1
+    t.h = (t.h + r.int(360)) % 360;
+    const rad = t.h * Math.PI / 180;
+    t.x = wrap(t.x + Math.sin(rad));
+    t.y = wrap(t.y + Math.cos(rad));
+  }
+  const inRadius = (t, skup, d) => skup.filter(o => o !== t && dist(t, o) <= d);  // other ... in-radius
+
+  // ============================================================
+  // BLOK 1 — ograničeno povjerenje
+  // ============================================================
+  const B1_ZADANO = { prag: 0.5, brojLjudi: 200, brojMedija: 4, domet: 3, uticaj: 0.2,
+                      porukaMedija: 1, snagaMedija: 0.1, dometMedija: 8, medijiRade: false };
+
+  function b1Setup(p, r) {
+    const s = { p, r, ticks: 0 };
+    s.ljudi = Array.from({ length: p.brojLjudi }, () => ({
+      x: randomCor(r), y: randomCor(r), h: r.int(360),
+      stav: r() * 2 - 1, integritet: r() }));
+    s.mediji = Array.from({ length: p.brojMedija }, () => ({ x: randomCor(r), y: randomCor(r) }));
+    b1Mjere(s);
+    return s;
+  }
+  function b1Go(s) {
+    const { p, r } = s;
+    for (const t of r.shuffle(s.ljudi)) {                      // ask ljudi [
+      kreni(t, r);
+      const sag = r.oneOf(inRadius(t, s.ljudi, p.domet));      // let sagovornik one-of other ljudi in-radius domet
+      if (sag) {
+        const razlika = sag.stav - t.stav;
+        if (Math.abs(razlika) < p.prag) {                      // if abs razlika < prag [
+          const mojStav = t.stav;
+          t.stav += razlika * (1 - t.integritet) * p.uticaj;
+          sag.stav += (mojStav - sag.stav) * (1 - sag.integritet) * p.uticaj;
+        }
+      }
+      if (p.medijiRade && s.mediji.some(m => dist(t, m) <= p.dometMedija)
+          && Math.abs(p.porukaMedija - t.stav) < p.prag)
+        t.stav += (p.porukaMedija - t.stav) * (1 - t.integritet) * p.snagaMedija;
+    }
+    s.ticks++;
+    b1Mjere(s);
+  }
+  function b1Grupe(ljudi) {                                    // to-report izbroji-grupe
+    const st = ljudi.map(t => t.stav).sort((a, b) => a - b);
+    const najmanje = 0.05 * st.length;
+    let grupe = 0, vel = 1;
+    for (let i = 1; i < st.length; i++) {
+      if (st[i] - st[i - 1] < 0.1) vel++;
+      else { if (vel >= najmanje) grupe++; vel = 1; }
+    }
+    if (vel >= najmanje) grupe++;
+    return grupe;
+  }
+  function b1Mjere(s) {
+    s.udioZa = s.ljudi.filter(t => t.stav > 0.2).length / s.ljudi.length;
+    s.brojGrupa = b1Grupe(s.ljudi);
+  }
+
+  // ============================================================
+  // BLOK 2 — prag i kaskada (sala 31 × 31, bez omotavanja)
+  // ============================================================
+  const B2_ZADANO = { prosjekPraga: 0.3, rasipanjePraga: 0.1, pokretaci: 10 };
+  const SALA = 31, SALA_MIN = -15;
+
+  function b2Setup(p, r) {
+    const s = { p, r, ticks: 0, gotovo: false };
+    s.ljudi = [];
+    for (let y = 0; y < SALA; y++) for (let x = 0; x < SALA; x++)
+      s.ljudi.push({ x, y, aktivan: false,
+                     prag: Math.max(0, Math.min(1, r.normal(p.prosjekPraga, p.rasipanjePraga))) });
+    for (const t of s.ljudi) {                                 // ljudi-on neighbors (do 8, bez omotavanja)
+      t.susjedi = [];
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+        if (!dx && !dy) continue;
+        const nx = t.x + dx, ny = t.y + dy;
+        if (nx >= 0 && ny >= 0 && nx < SALA && ny < SALA) t.susjedi.push(s.ljudi[ny * SALA + nx]);
+      }
+    }
+    for (const t of r.nOf(p.pokretaci, s.ljudi)) t.aktivan = true;
+    b2Mjere(s);
+    return s;
+  }
+  const udioOkoMene = t => t.susjedi.filter(o => o.aktivan).length / t.susjedi.length;
+  function b2Go(s) {
+    if (s.gotovo) return false;
+    // with prvo izabere sve koji ustaju (prema stanju na početku kruga), pa ih tek onda pita
+    const ustaju = s.ljudi.filter(t => !t.aktivan && udioOkoMene(t) >= t.prag);
+    if (!ustaju.length) { s.gotovo = true; return false; }     // if not any? ustaju [ stop ]
+    for (const t of ustaju) t.aktivan = true;
+    s.ticks++;
+    b2Mjere(s);
+    return true;
+  }
+  function b2Mjere(s) { s.udioAktivnih = s.ljudi.filter(t => t.aktivan).length / s.ljudi.length; }
+  function b2DoKraja(p, r) {                                   // jedno pokretanje do zaustavljanja
+    const s = b2Setup(p, r);
+    while (s.ticks < 200 && b2Go(s)) {}
+    return s;
+  }
+
+  // ============================================================
+  // BLOK 3 — mreža poznanstava
+  // ============================================================
+  const B3_ZADANO = { udioDalekihVeza: 0, brojVeza: 3, brojLjudi: 200, brojMedija: 2, uticaj: 0.2,
+                      porukaMedija: 1, snagaMedija: 0.1, dometMedija: 5, medijiRade: true };
+
+  function b3Setup(p, r) {
+    const s = { p, r, ticks: 0 };
+    s.ljudi = Array.from({ length: p.brojLjudi }, (_, who) => ({
+      who, x: randomCor(r), y: randomCor(r), stav: r() * 2 - 1, integritet: r(), veze: new Set() }));
+    s.veze = new Map();                                        // ključ "a-b" (a < b) -> [a, b]
+    const kljuc = (a, b) => a.who < b.who ? `${a.who}-${b.who}` : `${b.who}-${a.who}`;
+    const poveži = (a, b) => {                                 // create-link-with (bez duplikata)
+      const k = kljuc(a, b);
+      if (s.veze.has(k)) return;
+      s.veze.set(k, a.who < b.who ? [a, b] : [b, a]);
+      a.veze.add(b); b.veze.add(a);
+    };
+    for (const t of r.shuffle(s.ljudi)) {                      // ask ljudi [ create-links-with min-n-of broj-veza ...
+      const ostali = r.shuffle(s.ljudi.filter(o => o !== t))   // izjednačenja se rješavaju slučajno
+        .map(o => [dist(t, o), o]).sort((a, b) => a[0] - b[0]);
+      for (let i = 0; i < p.brojVeza; i++) poveži(t, ostali[i][1]);
+    }
+    for (const [k, [a, b]] of r.shuffle([...s.veze.entries()])) {   // ask links [
+      if (r() < p.udioDalekihVeza) {
+        const novi = r.oneOf(s.ljudi.filter(o => o !== a && !a.veze.has(o)));  // end1 = a
+        if (novi) {
+          poveži(a, novi);
+          s.veze.delete(k); a.veze.delete(b); b.veze.delete(a);  // die
+        }
+      }
+    }
+    s.mediji = Array.from({ length: p.brojMedija }, () => ({ x: randomCor(r), y: randomCor(r) }));
+    b3Mjere(s);
+    return s;
+  }
+  function b3Go(s) {
+    const { p, r } = s;
+    for (const t of r.shuffle(s.ljudi)) {
+      const sag = r.oneOf([...t.veze]);                        // one-of link-neighbors
+      if (sag) t.stav += (sag.stav - t.stav) * (1 - t.integritet) * p.uticaj;
+      if (p.medijiRade && s.mediji.some(m => dist(t, m) <= p.dometMedija))
+        t.stav += (p.porukaMedija - t.stav) * (1 - t.integritet) * p.snagaMedija;
+    }
+    s.ticks++;
+    b3Mjere(s);
+  }
+  function b3Mjere(s) { s.udioZa = s.ljudi.filter(t => t.stav > 0.2).length / s.ljudi.length; }
+
+  // ============================================================
+  // BLOK 4 — preseljenje (torus 41 × 41)
+  // ============================================================
+  const B4_ZADANO = { trazeniUdioSlicnih: 0.3, gustina: 0.7 };
+  const N4 = VEL * VEL;
+
+  function b4Setup(p, r) {
+    const s = { p, r, ticks: 0, gotovo: false };
+    s.mjesto = new Array(N4).fill(null);                       // patch -> covjek ili null
+    s.ljudi = [];
+    const sva = [...Array(N4).keys()];
+    for (const i of r.nOf(Math.round(p.gustina * N4), sva)) {  // ask n-of ... patches [ sprout-ljudi 1
+      const t = { i, grupa: r.int(2) };
+      s.mjesto[i] = t; s.ljudi.push(t);
+    }
+    s.prazna = sva.filter(i => !s.mjesto[i]);
+    b4Procijeni(s); b4Mjere(s);
+    return s;
+  }
+  const susjedi4 = i => {
+    const x = i % VEL, y = (i / VEL) | 0, out = [];
+    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++)
+      if (dx || dy) out.push(((y + dy + VEL) % VEL) * VEL + ((x + dx + VEL) % VEL));
+    return out;
+  };
+  function b4Procijeni(s) {
+    for (const t of s.ljudi) {
+      let sus = 0, sli = 0;
+      for (const j of susjedi4(t.i)) { const o = s.mjesto[j]; if (o) { sus++; if (o.grupa === t.grupa) sli++; } }
+      t.susjeda = sus; t.slicnih = sli;
+      t.zadovoljan = sli >= s.p.trazeniUdioSlicnih * sus;
+    }
+  }
+  function b4Go(s) {
+    if (s.gotovo) return false;
+    const nez = s.ljudi.filter(t => !t.zadovoljan);
+    if (!nez.length) { s.gotovo = true; return false; }
+    for (const t of s.r.shuffle(nez)) {                        // ask ljudi with [ not zadovoljan? ] [ preseli-se ]
+      const k = s.r.int(s.prazna.length);                      // move-to one-of patches with [ not any? ljudi-here ]
+      const novo = s.prazna[k];
+      s.prazna[k] = t.i;
+      s.mjesto[t.i] = null; s.mjesto[novo] = t; t.i = novo;
+    }
+    b4Procijeni(s);
+    s.ticks++;
+    b4Mjere(s);
+    return true;
+  }
+  function b4Mjere(s) {
+    const sa = s.ljudi.filter(t => t.susjeda > 0);
+    s.prosjecnoSlicnih = sa.reduce((a, t) => a + t.slicnih / t.susjeda, 0) / sa.length;
+    s.udioNezadovoljnih = s.ljudi.filter(t => !t.zadovoljan).length / s.ljudi.length;
+  }
+
+  return { rng, VEL, MIN, SALA, dist,
+           B1_ZADANO, b1Setup, b1Go, B2_ZADANO, b2Setup, b2Go, b2DoKraja,
+           B3_ZADANO, b3Setup, b3Go, B4_ZADANO, b4Setup, b4Go };
+})();
+
+if (typeof module !== "undefined") module.exports = Sim;
+
+</script>
+<script>
+// Prikaz: svijet na canvasu, klizači, monitori, grafikoni iz NetLogo mjerenja, kartice s kodom.
+(() => {
+  const $ = (sel, el = document) => el.querySelector(sel);
+  const $$ = (sel, el = document) => [...el.querySelectorAll(sel)];
+  const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  const fmt = (x, d = 2) => x.toFixed(d).replace(".", ",");
+  const pct = x => `${Math.round(x * 100)}%`;
+
+  // NetLogo boje (blue 105, red 15, gray 5, orange 25, sky 95, yellow 45)
+  const NL = { blue: "#345da9", red: "#d73229", gray: "#8d8d8d", orange: "#f16a15",
+               sky: "#2b8ccb", yellow: "#eded2f", sjediGray: "#3a3a3a" };
+  const bojaStava = s => s > 0.2 ? NL.blue : s < -0.2 ? NL.red : NL.gray;
+
+  // ---------- canvas ----------
+  function pripremi(canvas) {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = canvas.clientWidth || 400;
+    canvas.width = Math.round(w * dpr); canvas.height = Math.round(w * dpr);
+    const g = canvas.getContext("2d");
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return { g, w };
+  }
+  const tackaSvijeta = (x, y, w) => {               // NetLogo koordinate -> piksel (y raste prema gore)
+    const k = w / Sim.VEL;
+    return [(x - (Sim.MIN - 0.5)) * k, (Sim.MIN - 0.5 + Sim.VEL - y) * k, k];
+  };
+
+  function crtajLjude(canvas, s, veze) {
+    const { g, w } = pripremi(canvas);
+    g.fillStyle = "#000"; g.fillRect(0, 0, w, w);
+    const k = w / Sim.VEL;
+    if (veze) {
+      g.strokeStyle = "rgba(150,150,150,0.35)"; g.lineWidth = 1;
+      g.beginPath();
+      for (const [a, b] of s.veze.values()) {
+        let dx = b.x - a.x, dy = b.y - a.y;
+        if (dx > Sim.VEL / 2) dx -= Sim.VEL; if (dx < -Sim.VEL / 2) dx += Sim.VEL;
+        if (dy > Sim.VEL / 2) dy -= Sim.VEL; if (dy < -Sim.VEL / 2) dy += Sim.VEL;
+        for (const [p, sgn] of [[a, 1], [b, -1]]) {   // preko ruba: crta se s obje strane
+          const [x0, y0] = tackaSvijeta(p.x, p.y, w);
+          g.moveTo(x0, y0); g.lineTo(x0 + sgn * dx * k, y0 - sgn * dy * k);
+        }
+      }
+      g.stroke();
+    }
+    for (const m of s.mediji) {
+      const [x, y] = tackaSvijeta(m.x, m.y, w);
+      g.fillStyle = NL.yellow;
+      g.beginPath(); g.moveTo(x, y - k * 1.3); g.lineTo(x + k * 1.2, y - k * 0.2); g.lineTo(x - k * 1.2, y - k * 0.2); g.fill();
+      g.fillRect(x - k * 0.9, y - k * 0.2, k * 1.8, k * 1.2);
+    }
+    for (const t of s.ljudi) {
+      const [x, y] = tackaSvijeta(t.x, t.y, w);
+      g.fillStyle = bojaStava(t.stav);
+      g.beginPath(); g.arc(x, y, Math.max(2, k * 0.42), 0, 2 * Math.PI); g.fill();
+    }
+  }
+
+  function crtajMrezu(canvas, n, boja) {           // n × n mjesta, boja(i) -> string ili null
+    const { g, w } = pripremi(canvas);
+    g.fillStyle = "#000"; g.fillRect(0, 0, w, w);
+    const k = w / n;
+    for (let i = 0; i < n * n; i++) {
+      const c = boja(i); if (!c) continue;
+      const x = i % n, y = (i / n) | 0;
+      g.fillStyle = c;
+      g.fillRect(x * k + 0.5, (n - 1 - y) * k + 0.5, k - 1, k - 1);
+    }
+  }
+
+  function crtajHistogram(canvas, vrijednosti) {    // histogram [ stav ] of ljudi, interval 0,05
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = canvas.clientWidth || 400, h = canvas.clientHeight || 90;
+    canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
+    const g = canvas.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.clearRect(0, 0, w, h);
+    const B = 40, kos = new Array(B).fill(0);
+    for (const v of vrijednosti) kos[Math.min(B - 1, Math.max(0, Math.floor((v + 1) / 0.05)))]++;
+    const max = Math.max(20, ...kos);
+    const sw = w / B, dno = h - 14;
+    for (let i = 0; i < B; i++) {
+      const c = -1 + (i + 0.5) * 0.05;
+      g.fillStyle = bojaStava(c);
+      const bh = (kos[i] / max) * (dno - 4);
+      g.fillRect(i * sw + 1, dno - bh, sw - 2, bh);
+    }
+    g.fillStyle = css("--siva"); g.font = `11px ${css("--f-mono")}`;
+    g.textAlign = "left"; g.fillText("−1", 0, h - 2);
+    g.textAlign = "center"; g.fillText("0", w / 2, h - 2);
+    g.textAlign = "right"; g.fillText("+1", w, h - 2);
+    g.strokeStyle = css("--linija"); g.beginPath(); g.moveTo(0, dno + 0.5); g.lineTo(w, dno + 0.5); g.stroke();
+  }
+
+  // ---------- zajednički dijelovi panela ----------
+  function klizaci(panel, p, mapa, naPromjenu) {
+    for (const inp of $$("input[type=range]", panel)) {
+      const kljuc = mapa[inp.id];
+      const out = $(`output[for="${inp.id}"]`, panel);
+      const prikazi = () => { out.textContent = fmt(+inp.value, +inp.dataset.dec || 2); };
+      inp.value = p[kljuc]; prikazi();
+      inp.addEventListener("input", () => { p[kljuc] = +inp.value; prikazi(); naPromjenu && naPromjenu(kljuc); });
+    }
+    for (const inp of $$("input[type=checkbox]", panel)) {
+      const kljuc = mapa[inp.id];
+      inp.checked = !!p[kljuc];
+      inp.addEventListener("change", () => { p[kljuc] = inp.checked; naPromjenu && naPromjenu(kljuc); });
+    }
+  }
+
+  function petlja(korak, pauzaMs, dugmeGo, nakonZaustavljanja) {
+    let radi = false, zadnje = 0;
+    const okvir = vrijeme => {
+      if (!radi) return;
+      if (vrijeme - zadnje >= pauzaMs) {
+        zadnje = vrijeme;
+        if (korak() === false) { stani(); nakonZaustavljanja && nakonZaustavljanja(); return; }
+      }
+      requestAnimationFrame(okvir);
+    };
+    const stani = () => { radi = false; dugmeGo.textContent = "go"; dugmeGo.setAttribute("aria-pressed", "false"); };
+    const kreni = () => { radi = true; dugmeGo.textContent = "pauza"; dugmeGo.setAttribute("aria-pressed", "true"); requestAnimationFrame(okvir); };
+    dugmeGo.addEventListener("click", () => radi ? stani() : kreni());
+    return { stani, get radi() { return radi; } };
+  }
+
+  let sjeme = 20261024;
+  const noviRng = () => Sim.rng(sjeme++);
+
+  const blokovi = [];   // četiri simulacije; pokreću se na kraju (vidi pokreniBlokove)
+
+  // dug posao (500 tickova, 100 pokretanja) u dijelovima od ~40 ms, da stranica ostane živa
+  // i da se vidi napredak; C# u web pregledniku je sporiji od JavaScripta
+  function uDijelovima(korak, gotovo, poslije) {
+    const dio = () => {
+      const kraj = performance.now() + 40;
+      while (!gotovo() && performance.now() < kraj) korak();
+      poslije();
+      if (!gotovo()) setTimeout(dio, 0);
+    };
+    dio();
+  }
+  function doSedmice500(dugme, stanje, korak, crtaj) {   // stanje() = trenutni s (setup ga zamijeni)
+    const mojS = stanje();
+    const gotovo = () => mojS !== stanje() || mojS.ticks >= 500;
+    dugme.disabled = true;
+    uDijelovima(() => korak(mojS), gotovo, () => { if (mojS === stanje()) crtaj(); if (gotovo()) dugme.disabled = false; });
+  }
+
+  // ============================================================
+  // Blok 1
+  // ============================================================
+  blokovi.push(function blok1() {
+    const panel = $("#sim1"); if (!panel) return;
+    const p = { ...Sim.B1_ZADANO };
+    let s;
+    const svijet = $("canvas.svijet", panel), hist = $("canvas.hist", panel);
+    const crtaj = () => {
+      crtajLjude(svijet, s, false);
+      crtajHistogram(hist, s.ljudi.map(t => t.stav));
+      $("[data-m=ticks]", panel).textContent = s.ticks;
+      $("[data-m=grupe]", panel).textContent = s.brojGrupa;
+      $("[data-m=za]", panel).textContent = pct(s.udioZa);
+    };
+    const setup = () => { s = Sim.b1Setup(p, noviRng()); crtaj(); };
+    klizaci(panel, p, { "b1-prag": "prag", "b1-mediji": "medijiRade" });
+    const lp = petlja(() => { Sim.b1Go(s); Sim.b1Go(s); crtaj(); }, 0, $("[data-a=go]", panel));
+    $("[data-a=setup]", panel).addEventListener("click", () => { lp.stani(); setup(); });
+    $("[data-a=korak]", panel).addEventListener("click", () => { Sim.b1Go(s); crtaj(); });
+    $("[data-a=do500]", panel).addEventListener("click", ev => {
+      lp.stani(); doSedmice500(ev.currentTarget, () => s, x => Sim.b1Go(x), crtaj);
+    });
+    setup();
+    window.addEventListener("resize", () => crtaj());
+  });
+
+  // ============================================================
+  // Blok 2
+  // ============================================================
+  blokovi.push(function blok2() {
+    const panel = $("#sim2"); if (!panel) return;
+    const p = { ...Sim.B2_ZADANO };
+    let s;
+    const svijet = $("canvas.svijet", panel);
+    const crtaj = () => {
+      crtajMrezu(svijet, Sim.SALA, i => s.ljudi[i].aktivan ? NL.orange : NL.sjediGray);
+      $("[data-m=ticks]", panel).textContent = s.ticks;
+      $("[data-m=aktivni]", panel).textContent = pct(s.udioAktivnih);
+      $("[data-m=stanje]", panel).textContent = s.gotovo ? "niko više ne ustaje" : "";
+    };
+    const setup = () => { s = Sim.b2Setup(p, noviRng()); crtaj(); };
+    klizaci(panel, p, { "b2-prosjek": "prosjekPraga", "b2-rasipanje": "rasipanjePraga", "b2-pokretaci": "pokretaci" },
+            () => { lp.stani(); setup(); $("[data-m=serija]", panel).textContent = ""; });
+    const lp = petlja(() => { const dalje = Sim.b2Go(s); crtaj(); return dalje; }, 110, $("[data-a=go]", panel), crtaj);
+    $("[data-a=setup]", panel).addEventListener("click", () => { lp.stani(); setup(); });
+    $("[data-a=korak]", panel).addEventListener("click", () => { Sim.b2Go(s); crtaj(); });
+    $("[data-a=serija]", panel).addEventListener("click", ev => {
+      const dugme = ev.currentTarget, izlaz = $("[data-m=serija]", panel);
+      const N = 100; let n = 0, talas = 0;
+      dugme.disabled = true;
+      uDijelovima(() => { if (Sim.b2DoKraja(p, noviRng()).udioAktivnih > 0.9) talas++; n++; }, () => n >= N,
+                  () => { izlaz.textContent = `talas u ${talas} od ${n} pokretanja`; if (n >= N) dugme.disabled = false; });
+    });
+    setup();
+    window.addEventListener("resize", () => crtaj());
+  });
+
+  // ============================================================
+  // Blok 3
+  // ============================================================
+  blokovi.push(function blok3() {
+    const panel = $("#sim3"); if (!panel) return;
+    const p = { ...Sim.B3_ZADANO };
+    let s, prikaziVeze = true;
+    const svijet = $("canvas.svijet", panel);
+    const crtaj = () => {
+      crtajLjude(svijet, s, prikaziVeze);
+      $("[data-m=ticks]", panel).textContent = s.ticks;
+      $("[data-m=za]", panel).textContent = pct(s.udioZa);
+      $("[data-m=poznanika]", panel).textContent = fmt(s.ljudi.reduce((a, t) => a + t.veze.size, 0) / s.ljudi.length, 1);
+    };
+    const setup = () => { s = Sim.b3Setup(p, noviRng()); crtaj(); };
+    klizaci(panel, p, { "b3-daleke": "udioDalekihVeza", "b3-mediji": "medijiRade" },
+            k => { if (k === "udioDalekihVeza") { lp.stani(); setup(); } });
+    $("#b3-veze").addEventListener("change", e => { prikaziVeze = e.target.checked; crtaj(); });
+    const lp = petlja(() => { Sim.b3Go(s); Sim.b3Go(s); crtaj(); }, 0, $("[data-a=go]", panel));
+    $("[data-a=setup]", panel).addEventListener("click", () => { lp.stani(); setup(); });
+    $("[data-a=korak]", panel).addEventListener("click", () => { Sim.b3Go(s); crtaj(); });
+    $("[data-a=do500]", panel).addEventListener("click", ev => { lp.stani(); doSedmice500(ev.currentTarget, () => s, x => Sim.b3Go(x), crtaj); });
+    setup();
+    window.addEventListener("resize", () => crtaj());
+  });
+
+  // ============================================================
+  // Blok 4
+  // ============================================================
+  blokovi.push(function blok4() {
+    const panel = $("#sim4"); if (!panel) return;
+    const p = { ...Sim.B4_ZADANO };
+    let s;
+    const svijet = $("canvas.svijet", panel);
+    const crtaj = () => {
+      crtajMrezu(svijet, Sim.VEL, i => { const t = s.mjesto[i]; return t ? (t.grupa ? NL.orange : NL.sky) : null; });
+      $("[data-m=ticks]", panel).textContent = s.ticks;
+      $("[data-m=slicnih]", panel).textContent = pct(s.prosjecnoSlicnih);
+      $("[data-m=nezadovoljni]", panel).textContent = pct(s.udioNezadovoljnih);
+      $("[data-m=stanje]", panel).textContent = s.gotovo ? "svi su zadovoljni" : "";
+    };
+    const setup = () => { s = Sim.b4Setup(p, noviRng()); crtaj(); };
+    klizaci(panel, p, { "b4-trazeni": "trazeniUdioSlicnih", "b4-gustina": "gustina" },
+            k => { lp.stani(); if (k === "gustina") setup(); else { s.gotovo = false; s.p = p; } });
+    const lp = petlja(() => { const dalje = Sim.b4Go(s); crtaj(); return dalje; }, 160, $("[data-a=go]", panel), crtaj);
+    $("[data-a=setup]", panel).addEventListener("click", () => { lp.stani(); setup(); });
+    $("[data-a=korak]", panel).addEventListener("click", () => { Sim.b4Go(s); crtaj(); });
+    setup();
+    window.addEventListener("resize", () => crtaj());
+  });
+
+  // simulacije: odmah (JavaScript) ili kad se C# pokrene u web pregledniku (varijanta stranice s C#)
+  const pokreniBlokove = () => blokovi.forEach(f => f());
+  if (window.SimSpreman) window.SimSpreman.then(pokreniBlokove, () => {});
+  else pokreniBlokove();
+
+  // ============================================================
+  // Grafikoni iz NetLogo mjerenja (SVG, boje iz tokena)
+  // ============================================================
+  const SVG = "http://www.w3.org/2000/svg";
+  const el = (ime, atr = {}, tekst) => {
+    const e = document.createElementNS(SVG, ime);
+    for (const [k, v] of Object.entries(atr)) e.setAttribute(k, v);
+    if (tekst !== undefined) e.textContent = tekst;
+    return e;
+  };
+
+  // spec: { naslov, kategorije[], podaci[] ({med,min,max} ili {vrijednost}), yMin, yMax, yKoraci[], yFormat, xNaslov, tip, ref }
+  function grafik(cilj, spec) {
+    const W = 460, H = 250, L = 46, R = 12, T = 14, B = 46;
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": spec.naslov, class: "grafik" });
+    const n = spec.kategorije.length, sirina = (W - L - R) / n;
+    const x = i => L + sirina * (i + 0.5);
+    const y = v => T + (H - T - B) * (1 - (v - spec.yMin) / (spec.yMax - spec.yMin));
+    for (const v of spec.yKoraci) {
+      svg.append(el("line", { x1: L, x2: W - R, y1: y(v), y2: y(v), class: "g-mreza" }));
+      svg.append(el("text", { x: L - 6, y: y(v) + 4, "text-anchor": "end", class: "g-oznaka" }, spec.yFormat(v)));
+    }
+    if (spec.ref) {
+      svg.append(el("line", { x1: L, x2: W - R, y1: y(spec.ref.v), y2: y(spec.ref.v), class: "g-ref" }));
+      svg.append(el("text", { x: W - R, y: y(spec.ref.v) - 5, "text-anchor": "end", class: "g-ref-tekst" }, spec.ref.tekst));
+    }
+    if (spec.dijagonala) {                       // „traženo“: y = x za kategorije koje su brojevi
+      const pts = spec.kategorije.map((k, i) => `${x(i)},${y(+k)}`).join(" ");
+      svg.append(el("polyline", { points: pts, class: "g-ref", fill: "none" }));
+      svg.append(el("text", { x: x(n - 1), y: y(+spec.kategorije[n - 1]) + 16, "text-anchor": "end", class: "g-ref-tekst" }, spec.dijagonala));
+    }
+    spec.podaci.forEach((d, i) => {
+      if (spec.tip === "stupci") {
+        const h0 = y(spec.yMin), h1 = y(d.vrijednost);
+        svg.append(el("rect", { x: x(i) - sirina * 0.32, y: h1, width: sirina * 0.64, height: Math.max(0, h0 - h1), rx: 2, class: "g-stupac" }));
+        svg.append(el("text", { x: x(i), y: h1 - 5, "text-anchor": "middle", class: "g-vrijednost" }, d.oznaka));
+      } else {
+        svg.append(el("line", { x1: x(i), x2: x(i), y1: y(d.min), y2: y(d.max), class: "g-raspon" }));
+        svg.append(el("circle", { cx: x(i), cy: y(d.med), r: 5, class: "g-tacka" }));
+        svg.append(el("text", { x: x(i) + 8, y: y(d.med) + 4, class: "g-vrijednost" }, spec.yFormat(d.med)));
+      }
+      svg.append(el("text", { x: x(i), y: H - B + 18, "text-anchor": "middle", class: "g-oznaka" }, spec.kategorije[i].replace(".", ",")));
+    });
+    svg.append(el("text", { x: L + (W - L - R) / 2, y: H - 6, "text-anchor": "middle", class: "g-naslov-x" }, spec.xNaslov));
+    svg.append(el("line", { x1: L, x2: W - R, y1: y(spec.yMin), y2: y(spec.yMin), class: "g-os" }));
+    cilj.append(svg);
+  }
+
+  const D = window.MJERENJA;
+  const red = (tab, pref, kat) => kat.map(k => D[tab][`${pref}=${k}`]);
+  const ucrtaj = (id, spec) => { const c = document.getElementById(id); if (c && D) grafik(c, spec); };
+  const procenat = v => `${Math.round(v * 100)}%`;
+
+  if (D) {
+    const PR = ["0.1", "0.2", "0.3", "0.5", "1", "2"];
+    ucrtaj("g1a", { naslov: "Broj grupa stavova na ticku 500, bez medija", kategorije: PR,
+      podaci: red("b1_grupe_500", "prag", PR), yMin: 0, yMax: 9, yKoraci: [0, 2, 4, 6, 8], yFormat: v => `${Math.round(v)}`,
+      xNaslov: "prag" });
+    ucrtaj("g1b", { naslov: "Udio za na ticku 150, s medijima", kategorije: PR,
+      podaci: red("b1_udio_za_mediji_150", "prag", PR), yMin: 0, yMax: 1, yKoraci: [0, 0.25, 0.5, 0.75, 1], yFormat: procenat,
+      xNaslov: "prag", ref: { v: D.b1_udio_za_mediji_0["prag=0.5"].med, tekst: "na početku" } });
+
+    const RAS = Object.keys(D.b2_rasipanje).map(k => k.split("=")[1]).sort((a, b) => a - b);
+    ucrtaj("g2a", { naslov: "Udio pokretanja s talasom prema rasipanju praga", kategorije: RAS, tip: "stupci",
+      podaci: RAS.map(k => { const x = D.b2_rasipanje[`rasipanje-praga=${k}`]; return { vrijednost: x.iznad_0_9 / x.n, oznaka: procenat(x.iznad_0_9 / x.n) }; }),
+      yMin: 0, yMax: 1.12, yKoraci: [0, 0.5, 1], yFormat: procenat, xNaslov: "rasipanje praga (prosjek 0,3; 10 pokretača)" });
+    const POK = Object.keys(D.b2_pokretaci).map(k => k.split("=")[1]).sort((a, b) => a - b);
+    ucrtaj("g2b", { naslov: "Udio pokretanja s talasom prema broju pokretača", kategorije: POK, tip: "stupci",
+      podaci: POK.map(k => { const x = D.b2_pokretaci[`pokretaci=${k}`]; return { vrijednost: x.iznad_0_9 / x.n, oznaka: procenat(x.iznad_0_9 / x.n) }; }),
+      yMin: 0, yMax: 1.12, yKoraci: [0, 0.5, 1], yFormat: procenat, xNaslov: "broj pokretača (rasipanje 0,05)" });
+
+    const DV = ["0", "0.05", "0.2", "1"];
+    ucrtaj("g3a", { naslov: "Udio za na ticku 500 prema udjelu dalekih veza", kategorije: DV,
+      podaci: red("b3_udio_za_500", "udio-dalekih-veza", DV), yMin: 0, yMax: 1, yKoraci: [0, 0.25, 0.5, 0.75, 1], yFormat: procenat,
+      xNaslov: "udio dalekih veza", ref: { v: D.b3_udio_za_0["udio-dalekih-veza=0"].med, tekst: "na početku" } });
+
+    const TR = ["0.2", "0.3", "0.4", "0.5", "0.6", "0.75"];
+    ucrtaj("g4a", { naslov: "Prosječan udio sličnih susjeda na kraju", kategorije: TR,
+      podaci: red("b4_slicnih_kraj", "trazeni-udio-slicnih", TR), yMin: 0, yMax: 1, yKoraci: [0, 0.25, 0.5, 0.75, 1], yFormat: procenat,
+      xNaslov: "traženi udio sličnih", ref: { v: D.b4_slicnih_pocetak["trazeni-udio-slicnih=0.3"].med, tekst: "na početku" },
+      dijagonala: "traženo" });
+  }
+
+  // ---------- kartice s kodom ----------
+  for (const kartice of $$(".kod-kartice")) {
+    const dugmad = $$("[role=tab]", kartice);
+    dugmad.forEach(d => d.addEventListener("click", () => {
+      dugmad.forEach(x => {
+        const izabrano = x === d;
+        x.setAttribute("aria-selected", izabrano);
+        x.tabIndex = izabrano ? 0 : -1;
+        document.getElementById(x.getAttribute("aria-controls")).hidden = !izabrano;
+      });
+    }));
+  }
+  for (const pre of $$("pre code")) {                // komentari svjetlije: ;; (NetLogo) i // (C#)
+    pre.innerHTML = pre.innerHTML.split("\n").map(l => l.replace(/(;;.*|\/\/.*)$/, '<span class="kom">$1</span>')).join("\n");
+  }
+
+  // ---------- obrazac „model na papiru“: kopiranje ----------
+  const kopiraj = $("#kopiraj-obrazac");
+  if (kopiraj) kopiraj.addEventListener("click", async () => {
+    const tekst = $("#obrazac-tekst").textContent;
+    const poruka = $("#kopiraj-poruka");
+    try { await navigator.clipboard.writeText(tekst); poruka.textContent = "Obrazac je kopiran."; }
+    catch {
+      const r = document.createRange(); r.selectNodeContents($("#obrazac-tekst"));
+      const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+      poruka.textContent = "Obrazac je označen; kopirajte ga s Ctrl+C.";
+    }
+  });
+})();
+
+</script>
+</body>
+</html>

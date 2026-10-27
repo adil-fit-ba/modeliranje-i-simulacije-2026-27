@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="bs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Modeliranje i simulacije 2026/27 — materijali s vježbi</title>
+<meta name="description" content="Materijali s vježbi: prezentacije, mini-prezentacije i NetLogo modeli.">
+<style>
+:root { --papir: #eef1f4; --list: #fff; --tinta: #17212b; --siva: #56636f; --linija: #d3dae1; --narandza: #b9531a;
+  --f-naslov: Cambria, Georgia, serif; --f-tekst: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+@media (prefers-color-scheme: dark) { :root { --papir: #10161c; --list: #18212a; --tinta: #e3e9ee; --siva: #9ba8b4; --linija: #2a3540; --narandza: #f0894a; color-scheme: dark; } }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--papir); color: var(--tinta); font: 17px/1.5 var(--f-tekst); }
+main { max-width: 960px; margin: 0 auto; padding: 2rem max(16px, env(safe-area-inset-left)) 3rem; }
+h1, h2, h3 { font-family: var(--f-naslov); line-height: 1.2; margin: 0 0 0.4rem; }
+h1 { font-size: 2.1rem; } h2 { font-size: 1.6rem; margin-top: 2.6rem; padding-top: 1.2rem; border-top: 1px solid var(--linija); }
+h3 { font-size: 1.2rem; margin-top: 1.6rem; }
+.oznaka { font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--narandza); }
+.siva { color: var(--siva); }
+.veze { display: grid; gap: 0.7rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr)); margin-top: 0.8rem; }
+.veze a { display: block; text-decoration: none; background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 0.8rem 1rem; color: var(--tinta); }
+.veze a:hover, .veze a:focus-visible { border-color: var(--narandza); }
+.veze b { color: var(--narandza); }
+.veze span { display: block; color: var(--siva); font-size: 0.9rem; }
+footer { margin-top: 2.5rem; font-size: 0.85rem; color: var(--siva); border-top: 1px solid var(--linija); padding-top: 0.8rem; }
+</style>
+</head>
+<body>
+<main>
+  <span class="oznaka">FIT UNMO · 2026/27</span>
+  <h1>Modeliranje i simulacije: materijali s vježbi</h1>
+  <p class="siva">Stranice rade u web pregledniku, bez instalacije. Prezentacije se listaju strelicama ← →; opcija „Čitanje“ prikazuje sve slajdove na jednoj stranici. Modeli se otvaraju u NetLogu 7.0.4.</p>
+  <h2>Vježbe 2 (17.10.2026.): ponavljanje i prvi model</h2>
+  <h3>Prezentacije</h3>
+  <div class="veze">
+    <a href="vjezbe-02/prezentacije/v02a-ponavljanje.html"><b>Ponavljanje</b><span>Vježbe 1, predavanje, četiri modela izmjerena u NetLogu, NetLogo kroz C#, headless i LLM (58 slajdova).</span></a>
+    <a href="vjezbe-02/prezentacije/v02b-v03-gradimo-model.html"><b>Gradimo model: širenje stava u društvu</b><span>Jedan model u pet koraka, rezultat iz NetLoga, zadatak i samostalna vježba (31 slajd).</span></a>
+  </div>
+  <h3>Mini-prezentacije</h3>
+  <div class="veze">
+    <a href="vjezbe-02/mini/model-stava.html"><b>Model stava</b><span>Agenti, atributi, razgovor, mediji, mjere i rezultat; simulacija u web pregledniku.</span></a>
+    <a href="vjezbe-02/mini/netlogo-kroz-csharp.html"><b>NetLogo kroz C#</b><span>Sedam pojmova NetLoga objašnjenih kodom u C#.</span></a>
+    <a href="vjezbe-02/mini/fire.html"><b>Fire</b><span>Prag gustine i rasipanje ishoda na pragu.</span></a>
+    <a href="vjezbe-02/mini/segregation.html"><b>Segregation</b><span>Blaga preferencija pojedinca, jaka segregacija u cjelini.</span></a>
+    <a href="vjezbe-02/mini/wolf-sheep.html"><b>Wolf Sheep Predation</b><span>Ovce, vukovi i trava: oscilacije i izumiranje.</span></a>
+    <a href="vjezbe-02/mini/rps.html"><b>Rock Paper Scissors</b><span>Ciklična dominacija bez trajnog pobjednika.</span></a>
+  </div>
+  <h3>Modeli</h3>
+  <div class="veze">
+    <a href="vjezbe-02/modeli/v02-model-stav.nlogox"><b>v02-model-stav.nlogox</b><span>Kompletan model stava (NetLogo 7.0.4).</span></a>
+    <a href="vjezbe-02/modeli/v02-zadatak.nlogox"><b>v02-zadatak.nlogox</b><span>Model s praznim procedurama razgovaraj i slusaj-medije.</span></a>
+  </div>
+  <h2>Vježbe 3 (24.10.2026.): interakcije</h2>
+  <h3>Prezentacije i materijali</h3>
+  <div class="veze">
+    <a href="vjezbe-03/prezentacije/v03-interakcije.html"><b>Interakcije u modelu</b><span>Rezultat i zadatak modela stava, C# (this i myself), četiri bloka interakcije, model na papiru (28 slajdova).</span></a>
+    <a href="vjezbe-03/v03-blokovi-interakcije.html"><b>Blokovi interakcije</b><span>Šest tipičnih interakcija: simulacije, mjerenja, kod u NetLogu i C#, obrazac za model na papiru.</span></a>
+    <a href="vjezbe-03/MiS-vjezbe-03-v3.zip"><b>Svi materijali (ZIP, 17 MB)</b><span>Stranice, prezentacija (PPTX i PDF), NetLogo modeli, mjerenja i C# projekat netlogo-kroz-csharp.</span></a>
+  </div>
+  <h3>Mini-prezentacije</h3>
+  <div class="veze">
+    <a href="vjezbe-03/blokovi/blok1-ograniceno-povjerenje.html"><b>1. Ograničeno povjerenje</b><span>Razgovor mijenja stav samo kada je razlika stavova dovoljno mala.</span></a>
+    <a href="vjezbe-03/blokovi/blok2-prag-i-kaskada.html"><b>2. Prag i kaskada</b><span>Čovjek ustaje kada udio susjeda koji stoje dostigne njegov prag.</span></a>
+    <a href="vjezbe-03/blokovi/blok3-mreza-poznanstava.html"><b>3. Mreža poznanstava</b><span>Uticaj se prenosi preko poznanika, a ne preko slučajnih prolaznika.</span></a>
+    <a href="vjezbe-03/blokovi/blok4-preseljenje.html"><b>4. Preseljenje</b><span>Čovjek se preseljava ako je udio sličnih susjeda manji od traženog.</span></a>
+    <a href="vjezbe-03/blokovi/blok5-ustanova.html"><b>5. Iskustvo s ustanovom</b><span>Iskustvo s ustanovom stiče se posjetom; razgovor prenosi informacije o njemu.</span></a>
+    <a href="vjezbe-03/blokovi/blok6-kazna.html"><b>6. Kontrola i kazna</b><span>Prekršaj bez kazne povećava sklonost kršenju, a kazna je smanjuje.</span></a>
+  </div>
+  <h3>Isti modeli u NetLogo Webu (oko 5 MB po stranici)</h3>
+  <div class="veze">
+    <a href="vjezbe-03/netlogo-web/v03-blok1-povjerenje.html"><b>1. Ograničeno povjerenje</b><span>Model se pokreće u web pregledniku, bez instalacije.</span></a>
+    <a href="vjezbe-03/netlogo-web/v03-blok2-prag.html"><b>2. Prag i kaskada</b><span>Model se pokreće u web pregledniku, bez instalacije.</span></a>
+    <a href="vjezbe-03/netlogo-web/v03-blok3-mreza.html"><b>3. Mreža poznanstava</b><span>Model se pokreće u web pregledniku, bez instalacije.</span></a>
+    <a href="vjezbe-03/netlogo-web/v03-blok4-preseljenje.html"><b>4. Preseljenje</b><span>Model se pokreće u web pregledniku, bez instalacije.</span></a>
+    <a href="vjezbe-03/netlogo-web/v03-blok5-ustanova.html"><b>5. Iskustvo s ustanovom</b><span>Model se pokreće u web pregledniku, bez instalacije.</span></a>
+    <a href="vjezbe-03/netlogo-web/v03-blok6-kazna.html"><b>6. Kontrola i kazna</b><span>Model se pokreće u web pregledniku, bez instalacije.</span></a>
+  </div>
+  <h3>Modeli za NetLogo 7.0.4</h3>
+  <div class="veze">
+    <a href="vjezbe-03/modeli/v03-blok1-povjerenje.nlogox"><b>v03-blok1-povjerenje.nlogox</b><span>Blok 1: ograničeno povjerenje.</span></a>
+    <a href="vjezbe-03/modeli/v03-blok2-prag.nlogox"><b>v03-blok2-prag.nlogox</b><span>Blok 2: prag i kaskada.</span></a>
+    <a href="vjezbe-03/modeli/v03-blok3-mreza.nlogox"><b>v03-blok3-mreza.nlogox</b><span>Blok 3: mreža poznanstava.</span></a>
+    <a href="vjezbe-03/modeli/v03-blok4-preseljenje.nlogox"><b>v03-blok4-preseljenje.nlogox</b><span>Blok 4: preseljenje.</span></a>
+    <a href="vjezbe-03/modeli/v03-blok5-ustanova.nlogox"><b>v03-blok5-ustanova.nlogox</b><span>Blok 5: iskustvo s ustanovom.</span></a>
+    <a href="vjezbe-03/modeli/v03-blok6-kazna.nlogox"><b>v03-blok6-kazna.nlogox</b><span>Blok 6: kontrola i kazna.</span></a>
+  </div>
+
+  <footer>Modeliranje i simulacije, Fakultet informacijskih tehnologija, Univerzitet „Džemal Bijedić“ u Mostaru, 2026/27.</footer>
+</main>
+</body>
+</html>
