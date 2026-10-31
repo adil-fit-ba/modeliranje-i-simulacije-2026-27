@@ -56,7 +56,7 @@ def v03(p):
 
 def v04(p):
     return grupa("Prezentacija", [
-        k(p + "prezentacije/v04-tema-tri-naroda.html", "Društvo s više naroda", "Seobe i mješovitost mjesta, na primjeru BiH: kostur modela, 12 varijanti teme, simulacija zarade i etničke pripadnosti u web pregledniku (15 slajdova).")])
+        k(p + "prezentacije/v04-tema-tri-naroda.html", "Društvo s više naroda", "Seobe i mješovitost mjesta, na primjeru BiH: kostur modela, 13 varijanti teme, simulacija zarade i etničke pripadnosti u web pregledniku (15 slajdova).")])
 
 def stranica(naslov, opis, tijelo, oznaka="Modeliranje i simulacije · FIT UNMO 2026/27"):
     return f"""<!doctype html>
