@@ -450,7 +450,7 @@ table.tab.paketi td:nth-child(2) { font-weight: 600; }
 manjak = max(0, prag − udio iste grupe u četvrti)
 ΔP     = promjena prihoda,  T = trošak selidbe</div>
         <ul>
-          <li>Težine su parametri. Tim koji ih ispituje bira vrijednosti i obrazlaže ih.</li>
+          <li><b>Plate i korpa su iz podataka, težine nisu.</b> Bitan je samo njihov odnos, pa je težina zarade 1, a težina etničke pripadnosti je slajder: koliko korpi godišnje bi osoba s najjačom etničkom pripadnošću dala da ne bude manjina u četvrti. Procjena: mala anketa („Koliko bi vam plata morala biti veća da se preselite u četvrt u kojoj je vaša grupa manjina?“), kalibracija na popisima ili mapa ishoda.</li>
           <li>Ko nema etnički razlog (etnička pripadnost 0 ili grupa „ostali“), seli se samo zbog zarade.</li>
         </ul>
         <div class="pitanje"><h3>Za diskusiju</h3>
@@ -504,7 +504,7 @@ manjak = max(0, prag − udio iste grupe u četvrti)
       </div>
     </div>
     <div class="dvije" style="margin-top:1.2rem">
-        <p class="siva mala" style="align-self:start">Ilustracija u web pregledniku, a ne kostur modela: jedan agent je jedna porodica, svi rade u mjestu gdje žive, nema demografije ni firmi. Plata je 1,5 u gradu i 1,05 na selu, korpa 1, trošak selidbe 0,15, prag 0,5. Indeks različitosti je prosjek za tri para grupa po četvrtima (0 = iste raspodjele, 1 = potpuno odvojene); četvrt je mješovita ako nijedna grupa nema više od 66 %.</p>
+        <p class="siva mala" style="align-self:start">Ilustracija u web pregledniku, a ne kostur modela: jedan agent je jedna porodica, svi rade u mjestu gdje žive, nema demografije ni firmi. Plata je 1,5 u gradu i 1,05 na selu, korpa 1, trošak selidbe 0,15, prag 0,5. Bitan je samo odnos težina: 1 i 2 daju isti ishod kao 2 i 4. Indeks različitosti je prosjek za tri para grupa po četvrtima (0 = iste raspodjele, 1 = potpuno odvojene); četvrt je mješovita ako nijedna grupa nema više od 66 %.</p>
         <div class="pitanje"><h3>Probajte sami</h3>
           <p>Prije svakog pokretanja predvidite: raste li grad, ostaju li njegove četvrti mješovite, ima li zarobljenih? Pa provjerite, i s drugim pokretanjem.</p></div>
     </div>
@@ -765,6 +765,7 @@ manjak = max(0, prag − udio iste grupe u četvrti)
           <li>Popis na početku perioda je početno stanje, pa nije potvrda modela; potvrda je popis na kraju perioda.</li>
           <li><b>Plate i korpa:</b> statistički zavodi; sindikalna potrošačka korpa.</li>
           <li><b>Etnička pripadnost i stavovi:</b> Puhalo (2009); SCORE BiH (2014, 2020, 2025); studije mladih Friedrich Ebert Stiftunga.</li>
+          <li><b>Vlastita mala anketa</b> za težinu etničke pripadnosti, npr. „Koliko bi vam plata morala biti veća da se preselite u četvrt u kojoj je vaša grupa manjina?“</li>
           <li><b>Kriza:</b> procjena posljedica poplava 2014.</li>
           <li><b>Mapa:</b> granice općina (geoBoundaries); granice naselja nisu javno dostupne.</li>
         </ul></div>
