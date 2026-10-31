@@ -6,6 +6,7 @@ FIT UNMO. Stranice se otvaraju na <https://adil-fit-ba.github.io/modeliranje-i-s
 |---|---|
 | `vjezbe-02/` | vježbe 2 (17.10.2026.): prezentacije ponavljanja i „Gradimo model“ (HTML), šest mini-prezentacija, model stava i zadatak |
 | `vjezbe-03/` | vježbe 3 (24.10.2026.): blokovi interakcije, mini-prezentacije, NetLogo Web, modeli, mjerenja, C# projekat `netlogo-kroz-csharp`; isto kao `MiS-vjezbe-03-v3.zip` |
+| `vjezbe-04/` | vježbe 4 (31.10.2026.): prezentacija teme „Društvo s više naroda“ (HTML, sa simulacijom u web pregledniku) |
 
 Stranice su samostalni HTML fajlovi (CSS i JavaScript su u njima) i rade i lokalno, dvoklikom.
 

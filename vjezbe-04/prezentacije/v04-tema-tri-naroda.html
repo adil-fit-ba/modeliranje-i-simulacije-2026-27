@@ -1,0 +1,995 @@
+<!doctype html>
+<html lang="bs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Društvo s više naroda</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:wght@500;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Raspored: mini-prezentacija od 10 slajdova; jedan slajd na ekranu (strelice), ili svi jedan ispod
+   drugog (način „Čitanje“). Papir je svijetao, svijet i putanje su na tamnoj podlozi kao u NetLogu. */
+:root {
+  --papir: #eef1f4; --list: #ffffff; --tinta: #17212b; --siva: #56636f; --linija: #d3dae1;
+  --narandza: #b9531a; --narandza-meko: #f6dfd0; --margina: #e5a3a3; --svijet: #0b0d10;
+  --za: #345da9; --protiv: #d73229; --neodlucni: #8d8d8d;
+  --f-naslov: "Bitter", "Georgia", "Cambria", serif;
+  --f-tekst: "IBM Plex Sans", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "IBM Plex Mono", "Cascadia Mono", Consolas, "Courier New", monospace;
+  --t-0: 0.83rem; --t-1: 1rem; --t-2: 1.17rem; --t-3: 1.5rem; --t-4: 2.2rem; --t-5: 3.1rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --papir: #10161c; --list: #18212a; --tinta: #e3e9ee; --siva: #9ba8b4; --linija: #2a3540;
+    --narandza: #f0894a; --narandza-meko: #3a2416; --margina: #6b3535; --za: #5b86d6; --protiv: #e5574e; --neodlucni: #9a9a9a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --papir: #10161c; --list: #18212a; --tinta: #e3e9ee; --siva: #9ba8b4; --linija: #2a3540;
+  --narandza: #f0894a; --narandza-meko: #3a2416; --margina: #6b3535; --za: #5b86d6; --protiv: #e5574e; --neodlucni: #9a9a9a;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { font-size: 18px; }
+@media (max-width: 600px) { html { font-size: 16px; } }
+body { margin: 0; background: var(--papir); color: var(--tinta); font-family: var(--f-tekst); line-height: 1.55; }
+[hidden] { display: none !important; }
+a { color: var(--narandza); text-underline-offset: 0.15em; }
+:focus-visible { outline: 3px solid var(--narandza); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--f-naslov); text-wrap: balance; line-height: 1.18; margin: 0; }
+p { margin: 0; }
+code { font-family: var(--f-mono); font-size: 0.9em; }
+p code, li code, td code { background: var(--narandza-meko); padding: 0.05em 0.3em; border-radius: 3px; }
+.okvir { max-width: 1200px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.oznaka { font-family: var(--f-mono); font-size: var(--t-0); letter-spacing: 0.08em; text-transform: uppercase; color: var(--narandza); font-weight: 500; }
+.siva { color: var(--siva); }
+.mala { font-size: var(--t-0); }
+
+/* traka na vrhu */
+.vrh { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--papir); border-bottom: 1px solid var(--linija); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--papir); }
+.vrh .okvir { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem 1rem; padding-block: 0.55rem; flex-wrap: wrap; }
+.vrh b { font-family: var(--f-naslov); font-weight: 700; }
+.nacin { display: flex; gap: 0.3rem; }
+button { font: 500 var(--t-0) var(--f-mono); border-radius: 4px; padding: 0.4rem 0.8rem; cursor: pointer;
+  border: 1px solid var(--narandza); background: transparent; color: var(--narandza); }
+button[aria-pressed="true"], button.glavno { background: var(--narandza); color: var(--list); }
+button:disabled { opacity: 0.45; cursor: default; }
+
+/* slajdovi */
+.slajd { padding-block: 2rem 6rem; scroll-margin-top: 3.4rem; }
+main.prezentacija .slajd { display: none; min-height: calc(100svh - 3.2rem); }
+main.prezentacija .slajd.aktivan { display: block; }
+main.citanje .slajd { border-bottom: 1px solid var(--linija); padding-block: 2.5rem; }
+.glava { display: grid; gap: 0.35rem; margin-bottom: 1.4rem; }
+.glava h2 { font-size: var(--t-4); max-width: 30ch; }
+.glava .podnaslov { font-size: var(--t-2); color: var(--siva); max-width: 52rem; }
+.dvije { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2rem; align-items: start; }
+.dvije > * { min-width: 0; }
+@media (max-width: 900px) { .dvije { grid-template-columns: minmax(0, 1fr); } }
+.tekst { display: grid; gap: 1rem; }
+.tekst ul { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.35rem; }
+.panel { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 1rem; }
+.pitanje { background: var(--narandza-meko); border-radius: 4px; padding: 0.9rem 1rem; }
+.pitanje h3 { font-size: var(--t-1); margin-bottom: 0.25rem; }
+
+/* naslovni slajd */
+.naslovni { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 2.4rem; align-items: center; padding-top: 1rem; }
+.naslovni > * { min-width: 0; }
+.naslovni h1 { font-size: var(--t-5); letter-spacing: -0.01em; margin: 0.4rem 0 0.9rem; }
+.naslovni .teza { font-size: var(--t-3); font-family: var(--f-naslov); line-height: 1.3; }
+.naslovni .uvod { margin-top: 1rem; color: var(--siva); }
+@media (max-width: 900px) { .naslovni { grid-template-columns: minmax(0, 1fr); } }
+
+/* list papira: pravilo za model na papiru */
+.papir {
+  margin: 0; background-color: var(--list); border: 1px solid var(--linija); border-radius: 4px;
+  padding: 1rem 1.2rem 1.2rem 2.4rem; position: relative; line-height: 1.75rem;
+  background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(1.75rem - 1px), var(--linija) calc(1.75rem - 1px), var(--linija) 1.75rem);
+  background-position: 0 2.55rem;
+}
+.papir::before { content: ""; position: absolute; left: 1.5rem; top: 0; bottom: 0; width: 2px; background: var(--margina); }
+.papir figcaption { font-family: var(--f-mono); font-size: var(--t-0); color: var(--siva); letter-spacing: 0.04em; text-transform: uppercase; line-height: 1.75rem; }
+.papir p, .papir li { font-family: var(--f-naslov); font-size: 1.08rem; }
+.papir ul { list-style: none; margin: 0; padding: 0 0 0 1.2rem; }
+.papir li::before { content: "→ "; color: var(--narandza); font-family: var(--f-tekst); }
+.papir b { color: var(--narandza); }
+
+/* kartice (pojava, sastavni dijelovi, koraci) */
+.kartice { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); }
+.kartica { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 1rem; display: grid; gap: 0.6rem; align-content: start; }
+.kartica h3 { font-size: var(--t-2); }
+.kartica svg { width: 100%; height: auto; display: block; }
+.kartica ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.25rem; }
+.kartica .kod-cip { font-family: var(--f-mono); font-size: 0.78rem; color: var(--siva); border-top: 1px dashed var(--linija); padding-top: 0.5rem; }
+.korak-broj { font-family: var(--f-mono); font-weight: 500; color: var(--narandza); }
+
+/* SVG ilustracije: boje iz tokena */
+.il-osa { stroke: var(--siva); stroke-width: 1.5; }
+.il-tekst { fill: var(--siva); font: 13px var(--f-mono); }
+.il-tekst-veci { fill: var(--tinta); font: 600 15px var(--f-tekst); }
+.il-za { fill: var(--za); } .il-protiv { fill: var(--protiv); } .il-neo { fill: var(--neodlucni); }
+.il-prozor { fill: var(--narandza-meko); stroke: var(--narandza); stroke-dasharray: 4 3; }
+.il-strelica { stroke: var(--narandza); stroke-width: 2.5; fill: none; }
+.il-vrh { fill: var(--narandza); }
+.il-domet { fill: none; stroke: var(--narandza); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.il-svijet { fill: var(--svijet); }
+.il-kuca { fill: #eded2f; }
+.il-precrtano { stroke: var(--protiv); stroke-width: 3; }
+.il-oblak { fill: var(--list); stroke: var(--siva); stroke-width: 1.2; }
+
+/* kalkulator jednog susreta */
+.kalk { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 1.5rem; }
+.kalk > * { min-width: 0; }
+@media (max-width: 900px) { .kalk { grid-template-columns: minmax(0, 1fr); } }
+.klizaci { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem 1.2rem; }
+@media (max-width: 520px) { .klizaci { grid-template-columns: minmax(0, 1fr); } }
+.klizac { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+.klizac label { font-family: var(--f-mono); font-size: var(--t-0); }
+.klizac output { font-family: var(--f-mono); font-size: var(--t-0); font-variant-numeric: tabular-nums; }
+.klizac input { grid-column: 1 / -1; width: 100%; accent-color: var(--narandza); }
+.racun { font-family: var(--f-mono); font-size: 0.86rem; line-height: 1.7; background: var(--papir); border-radius: 4px; padding: 0.7rem 0.9rem; overflow-x: auto; white-space: pre; }
+.racun .da { color: var(--za); font-weight: 600; } .racun .ne { color: var(--protiv); font-weight: 600; }
+.dugmad { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+
+/* putanje stava */
+.putanje-okvir { background: var(--svijet); border-radius: 6px; padding: 0.6rem; }
+canvas.putanje { width: 100%; aspect-ratio: 2 / 1; display: block; }
+.izbor { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.6rem; }
+.izbor button { border-color: var(--linija); color: var(--siva); }
+.izbor button[aria-pressed="true"] { border-color: var(--narandza); color: var(--list); background: var(--narandza); }
+.legenda { display: flex; gap: 1rem; flex-wrap: wrap; font-size: var(--t-0); color: var(--siva); margin-top: 0.4rem; }
+.legenda i { display: inline-block; width: 0.8em; height: 0.8em; border-radius: 50%; margin-right: 0.35em; vertical-align: -0.05em; }
+.potpis { font-size: var(--t-0); color: var(--siva); margin-top: 0.4rem; }
+.potpis b { color: var(--tinta); font-weight: 600; }
+
+/* grafikoni iz mjerenja */
+svg.grafik { width: 100%; height: auto; display: block; overflow: visible; }
+.g-mreza { stroke: var(--linija); stroke-width: 1; } .g-os { stroke: var(--siva); stroke-width: 1; }
+.g-oznaka { fill: var(--siva); font: 12px var(--f-mono); } .g-naslov-x { fill: var(--siva); font: 12px var(--f-tekst); }
+.g-vrijednost { fill: var(--tinta); font: 500 12px var(--f-mono); }
+.g-raspon { stroke: var(--narandza); stroke-width: 3; stroke-linecap: round; opacity: 0.35; }
+.g-tacka { fill: var(--narandza); }
+.g-ref { stroke: var(--siva); stroke-width: 1.2; stroke-dasharray: 4 4; }
+.g-ref-tekst { fill: var(--siva); font: italic 12px var(--f-tekst); }
+
+/* kod */
+.kodovi { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; }
+.kodovi > * { min-width: 0; }
+@media (max-width: 900px) { .kodovi { grid-template-columns: minmax(0, 1fr); } }
+.kod { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; overflow: hidden; }
+.kod .jezik { font-family: var(--f-mono); font-size: var(--t-0); padding: 0.4rem 0.8rem; border-bottom: 1px solid var(--linija); color: var(--siva); }
+.kod pre { margin: 0; padding: 0.8rem; overflow-x: auto; }
+.kod code { font-size: 14px; line-height: 1.55; white-space: pre; }
+.kod .kom { color: var(--siva); font-style: italic; }
+.kod mark { background: var(--narandza-meko); color: inherit; border-radius: 2px; padding: 0 0.15em; }
+.kod mark b { color: var(--narandza); font-family: var(--f-tekst); }
+.oblacici { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: 1rem; margin-top: 1rem; }
+.oblacici div { border-left: 3px solid var(--narandza); padding-left: 0.8rem; }
+.oblacici b.br { font-family: var(--f-mono); color: var(--narandza); margin-right: 0.3rem; }
+
+/* probaj */
+.veze { display: grid; gap: 0.7rem; }
+.veze a { display: block; text-decoration: none; background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 0.8rem 1rem; color: var(--tinta); }
+.veze a:hover { border-color: var(--narandza); }
+.veze a b { color: var(--narandza); }
+.veze a span { display: block; color: var(--siva); font-size: var(--t-0); }
+.literatura { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.35rem; font-size: 0.92rem; }
+
+/* donja navigacija */
+.navigacija { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--papir); border-top: 1px solid var(--linija);
+  padding-bottom: env(safe-area-inset-bottom, 0px); }
+.navigacija .okvir { display: flex; align-items: center; gap: 0.8rem; padding-block: 0.5rem; }
+.navigacija .naslov-slajda { flex: 1; min-width: 0; font-size: var(--t-0); color: var(--siva); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.navigacija .broj { font-family: var(--f-mono); font-size: var(--t-0); font-variant-numeric: tabular-nums; }
+.napredak { position: absolute; top: -1px; left: 0; height: 2px; background: var(--narandza); transition: width 0.25s; }
+main.citanje ~ .navigacija { display: none; }
+@media (prefers-reduced-motion: reduce) { .napredak { transition: none; } }
+
+</style>
+<style>
+/* dodaci za predstavljanje teme: grupe, svijet, tabele */
+:root { --grupa-a: #5b9bd5; --grupa-b: #e3a93f; --grupa-c: #63b86b; }
+canvas.svijet { width: 100%; aspect-ratio: 2 / 1; display: block; }
+.svijet-okvir { background: var(--svijet); border-radius: 6px; padding: 0.5rem; }
+.brojke { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.5rem; margin-top: 0.7rem; }
+@media (max-width: 600px) { .brojke { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.brojke div { background: var(--papir); border-radius: 4px; padding: 0.45rem 0.6rem; }
+.brojke span { display: block; font-family: var(--f-mono); font-size: 0.74rem; color: var(--siva); line-height: 1.3; }
+.brojke b { font-family: var(--f-mono); font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+.legenda i.a { background: var(--grupa-a); } .legenda i.b { background: var(--grupa-b); } .legenda i.c { background: var(--grupa-c); }
+.legenda i.grad { background: transparent; border: 2px solid var(--narandza); border-radius: 2px; }
+table.tab { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+table.tab th, table.tab td { text-align: left; vertical-align: top; padding: 0.42rem 0.55rem; border-bottom: 1px solid var(--linija); }
+table.tab th { font: 500 var(--t-0) var(--f-mono); color: var(--siva); letter-spacing: 0.04em; text-transform: uppercase; }
+table.tab td:first-child { font-weight: 600; white-space: nowrap; }
+table.tab td.sloj { font-family: var(--f-mono); color: var(--narandza); }
+table.tab.paketi { font-size: 0.84rem; }
+table.tab.paketi td:first-child, table.tab td.br { font-family: var(--f-mono); color: var(--narandza); font-weight: 500; }
+table.tab.paketi td:nth-child(2) { font-weight: 600; }
+.tabela-okvir { overflow-x: auto; background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 0.3rem 0.6rem; }
+.formula { font-family: var(--f-mono); font-size: 0.86rem; line-height: 1.7; background: var(--papir); border-radius: 4px; padding: 0.7rem 0.9rem; overflow-x: auto; white-space: pre; }
+.koraci { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.6rem; counter-reset: k; }
+.koraci li { counter-increment: k; display: grid; grid-template-columns: 2rem minmax(0, 1fr); gap: 0.5rem; align-items: baseline; }
+.koraci li::before { content: counter(k); font-family: var(--f-mono); font-weight: 500; color: var(--list); background: var(--narandza); border-radius: 50%; width: 1.6rem; height: 1.6rem; display: grid; place-items: center; font-size: var(--t-0); }
+.il-teritorija { fill: none; stroke: var(--siva); stroke-width: 1.5; stroke-dasharray: 6 4; }
+.il-mjesto { fill: var(--papir); stroke: var(--siva); stroke-width: 1.2; }
+.il-cetvrt { fill: var(--list); stroke: var(--narandza); stroke-width: 1.2; }
+.il-kostur { fill: var(--narandza-meko); stroke: var(--narandza); stroke-width: 1.5; }
+.il-modul { fill: var(--list); stroke: var(--siva); stroke-width: 1.2; }
+.il-a { fill: var(--grupa-a); } .il-b { fill: var(--grupa-b); } .il-c { fill: var(--grupa-c); }
+</style>
+</head>
+<body>
+
+<header class="vrh">
+  <div class="okvir">
+    <span><span class="oznaka">Vježbe 4</span> &nbsp;<b>Društvo s više naroda</b></span>
+    <div class="nacin" role="group" aria-label="Način prikaza">
+      <button type="button" id="nacin-prezentacija" aria-pressed="true">Prezentacija</button>
+      <button type="button" id="nacin-citanje" aria-pressed="false">Čitanje</button>
+    </div>
+  </div>
+</header>
+
+<main class="prezentacija" id="slajdovi">
+
+<!-- 1 ============================================================ -->
+<section class="slajd" id="s1" data-naslov="Društvo s više naroda">
+  <div class="okvir naslovni">
+    <div>
+      <span class="oznaka">Modeliranje i simulacije · Vježbe 4 · Tema za seminarski rad</span>
+      <h1>Društvo s više naroda</h1>
+      <p class="teza">Seobe i mješovitost mjesta, na primjeru BiH.</p>
+      <p class="uvod">Ljudi se sele i mijenjaju posao iz mnogo razloga: plata, škola, porodica, cijena života. Za neke je važna i etnička pripadnost. Model prati osobe i porodice kroz godine. Šta ćete analizirati i u kojem periodu, birate vi.</p>
+      <p class="uvod mala">Za promjenu slajda koristite strelice ← → ili dugmad pri dnu; tipka F otvara cijeli ekran. Opcija „Čitanje“ prikazuje sve slajdove na jednoj stranici.</p>
+    </div>
+    <div class="kartica">
+      <svg viewBox="0 0 440 260" role="img" aria-label="Sela lijevo, grad desno; strelice selidbe s razlozima: posao, škola, porodica, cijena života, etnička pripadnost">
+        <rect class="il-mjesto" x="14" y="24" width="70" height="56" rx="5"/><text class="il-tekst" x="49" y="98" text-anchor="middle">selo</text>
+        <rect class="il-mjesto" x="14" y="160" width="70" height="56" rx="5"/><text class="il-tekst" x="49" y="234" text-anchor="middle">selo</text>
+        <rect class="il-mjesto" x="128" y="96" width="84" height="62" rx="5"/><text class="il-tekst" x="170" y="88" text-anchor="middle">manji grad</text>
+        <rect class="il-mjesto" x="300" y="40" width="128" height="170" rx="6"/>
+        <rect class="il-cetvrt" x="310" y="50" width="52" height="70" rx="3"/><rect class="il-cetvrt" x="366" y="50" width="52" height="70" rx="3"/>
+        <rect class="il-cetvrt" x="310" y="128" width="52" height="70" rx="3"/><rect class="il-cetvrt" x="366" y="128" width="52" height="70" rx="3"/>
+        <text class="il-tekst" x="364" y="230" text-anchor="middle">veliki grad</text>
+        <circle class="il-a" cx="32" cy="44" r="5"/><circle class="il-a" cx="48" cy="44" r="5"/><circle class="il-b" cx="64" cy="44" r="5"/><circle class="il-a" cx="40" cy="60" r="5"/>
+        <circle class="il-c" cx="32" cy="180" r="5"/><circle class="il-c" cx="48" cy="180" r="5"/><circle class="il-c" cx="64" cy="196" r="5"/>
+        <circle class="il-b" cx="148" cy="116" r="5"/><circle class="il-b" cx="164" cy="116" r="5"/><circle class="il-a" cx="180" cy="132" r="5"/>
+        <circle class="il-a" cx="324" cy="70" r="5"/><circle class="il-b" cx="340" cy="86" r="5"/><circle class="il-c" cx="382" cy="70" r="5"/><circle class="il-a" cx="398" cy="100" r="5"/>
+        <circle class="il-c" cx="326" cy="150" r="5"/><circle class="il-b" cx="346" cy="172" r="5"/><circle class="il-b" cx="384" cy="150" r="5"/><circle class="il-c" cx="402" cy="176" r="5"/>
+        <path class="il-strelica" d="M88 50 Q 200 20 292 64"/><path class="il-vrh" d="M288 56 L 298 68 L 284 70 Z"/>
+        <text class="il-tekst" x="190" y="30" text-anchor="middle">posao, plata</text>
+        <path class="il-strelica" d="M88 190 Q 200 230 292 186"/><path class="il-vrh" d="M286 180 L 298 184 L 290 194 Z"/>
+        <text class="il-tekst" x="190" y="246" text-anchor="middle">škola, univerzitet</text>
+        <path class="il-strelica" d="M216 126 L 290 126"/><path class="il-vrh" d="M288 120 L 298 126 L 288 132 Z"/>
+        <text class="il-tekst" x="254" y="116" text-anchor="middle">porodica</text>
+        <path class="il-strelica" d="M296 150 L 222 150" style="stroke-dasharray:5 4"/><path class="il-vrh" d="M224 144 L 214 150 L 224 156 Z"/>
+        <text class="il-tekst" x="294" y="172" text-anchor="end">cijena života</text>
+        <text class="il-tekst" x="364" y="22" text-anchor="middle">etnička pripadnost?</text>
+      </svg>
+      <div class="kod-cip">ilustracija: razlozi selidbe; strelice idu u oba smjera</div>
+    </div>
+  </div>
+</section>
+
+<!-- 2 ============================================================ -->
+<section class="slajd" id="s2" data-naslov="Odakle ideja">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Odakle ideja</span>
+      <h2>Od primjera s vježbi do BiH</h2>
+      <p class="podnaslov">Na vježbama smo imali primjere selidbe i segregacije (vježbe 3, blok 4 „Preseljenje“). U BiH imamo istu pojavu, samo mnogo složeniju.</p>
+    </div>
+    <div class="dvije">
+      <div class="tekst">
+        <div class="kartica"><h3>Primjer s vježbi</h3>
+          <ul>
+            <li>porodica se seli ako u susjedstvu ima premalo ljudi iste grupe;</li>
+            <li>jedno pravilo, jedan razlog, jedna vrsta mjesta;</li>
+            <li>to je Schellingov model segregacije (Schelling 1971).</li>
+          </ul></div>
+        <div class="kartica"><h3>BiH</h3>
+          <ul>
+            <li>tri naroda i ostali; entiteti, Brčko distrikt, kantoni;</li>
+            <li>sela, manji i veliki gradovi; podijeljene škole i gradovi;</li>
+            <li>mnogo razloga za selidbu u isto vrijeme; krize, odlazak mladih.</li>
+          </ul></div>
+      </div>
+      <div class="tekst">
+        <div class="panel"><h3 style="font-size:var(--t-1);margin-bottom:0.3rem">Zašto se to može modelirati</h3>
+          <ul style="margin:0;padding-left:1.2rem;display:grid;gap:0.3rem">
+            <li><b>Imamo podatke:</b> popisi stanovništva (1961–1991 i 2013), plate, potrošačka korpa, ankete o stavovima.</li>
+            <li><b>Možemo pratiti ishod:</b> sastav sela, gradova i četvrti kroz godine, i uporediti ga sa sljedećim popisom.</li>
+            <li><b>Možemo sami procijeniti je li ishod realan,</b> jer živimo u tom društvu.</li>
+          </ul></div>
+        <div class="pitanje"><h3>Za diskusiju</h3>
+          <p>Šta u BiH vidite oko sebe, a nije bilo u primjeru s vježbi?</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 ============================================================ -->
+<section class="slajd" id="s3" data-naslov="Razlozi za selidbu">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Pojava</span>
+      <h2>Mogući razlozi za selidbu</h2>
+      <p class="podnaslov">Svaka porodica odlučuje za sebe, često iz više razloga odjednom. Sastav mjesta nastaje iz hiljada takvih odluka.</p>
+    </div>
+    <div class="kartice">
+      <div class="kartica"><h3>Posao i plata</h3><p>Veća plata u većem gradu; gubitak posla; putovanje na posao umjesto selidbe.</p></div>
+      <div class="kartica"><h3>Školovanje</h3><p>Srednja škola i univerzitet su u većim mjestima; mladi odu i često se ne vrate.</p></div>
+      <div class="kartica"><h3>Porodica</h3><p>Brak, odvajanje odrasle djece, rodbina koja je već otišla, briga o roditeljima.</p></div>
+      <div class="kartica"><h3>Cijena života</h3><p>Potrošačka korpa i stan su skuplji u gradu; ušteđevina određuje ko se može preseliti.</p></div>
+      <div class="kartica"><h3>Etnička pripadnost</h3><p>Nekima je važno s kim žive, s kim rade i u koju školu im idu djeca; nekima nije.</p></div>
+      <div class="kartica"><h3>Krize i odlazak</h3><p>Poplave, zatvaranje firmi, odlazak u inostranstvo.</p></div>
+    </div>
+    <div class="pitanje" style="margin-top:1.2rem"><h3>Za diskusiju</h3>
+      <p>Iz kojih razloga su se selili ljudi koje poznajete? Koji razlog nedostaje na ovom slajdu?</p></div>
+  </div>
+</section>
+
+<!-- 4 ============================================================ -->
+<section class="slajd" id="s4" data-naslov="Kako se radi">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Organizacija</span>
+      <h2>Zajednički kostur, a varijanta svakog tima</h2>
+      <p class="podnaslov">Svi modeli imaju isti svijet, iste agente i iste mjere. Šta tim analizira, bira sam.</p>
+    </div>
+    <div class="dvije">
+      <div class="kartica">
+        <svg viewBox="0 0 440 250" role="img" aria-label="Zajednički kostur u sredini; mehanizmi timova se dodaju na kostur; svi modeli daju iste mjere">
+          <rect class="il-kostur" x="120" y="70" width="200" height="110" rx="6"/>
+          <text class="il-tekst-veci" x="220" y="98" text-anchor="middle">kostur (zajednički)</text>
+          <text class="il-tekst" x="220" y="122" text-anchor="middle">svijet · agenti · ekonomija</text>
+          <text class="il-tekst" x="220" y="142" text-anchor="middle">selidba · demografija · kriza</text>
+          <text class="il-tekst" x="220" y="162" text-anchor="middle">mjere · kontrolni scenarij</text>
+          <rect class="il-modul" x="10" y="10" width="120" height="44" rx="5"/><text class="il-tekst" x="70" y="37" text-anchor="middle">mehanizam tima</text>
+          <rect class="il-modul" x="160" y="10" width="120" height="44" rx="5"/><text class="il-tekst" x="220" y="37" text-anchor="middle">mehanizam tima</text>
+          <rect class="il-modul" x="310" y="10" width="120" height="44" rx="5"/><text class="il-tekst" x="370" y="37" text-anchor="middle">mehanizam tima</text>
+          <path class="il-strelica" d="M90 54 L 150 72"/><path class="il-strelica" d="M220 54 L 220 68"/><path class="il-strelica" d="M350 54 L 290 72"/>
+          <path class="il-strelica" d="M220 180 L 220 206"/><path class="il-vrh" d="M214 204 L 220 214 L 226 204 Z"/>
+          <text class="il-tekst-veci" x="220" y="236" text-anchor="middle">iste mjere → poređenje modela</text>
+        </svg>
+      </div>
+      <div class="tekst">
+        <ul>
+          <li><b>Kostur</b> piše nastavno osoblje, prema ugovoru koji timovi dogovore, da svi dobiju isti kod u isto vrijeme.</li>
+          <li><b>Tim bira varijantu teme</b> koja mu je zanimljiva, dodaje mehanizam koji je pokreće i pravi cjelovit model. Model se ocjenjuje sam za sebe.</li>
+          <li><b>Učinak mehanizma</b> pokazuje se poređenjem istog modela s mehanizmom i bez njega: isti parametri, isti <code>random-seed</code>, najmanje 10 ponavljanja. Tim može imati i više mehanizama, ako simulacija time postaje korisnija; tada svaki ima svoj prekidač i pokazuje se učinak svakog.</li>
+          <li><b>Spajanje</b> modela u jedan zajednički model je moguće, ali nije obavezno. Poređenje na istim mjerama ostaje.</li>
+        </ul>
+        <div class="pitanje"><h3>Za diskusiju</h3>
+          <p>Šta bi vam od kostura trebalo da biste mogli raditi svoj mehanizam: koji atribut, koja mjera, koji podatak?</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 ============================================================ -->
+<section class="slajd" id="s5" data-naslov="Svijet i agenti">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Kostur: svijet i agenti</span>
+      <h2>Tri nivoa prostora; osobe žive u porodicama</h2>
+      <p class="podnaslov">Svaki patch zna kojoj četvrti, mjestu i teritoriji pripada. Mjere se računaju na svakom nivou.</p>
+    </div>
+    <div class="dvije">
+      <div class="tekst">
+        <div class="kartica">
+          <svg viewBox="0 0 440 200" role="img" aria-label="Teritorija sadrži mjesta; selo je jedna četvrt, grad ima više četvrti">
+            <rect class="il-teritorija" x="6" y="18" width="428" height="174" rx="8"/>
+            <text class="il-tekst" x="16" y="12">teritorija T1 (u fazi mape: entitet ili kanton)</text>
+            <rect class="il-mjesto" x="24" y="44" width="92" height="80" rx="5"/><rect class="il-cetvrt" x="34" y="54" width="72" height="60" rx="3"/>
+            <text class="il-tekst" x="70" y="142" text-anchor="middle">selo</text><text class="il-tekst" x="70" y="158" text-anchor="middle">1 četvrt</text>
+            <rect class="il-mjesto" x="134" y="44" width="110" height="80" rx="5"/><rect class="il-cetvrt" x="144" y="54" width="42" height="60" rx="3"/><rect class="il-cetvrt" x="192" y="54" width="42" height="60" rx="3"/>
+            <text class="il-tekst" x="189" y="142" text-anchor="middle">manji grad</text><text class="il-tekst" x="189" y="158" text-anchor="middle">2 četvrti</text>
+            <rect class="il-mjesto" x="262" y="34" width="160" height="100" rx="5"/>
+            <rect class="il-cetvrt" x="272" y="44" width="66" height="38" rx="3"/><rect class="il-cetvrt" x="346" y="44" width="66" height="38" rx="3"/>
+            <rect class="il-cetvrt" x="272" y="88" width="66" height="38" rx="3"/><rect class="il-cetvrt" x="346" y="88" width="66" height="38" rx="3"/>
+            <text class="il-tekst" x="342" y="152" text-anchor="middle">veliki grad</text><text class="il-tekst" x="342" y="168" text-anchor="middle">4 četvrti</text><text class="il-tekst" x="342" y="184" text-anchor="middle">(može biti podijeljen)</text>
+          </svg>
+          <div class="kod-cip">patch: cetvrt-id · mjesto-id · tip-mjesta · teritorija-id</div>
+        </div>
+        <div class="pitanje"><h3>Za diskusiju</h3>
+          <p>Koja karakteristika osobe ili porodice nedostaje, a vama se čini važnom za odluku o selidbi?</p></div>
+      </div>
+      <div class="tekst">
+        <div class="tabela-okvir"><table class="tab">
+          <thead><tr><th>Agent</th><th>Šta ima</th></tr></thead>
+          <tbody>
+            <tr><td>osoba</td><td>grupa (A, B, C, D ili ostali), starost, posao ili škola i karakteristike ispod</td></tr>
+            <tr><td>domaćinstvo</td><td>porodica: stan, zajednički novac, potrošačka korpa</td></tr>
+            <tr><td>firma</td><td>mjesto, plata, broj radnih mjesta, otvorena ili zatvorena</td></tr>
+            <tr><td>institucija</td><td>škola, univerzitet, kafić, prodavnica</td></tr>
+          </tbody></table></div>
+        <div class="panel"><h3 style="font-size:var(--t-1);margin-bottom:0.3rem">Karakteristike osobe (0–1)</h3>
+          <ul style="margin:0;padding-left:1.2rem">
+            <li><b>etnička pripadnost</b> (<code>identitet</code>): koliko je osobi važna kad bira gdje živi i radi; početna raspodjela je ista za sve grupe;</li>
+            <li><b>integritet:</b> koliko se osoba opire promjeni stava;</li>
+            <li><b>sposobnost:</b> veća plata i lakše zaposlenje;</li>
+            <li><b>ambicija:</b> koliko često zaposlena osoba traži bolji posao.</li>
+          </ul>
+          <p class="siva mala" style="margin-top:0.5rem">Grupa „ostali“ su neizjašnjeni, Bosanci i manjine: etnička pripadnost im je u prosjeku slabija i nemaju etnički razlog selidbe.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 ============================================================ -->
+<section class="slajd" id="s6" data-naslov="Jedno pravilo selidbe">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Kostur: selidba</span>
+      <h2>Jedno pravilo odmjerava zaradu i etničku pripadnost</h2>
+      <p class="podnaslov">Porodica poredi novi stan sa sadašnjim. Isto pravilo važi za selidbu zbog posla i zbog susjedstva.</p>
+    </div>
+    <div class="dvije">
+      <figure class="papir">
+        <figcaption>Pravilo na papiru</figcaption>
+        <p>Porodica izabere nekoliko slobodnih stanova i za svaki procijeni:</p>
+        <ul>
+          <li><b>zaradu:</b> koliko bi imala više novca, kad se oduzme trošak selidbe i puta;</li>
+          <li><b>etničku pripadnost:</b> koliko bi njeni odrasli bili bliže ljudima iste grupe, svako prema tome koliko mu je to važno.</li>
+        </ul>
+        <p>Seli se u najbolji stan ako je ukupna korist pozitivna <b>i</b> ima novca za selidbu.</p>
+        <p>Ako bi se selidba isplatila, a novca nema, porodica je <b>zarobljena</b>.</p>
+      </figure>
+      <div class="tekst">
+        <div class="formula">K = težina-zarade × (ΔP − T)
+  + težina-identiteta
+    × Σ identitet × (manjak sada − manjak cilj)
+
+Σ      = zbir po odraslima u porodici
+manjak = max(0, prag − udio iste grupe u četvrti)
+ΔP     = promjena prihoda,  T = trošak selidbe</div>
+        <ul>
+          <li>Težine su parametri. Tim koji ih ispituje bira vrijednosti i obrazlaže ih.</li>
+          <li>Ko nema etnički razlog (etnička pripadnost 0 ili grupa „ostali“), seli se samo zbog zarade.</li>
+        </ul>
+        <div class="pitanje"><h3>Za diskusiju</h3>
+          <p>Odlučuju li ljudi ovako? Ko u porodici odlučuje o selidbi, i šta se dešava kad se odrasli ne slažu?</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 ============================================================ -->
+<section class="slajd" id="s7" data-naslov="Probajte: zarada i etnička pripadnost">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Probajte</span>
+      <h2>Zarada i etnička pripadnost u istom svijetu</h2>
+      <p class="podnaslov">Lijevo je 12 sela s većinom jedne grupe, desno mješovit grad sa 6 četvrti i većom platom. Promijenite težine i pustite 20 godina.</p>
+    </div>
+    <div class="dvije interaktivno">
+      <div>
+        <div class="svijet-okvir"><canvas class="svijet" id="c-probaj" aria-label="Svijet s 12 sela i gradom; tačke su porodice, boja je grupa"></canvas></div>
+        <div class="legenda"><span><i class="a"></i>grupa A</span><span><i class="b"></i>grupa B</span><span><i class="c"></i>grupa C</span><span><i class="grad"></i>četvrt grada</span></div>
+      </div>
+      <div class="tekst">
+        <div class="klizaci">
+          <div class="klizac"><label for="k-tz">težina zarade</label><output id="o-tz"></output><input type="range" id="k-tz" min="0" max="3" step="0.5" value="1"></div>
+          <div class="klizac"><label for="k-ti">težina etničke pripadnosti</label><output id="o-ti"></output><input type="range" id="k-ti" min="0" max="4" step="0.5" value="2"></div>
+        </div>
+        <div class="izbor" role="group" aria-label="Gotovi scenariji">
+          <button type="button" data-tz="0" data-ti="2">samo etnička pripadnost</button>
+          <button type="button" data-tz="1" data-ti="0">samo zarada</button>
+          <button type="button" data-tz="1" data-ti="2">obje</button>
+          <button type="button" data-tz="1" data-ti="4">etnička pripadnost jača</button>
+        </div>
+        <div class="dugmad">
+          <button type="button" class="glavno" id="d-20">20 godina</button>
+          <button type="button" id="d-1">1 godina</button>
+          <button type="button" id="d-kriza">kriza: −90 % ušteđevine</button>
+          <button type="button" id="d-vrati">Ispočetka</button>
+          <button type="button" id="d-novo">Novo pokretanje</button>
+        </div>
+        <div class="brojke">
+          <div><span>godina</span><b id="b-god">0</b></div>
+          <div><span>porodica u gradu</span><b id="b-grad">0</b></div>
+          <div><span>indeks različitosti</span><b id="b-d">0</b></div>
+          <div><span>mješovite četvrti grada</span><b id="b-mjes">0</b></div>
+          <div><span>selidbe zbog zarade</span><b id="b-zarada">0</b></div>
+          <div><span>selidbe zbog etničke pripadnosti</span><b id="b-etn">0</b></div>
+          <div><span>zarobljeni ove godine</span><b id="b-zar">0</b></div>
+          <div><span>random-seed</span><b id="b-seed">1</b></div>
+        </div>
+      </div>
+    </div>
+    <div class="dvije" style="margin-top:1.2rem">
+        <p class="siva mala" style="align-self:start">Ilustracija u web pregledniku, a ne kostur modela: jedan agent je jedna porodica, svi rade u mjestu gdje žive, nema demografije ni firmi. Plata je 1,5 u gradu i 1,05 na selu, korpa 1, trošak selidbe 0,15, prag 0,5. Indeks različitosti je prosjek za tri para grupa po četvrtima (0 = iste raspodjele, 1 = potpuno odvojene); četvrt je mješovita ako nijedna grupa nema više od 66 %.</p>
+        <div class="pitanje"><h3>Probajte sami</h3>
+          <p>Prije svakog pokretanja predvidite: raste li grad, ostaju li njegove četvrti mješovite, ima li zarobljenih? Pa provjerite, i s drugim pokretanjem.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 ============================================================ -->
+<section class="slajd" id="s8" data-naslov="Ekonomija, demografija, kriza">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Kostur: šta još ima</span>
+      <h2>Ekonomija, demografija i kriza</h2>
+      <p class="podnaslov">Jedinica za novac je potrošačka korpa. Tick je jedna godina; koliko godina model traje, bira tim.</p>
+    </div>
+    <div class="kartice">
+      <div class="kartica"><h3>Ekonomija</h3>
+        <ul>
+          <li>firme s platom koja zavisi od mjesta (veliki grad više, selo manje) i firme;</li>
+          <li>potrošačka korpa zavisi od broja članova i mjesta; ko ima manji prihod od korpe, traži posao svake godine;</li>
+          <li>firma zapošljava najsposobnije prijavljene;</li>
+          <li>na posao se može putovati u drugo mjesto, uz trošak puta.</li>
+        </ul>
+        <div class="kod-cip">podatak: jedna prosječna plata u BiH pokriva otprilike polovinu sindikalne korpe četvoročlane porodice (2025)</div></div>
+      <div class="kartica"><h3>Demografija</h3>
+        <ul>
+          <li>škola od 6 do 17 godina, posao od 18, penzija od 65;</li>
+          <li>rađanje i umiranje po starosti;</li>
+          <li>odrasla djeca od 25 do 35 godina osnivaju svoje domaćinstvo;</li>
+          <li>dijete dobija grupu porodice i približno prosječnu etničku pripadnost roditelja.</li>
+        </ul></div>
+      <div class="kartica"><h3>Kriza</h3>
+        <ul>
+          <li>u zadanoj godini ili slučajno; u cijelom svijetu ili na jednoj teritoriji;</li>
+          <li>jačina od 10 % do 90 %: toliki dio ušteđevine porodice gube, a toliki dio firmi se zatvara;</li>
+          <li>zatvorene firme se postepeno ponovo otvaraju.</li>
+        </ul>
+        <div class="kod-cip">primjer za kalibraciju: poplave 2014. u BiH, šteta oko 15 % BDP-a</div></div>
+    </div>
+    <div class="pitanje" style="margin-top:1.2rem"><h3>Za diskusiju</h3>
+      <p>Šta se u krizi dešava s ljudima, osim gubitka novca i posla? Postaje li etnička pripadnost važnija?</p></div>
+  </div>
+</section>
+
+<!-- 9 ============================================================ -->
+<section class="slajd" id="s9" data-naslov="Mogući ishodi i analize">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Šta analizirati</span>
+      <h2>Mogući ishodi i moguće analize</h2>
+      <p class="podnaslov">Ovo su primjeri, a ne spisak obaveza. Tim bira šta ga zanima i predlaže svoju analizu.</p>
+    </div>
+    <div class="dvije">
+      <div class="panel"><h3 style="font-size:var(--t-1);margin-bottom:0.3rem">Ishodi koje model može pokazati</h3>
+        <ul style="margin:0;padding-left:1.2rem;display:grid;gap:0.3rem">
+          <li>grupisanje po etničkoj pripadnosti po četvrtima, mjestima i teritorijama;</li>
+          <li>pražnjenje i starenje sela; mjesta bez djece školskog uzrasta;</li>
+          <li>grad koji raste, a mješovit je ili podijeljen po četvrtima;</li>
+          <li>mješovita i jednonacionalna radna mjesta i škole;</li>
+          <li>porodice koje bi otišle, a ne mogu (zarobljeni);</li>
+          <li>siromaštvo u odnosu na potrošačku korpu, po grupi i mjestu.</li>
+        </ul></div>
+      <div class="panel"><h3 style="font-size:var(--t-1);margin-bottom:0.3rem">Primjeri analiza</h3>
+        <ul style="margin:0;padding-left:1.2rem;display:grid;gap:0.3rem">
+          <li>grupisanje po etničkoj pripadnosti u odnosu na zaradu: koliko je važno jedno, a koliko drugo;</li>
+          <li>odlazak iz manjih mjesta u veće zbog posla i univerziteta;</li>
+          <li>šta poslije krize: oporavak, odlazak ili zarobljeni;</li>
+          <li>zajedničke i podijeljene škole i univerziteti;</li>
+          <li>mediji, predrasude, mješoviti brakovi kroz generacije;</li>
+          <li>iseljavanje u inostranstvo i šta ostaje iza;</li>
+          <li>poređenje perioda: Jugoslavija prije rata i BiH poslije 2013.</li>
+        </ul></div>
+    </div>
+    <div class="pitanje" style="margin-top:1.2rem"><h3>Za diskusiju</h3>
+      <p>Šta biste vi željeli analizirati? Šta biste mjerili da odgovorite na svoje pitanje?</p></div>
+  </div>
+</section>
+
+<!-- 10 ============================================================ -->
+<section class="slajd" id="s10" data-naslov="Slojevi">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Čitljivost rezultata</span>
+      <h2>Slojevi se uključuju jedan po jedan</h2>
+      <p class="podnaslov">Isti ishod može imati više uzroka. Prazna sela mogu biti posljedica plata, odlaska mladih ili krize. Zato se svaki sloj može isključiti.</p>
+    </div>
+    <div class="dvije">
+      <div class="tabela-okvir"><table class="tab">
+        <thead><tr><th>Sloj</th><th>Šta dodaje</th><th>Očekivani rezultat</th></tr></thead>
+        <tbody>
+          <tr><td class="sloj">L0</td><td>etnička pripadnost i selidba; ista plata svuda</td><td>Schellingov efekat: malo nezadovoljstva daje veliko razdvajanje</td></tr>
+          <tr><td class="sloj">L1</td><td>različite plate po mjestu i firmi</td><td>odlazak iz sela u grad; mješovitija radna mjesta</td></tr>
+          <tr><td class="sloj">L2</td><td>putovanje na posao</td><td>manje selidbi zbog posla, više putnika</td></tr>
+          <tr><td class="sloj">L3</td><td>demografija</td><td>sela stare, mladi odlaze</td></tr>
+          <tr><td class="sloj">L4</td><td>kriza</td><td>zarobljeni; slika se „zamrzne“</td></tr>
+        </tbody></table></div>
+      <div class="tekst">
+        <ul>
+          <li><b>Jedna promjena odjednom.</b> Rezultat se opisuje kao razlika koju je donio jedan sloj ili jedan mehanizam, a ne kao ishod svega zajedno.</li>
+          <li><b>Najniži potreban sloj.</b> Tim navede koji najniži sloj njegov mehanizam traži i pokaže ga na tom sloju i na punom modelu.</li>
+          <li><b>Mjere koje pokazuju uzrok.</b> Uz indeks različitosti uvijek se prikazuju selidbe po razlogu, udio putnika i udio zarobljenih.</li>
+          <li>Ilustracija na slajdu 7 ima samo slojeve L0 i L1, uz krizu bez zatvaranja firmi.</li>
+        </ul>
+        <div class="pitanje"><h3>Za diskusiju</h3>
+          <p>Ako vaš model pokaže prazna sela, kako biste dokazali šta ih je ispraznilo?</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 11 ============================================================ -->
+<section class="slajd" id="s11" data-naslov="Mjere i kontrolni scenarij">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Kostur: mjere</span>
+      <h2>Iste mjere za sve modele i jedan kontrolni scenarij</h2>
+      <p class="podnaslov">Mjere su reporteri s dogovorenim nazivima, pa se rezultati svih timova mogu staviti u istu tabelu.</p>
+    </div>
+    <div class="dvije">
+      <div class="panel"><h3 style="font-size:var(--t-1);margin-bottom:0.3rem">Mjere</h3>
+        <ul style="margin:0;padding-left:1.2rem;display:grid;gap:0.25rem">
+          <li>indeks različitosti (Duncan i Duncan 1955) po četvrtima, mjestima i teritorijama;</li>
+          <li>broj mješovitih četvrti i mjesta; udio mješovitih radnih mjesta;</li>
+          <li>selidbe po razlogu: posao, susjedstvo, odvajanje, ostalo;</li>
+          <li>stanovništvo i prosječna starost sela i gradova; mjesta bez djece školskog uzrasta;</li>
+          <li>udio porodica ispod korpe, prihod i nezaposlenost po grupi;</li>
+          <li>udio putnika i udio zarobljenih;</li>
+          <li>prosječna etnička pripadnost po grupi i tipu mjesta.</li>
+        </ul></div>
+      <div class="tekst">
+        <div class="kartica"><h3>Kontrolni scenarij (obavezan za sve)</h3>
+          <ul>
+            <li>etnička pripadnost je 0 za sve;</li>
+            <li>moduli i mehanizmi su isključeni; nema krize;</li>
+            <li>sve institucije su zajedničke; prelazak granice je besplatan;</li>
+            <li>ekonomija i demografija rade.</li>
+          </ul>
+          <p>Pokazuje koliko razdvajanja nastaje samo iz ekonomije i početnog sastava.</p></div>
+        <div class="pitanje"><h3>Za diskusiju</h3>
+          <p>Koju mjeru biste dodali da provjerite je li ishod modela sličan onome što vidite u svom mjestu?</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 12 ============================================================ -->
+<section class="slajd" id="s12" data-naslov="Varijante: izaberite ili predložite">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Varijante</span>
+      <h2>Izaberite varijantu ili predložite svoju</h2>
+      <p class="podnaslov">Savjet: jedna pojava (šta se mjeri), jedan glavni mehanizam i, po želji, jedan pomoćni. Spisak nije zatvoren. Dva tima mogu uzeti istu pojavu s različitim mehanizmima, pa se rezultati porede.</p>
+    </div>
+    <div class="tabela-okvir"><table class="tab paketi">
+      <thead><tr><th>#</th><th>Pojava</th><th>Glavni mehanizam</th><th>Pomoćni (po želji)</th><th>Podatak za provjeru</th></tr></thead>
+      <tbody>
+        <tr><td class="br">1</td><td>pražnjenje i starenje sela</td><td>školovanje: mladi idu na univerzitet u veliki grad i ne vraćaju se</td><td>rodbina povlači rodbinu</td><td>procjene stanovništva po općinama 2013–2026 (FZS)</td></tr>
+        <tr><td class="br">2</td><td>usluge na selu</td><td>škola ili ambulanta se zatvara kad je premalo ljudi, pa porodice s djecom odlaze</td><td>putovanje do škole u drugo mjesto</td><td>broj škola po općinama (podatak treba naći)</td></tr>
+        <tr><td class="br">3</td><td>povratak u selo</td><td>penzioneri se vraćaju u selo u kojem imaju kuću</td><td>rodbina u selu</td><td>starost stanovništva po naseljima (popis 2013)</td></tr>
+        <tr><td class="br">4</td><td>iseljavanje u inostranstvo</td><td>odlaze porodice koje su dugo ispod korpe, ili mladi bez posla</td><td>lančana migracija: lakše odlazi onaj ko već ima nekoga vani</td><td>UN DESA: oko 1,6 miliona iseljenih iz BiH (2024); odjave prebivališta</td></tr>
+        <tr><td class="br">5</td><td>mješoviti brakovi kroz generacije (npr. 1961–1991)</td><td>izbor partnera zavisi od mješovitosti mjesta i etničke pripadnosti</td><td>pripadnost djece iz mješovitih brakova</td><td>oko 12 % mješovitih brakova (Botev 1994); popis 1991</td></tr>
+        <tr><td class="br">6</td><td>ljudi kojima etnička pripadnost nije važna</td><td>koliki udio takvih ljudi održava mješovito susjedstvo</td><td>mješoviti brakovi</td><td>Jugosloveni 1991. oko 5,5 %; popisi 1961–1991</td></tr>
+        <tr><td class="br">7</td><td>grupisanje po etničkoj pripadnosti u odnosu na zaradu</td><td>zapošljavanje po etničkoj pripadnosti (nepotizam)</td><td>firme koje otvaraju ljudi</td><td>sastav općina u popisima</td></tr>
+        <tr><td class="br">8</td><td>kriza i zarobljeni</td><td>kriza jača etničku pripadnost</td><td>iseljavanje porodica ispod korpe</td><td>poplave 2014: šteta, izgubljena radna mjesta</td></tr>
+        <tr><td class="br">9</td><td>etnička pripadnost mladih</td><td>susreti u zajedničkoj ili podijeljenoj školi („dvije škole pod jednim krovom“)</td><td>podijeljen grad</td><td>56 takvih škola (OSCE); studije mladih FES-a</td></tr>
+        <tr><td class="br">10</td><td>etnička pripadnost bez selidbi</td><td>mediji: veća etnička pripadnost vodi ka nacionalnim medijima, a oni je dalje jačaju</td><td>predrasude kao druga varijabla</td><td>SCORE BiH, Puhalo 2009 (provjera je slabija)</td></tr>
+        <tr><td class="br">11</td><td>teritorija i granica</td><td>prelazak granice entiteta ima trošak: dokumenti, škole, penzije</td><td>etnička pripadnost na nivou teritorije</td><td>migracije po općinama (popis 2013, Knjiga 8)</td></tr>
+        <tr><td class="br">12</td><td>putovanje ili selidba</td><td>trošak puta prema cijeni stana: ko putuje na posao, a ko se seli</td><td>rast prigradskih naselja</td><td>tabela dnevnih migranata nije objavljena (provjera je slaba)</td></tr>
+      </tbody></table></div>
+    <div class="dvije" style="margin-top:1.2rem">
+      <div class="tekst"><ul>
+        <li><b>Gotovi moduli</b> (susreti, mediji, zapošljavanje po etničkoj pripadnosti) uključuju se prekidačem i ne računaju se kao mehanizam tima.</li>
+        <li><b>Više mehanizama</b> je dozvoljeno ako simulacija time postaje korisnija: svaki ima svoj prekidač, a učinak se pokazuje za svaki posebno i za sve zajedno.</li>
+      </ul></div>
+      <div class="pitanje"><h3>Za diskusiju</h3>
+        <p>Koja varijanta vam je zanimljiva? Šta biste predložili, a nema je na spisku?</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 13 ============================================================ -->
+<section class="slajd" id="s13" data-naslov="Pravila i granice modela">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Pravila</span>
+      <h2>Zaključci govore o mehanizmu, a ne o narodima</h2>
+      <p class="podnaslov">Tema je bliska i osjetljiva, pa ima nekoliko pravila koja važe za sve timove.</p>
+    </div>
+    <div class="dvije">
+      <div class="tekst">
+        <ul>
+          <li><b>Oznake:</b> grupe su u kodu, na prikazima i u radu A, B, C (D). Veza sa stvarnim narodima navodi se samo jednom, u poglavlju o podacima.</li>
+          <li><b>Ista početna raspodjela</b> etničke pripadnosti za sve grupe. Razlika među grupama smije ući samo kao poseban scenarij, s izvorom, i poredi se s osnovnim.</li>
+          <li><b>Teritorije</b> su T1–T3; tim ih smije imenovati stvarnim nazivima u fazi mape.</li>
+          <li><b>Period bira tim:</b> npr. 20 godina od popisa 2013, ili Jugoslavija 30 godina prije rata (1961–1991), kad je etnička pripadnost u prosjeku bila slabija. Popis na početku perioda daje početno stanje, a sljedeći popis služi za provjeru.</li>
+          <li><b>Provjera realnosti:</b> prepoznaju li se ishodi u stvarnom društvu i gdje model griješi. Promašen model je dobar rad ako tim tačno objasni zašto je promašio.</li>
+        </ul>
+      </div>
+      <div class="tekst">
+        <div class="kartica"><h3>Šta model ne objašnjava</h3>
+          <ul>
+            <li>rat i prisilno raseljavanje 1992–1995: njih nema u modelu, pa period koji obuhvata rat ne može objasniti promjene iz tog vremena;</li>
+            <li>političke odluke i njihove razloge: granice i podijeljene institucije su ulaz u model, a model ih ne ocjenjuje.</li>
+          </ul></div>
+        <div class="pitanje"><h3>Za diskusiju</h3>
+          <p>Gdje biste vi povukli granicu: šta model smije tvrditi, a šta ne?</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 14 ============================================================ -->
+<section class="slajd" id="s14" data-naslov="Sljedeći koraci">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Dalje</span>
+      <h2>Od prijedloga tima do modela</h2>
+      <p class="podnaslov">Kostur je prijedlog. Timovi ga mijenjaju i zajedno usvajaju prije nego što se napiše kod.</p>
+    </div>
+    <div class="dvije">
+      <div class="tekst">
+        <ol class="koraci">
+          <li><span><b>Prijedlog tima:</b> šta želi analizirati i kojim mehanizmom, uz spisak onoga što mu treba od kostura.</span></li>
+          <li><span><b>Sedmica pisanih prijedloga:</b> vođe timova predlažu izmjene ugovora u zajedničkom dokumentu. U kostur ulazi samo ono što trebaju bar dva tima.</span></li>
+          <li><span><b>Usvajanje ugovora v1.0.</b> Poslije toga izmjene idu samo preko vođa timova, uz obrazloženje.</span></li>
+          <li><span><b>Kod kostura</b> od nastavnog osoblja, isti za sve.</span></li>
+          <li><span><b>Model tima:</b> mehanizmi u svom modulu, poređenje s mehanizmima i bez njih, kontrolni scenarij.</span></li>
+        </ol>
+        <p class="siva mala">Ko je predložio koji dio ugovora, bilježi se i ulazi u ocjenu.</p>
+      </div>
+      <figure class="papir">
+        <figcaption>Prijedlog tima</figcaption>
+        <p>Želimo analizirati <b>…</b></p>
+        <p>Mehanizmi: <b>…</b></p>
+        <p>Kad se <b>[ko]</b> i <b>[ko]</b> sretnu / kad <b>[uslov]</b>, onda <b>…</b></p>
+        <p>Pitamo: <b>…</b></p>
+        <ul>
+          <li>od kostura nam treba: atribut, mjera, podatak;</li>
+          <li>najniži sloj: L0–L4.</li>
+        </ul>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- 15 ============================================================ -->
+<section class="slajd" id="s15" data-naslov="Prilog: podaci i literatura">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Prilog</span>
+      <h2>Podaci i polazna literatura</h2>
+      <p class="podnaslov">Model prvo radi u apstraktnom svijetu. U fazi mape početno stanje dolazi iz stvarnih podataka.</p>
+    </div>
+    <div class="dvije">
+      <div class="panel"><h3 style="font-size:var(--t-1);margin-bottom:0.3rem">Podaci</h3>
+        <ul style="margin:0;padding-left:1.2rem;display:grid;gap:0.3rem">
+          <li><b>Popis 2013.</b> (Agencija za statistiku BiH): nacionalni sastav i starost po naseljenim mjestima; domaćinstva i migracije po općinama.</li>
+          <li><b>Popisi 1961, 1971, 1981 i 1991</b> (Jugoslavija): za period prije rata. Kategorije nacionalnosti su se mijenjale između popisa (npr. Jugosloveni, Muslimani), pa se moraju uskladiti.</li>
+          <li>Popis na početku perioda je početno stanje, pa nije potvrda modela; potvrda je popis na kraju perioda.</li>
+          <li><b>Plate i korpa:</b> statistički zavodi; sindikalna potrošačka korpa.</li>
+          <li><b>Etnička pripadnost i stavovi:</b> Puhalo (2009); SCORE BiH (2014, 2020, 2025); studije mladih Friedrich Ebert Stiftunga.</li>
+          <li><b>Kriza:</b> procjena posljedica poplava 2014.</li>
+          <li><b>Mapa:</b> granice općina (geoBoundaries); granice naselja nisu javno dostupne.</li>
+        </ul></div>
+      <div class="panel"><h3 style="font-size:var(--t-1);margin-bottom:0.3rem">Literatura</h3>
+        <ul class="literatura">
+          <li>Schelling, T. C. (1971). Dynamic models of segregation. <i>Journal of Mathematical Sociology</i>, 1(2), 143–186.</li>
+          <li>Wilensky, U., &amp; Rand, W. (2015). <i>An Introduction to Agent-Based Modeling.</i> MIT Press (pogl. 3).</li>
+          <li>Allport, G. W. (1954). <i>The Nature of Prejudice.</i> Addison-Wesley.</li>
+          <li>Pettigrew, T. F., &amp; Tropp, L. R. (2006). A meta-analytic test of intergroup contact theory. <i>Journal of Personality and Social Psychology</i>, 90(5), 751–783.</li>
+          <li>Duncan, O. D., &amp; Duncan, B. (1955). A methodological analysis of segregation indexes. <i>American Sociological Review</i>, 20(2), 210–217.</li>
+          <li>Smits, J. (2010). Ethnic intermarriage and social cohesion. <i>Social Indicators Research</i>, 96(3), 417–432.</li>
+          <li>Puhalo, S. (2009). <i>Etnička distanca i (auto)stereotipi građana Bosne i Hercegovine.</i> Friedrich Ebert Stiftung.</li>
+        </ul>
+        <p class="siva mala" style="margin-top:0.6rem">U NetLogu: File → Models Library → Sample Models → Social Science → Segregation (Schellingov model).</p></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<nav class="navigacija" aria-label="Slajdovi">
+  <div class="napredak" id="napredak"></div>
+  <div class="okvir">
+    <button type="button" id="nazad" aria-label="Prethodni slajd">←</button>
+    <span class="broj" id="broj">1 / 15</span>
+    <button type="button" id="naprijed" aria-label="Sljedeći slajd">→</button>
+    <span class="naslov-slajda" id="naslov-slajda"></span>
+  </div>
+</nav>
+
+<script>
+// Zajednički dio lekcija (isti kao u mini-prezentacijama blokova s vježbi 3): jedan slajd na ekranu ili svi jedan
+// ispod drugog (način „Čitanje“), strelice i prevlačenje, adresa #sN, zapamćen način prikaza.
+// Upotreba: Prezentacija("lekcija1", crtajVidljivo), gdje crtajVidljivo iscrta grafike na vidljivim slajdovima.
+window.Prezentacija = function (kljuc, crtajVidljivo) {
+  const $ = s => document.querySelector(s);
+  const main = $("#slajdovi"), slajdovi = [...document.querySelectorAll(".slajd")];
+  let tren = 0;
+  function prikazi(i, izHasha) {
+    tren = Math.max(0, Math.min(slajdovi.length - 1, i));
+    slajdovi.forEach((s, k) => s.classList.toggle("aktivan", k === tren));
+    $("#broj").textContent = `${tren + 1} / ${slajdovi.length}`;
+    $("#naslov-slajda").textContent = slajdovi[tren].dataset.naslov;
+    $("#napredak").style.width = `${((tren + 1) / slajdovi.length) * 100}%`;
+    $("#nazad").disabled = tren === 0; $("#naprijed").disabled = tren === slajdovi.length - 1;
+    if (!izHasha) { try { history.replaceState(null, "", "#" + slajdovi[tren].id); } catch (e) {} }
+    if (main.classList.contains("prezentacija")) window.scrollTo(0, 0);
+    crtajVidljivo();
+  }
+  $("#nazad").addEventListener("click", () => prikazi(tren - 1));
+  $("#naprijed").addEventListener("click", () => prikazi(tren + 1));
+  document.addEventListener("keydown", e => {
+    if (!main.classList.contains("prezentacija") || e.target.closest("input, textarea, select")) return;
+    if (["ArrowRight", "PageDown"].includes(e.key) || (e.key === " " && !e.target.closest("button"))) { e.preventDefault(); prikazi(tren + 1); }
+    if (["ArrowLeft", "PageUp"].includes(e.key)) { e.preventDefault(); prikazi(tren - 1); }
+    if (e.key === "Home") prikazi(0);
+    if (e.key === "End") prikazi(slajdovi.length - 1);
+  });
+  let dodirX = null;
+  main.addEventListener("touchstart", e => { dodirX = e.touches[0].clientX; }, { passive: true });
+  main.addEventListener("touchend", e => {
+    if (dodirX === null || !main.classList.contains("prezentacija")) return;
+    const dx = e.changedTouches[0].clientX - dodirX; dodirX = null;
+    if (e.target.closest("input, select, canvas, .interaktivno")) return;
+    if (Math.abs(dx) > 70) prikazi(tren + (dx < 0 ? 1 : -1));
+  });
+  function nacin(citanje) {
+    main.classList.toggle("citanje", citanje); main.classList.toggle("prezentacija", !citanje);
+    $("#nacin-citanje").setAttribute("aria-pressed", citanje); $("#nacin-prezentacija").setAttribute("aria-pressed", !citanje);
+    try { localStorage.setItem(kljuc + "-nacin", citanje ? "citanje" : "prezentacija"); } catch (e) {}
+    if (citanje) requestAnimationFrame(() => slajdovi[tren].scrollIntoView());
+    crtajVidljivo();
+  }
+  $("#nacin-citanje").addEventListener("click", () => nacin(true));
+  $("#nacin-prezentacija").addEventListener("click", () => nacin(false));
+  addEventListener("resize", () => crtajVidljivo());
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => crtajVidljivo());
+
+  let pocetni = 0;
+  const h = location.hash.replace("#", ""), k = slajdovi.findIndex(s => s.id === h); if (k >= 0) pocetni = k;
+  let sacuvano = null; try { sacuvano = localStorage.getItem(kljuc + "-nacin"); } catch (e) {}
+  if (sacuvano === "citanje") nacin(true);
+  prikazi(pocetni, true);
+  if (main.classList.contains("prezentacija")) setTimeout(() => window.scrollTo(0, 0), 0);
+  addEventListener("hashchange", () => {
+    const i = slajdovi.findIndex(s => s.id === location.hash.replace("#", ""));
+    if (i >= 0 && i !== tren) { prikazi(i, true); if (main.classList.contains("citanje")) slajdovi[i].scrollIntoView(); }
+  });
+  return { prikazi };
+};
+
+// Zajedničke pomoćne funkcije za grafike (SVG) i brojeve.
+window.Pomoc = (() => {
+  const SVG = "http://www.w3.org/2000/svg";
+  const el = (ime, atr = {}, tekst) => { const e = document.createElementNS(SVG, ime); for (const [k, v] of Object.entries(atr)) e.setAttribute(k, v); if (tekst !== undefined) e.textContent = tekst; return e; };
+  const zarez = (x, d = 2) => x.toFixed(d).replace(".", ",").replace("-", "−");
+  const pct = x => `${Math.round(x * 100)}%`;
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  // mulberry32: ponovljivi slučajni brojevi za ilustracije u web pregledniku
+  const rng = seed => () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  return { el, zarez, pct, css, rng };
+})();
+
+</script>
+<script>
+(() => {
+  const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+  const { zarez, css, rng } = window.Pomoc;
+  const pct = x => `${Math.round(x * 100)} %`;
+
+  // Ilustracija: 12 sela (lijevo) i grad sa 6 četvrti (desno); jedan agent je jedna porodica.
+  // Pravilo selidbe je ono iz ugovora (odjeljak 5), pojednostavljeno: K = tz × (ΔP − T) + ti × identitet × (manjak sada − manjak cilj).
+  const P0 = { plataGrad: 1.5, plataSelo: 1.05, korpa: 1, T: 0.15, prag: 0.5, pProcjene: 0.5, kandidata: 6 };
+  const B = 8, KX = 6, KY = 3, W = B * KX, H = B * KY;
+  const cetvrtOd = (x, y) => Math.floor(y / B) * KX + Math.floor(x / B);
+  const jeGrad = c => c % KX >= 4;
+
+  function napravi(seed, p) {
+    const R = rng(seed);
+    const gauss = () => { let u = 0, v = 0; while (!u) u = R(); while (!v) v = R(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
+    const celija = new Array(W * H).fill(null), dom = [];
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const c = cetvrtOd(x, y), grad = jeGrad(c), vecina = ((c % KX) + Math.floor(c / KX) * 4) % 3;
+      if (R() < (grad ? 0.45 : 0.8)) {
+        const g = grad ? Math.floor(R() * 3) : (R() < 0.8 ? vecina : (vecina + 1 + Math.floor(R() * 2)) % 3);
+        const d = { g, x, y, id: Math.min(1, Math.max(0, 0.5 + 0.15 * gauss())), novac: R() * 0.5 };
+        dom.push(d); celija[y * W + x] = d;
+      }
+    }
+    return { R, celija, dom, god: 0, selZarada: 0, selEtn: 0, zarobljeni: 0, p, seed };
+  }
+  function brojevi(s) { const n = Array.from({ length: KX * KY }, () => [0, 0, 0]); for (const d of s.dom) n[cetvrtOd(d.x, d.y)][d.g]++; return n; }
+  function korak(s) {
+    const p = s.p, n = brojevi(s);
+    const udio = (c, g) => { const t = n[c][0] + n[c][1] + n[c][2]; return t ? n[c][g] / t : 0; };
+    const plata = c => jeGrad(c) ? p.plataGrad : p.plataSelo;
+    const manjak = (c, g) => Math.max(0, p.prag - udio(c, g));   // udio se računa jednom na početku godine
+    const prazne = []; for (let i = 0; i < s.celija.length; i++) if (!s.celija[i]) prazne.push(i);
+    const red = s.dom.slice(); for (let i = red.length - 1; i > 0; i--) { const j = Math.floor(s.R() * (i + 1)); [red[i], red[j]] = [red[j], red[i]]; }
+    for (const d of red) d.novac = Math.max(0, d.novac + plata(cetvrtOd(d.x, d.y)) - p.korpa);
+    s.zarobljeni = 0;
+    for (const d of red) {
+      if (s.R() > p.pProcjene) continue;
+      const c0 = cetvrtOd(d.x, d.y); let naj = null, najK = 0, najZ = 0, najI = 0;
+      for (let k = 0; k < p.kandidata; k++) {
+        const idx = prazne[Math.floor(s.R() * prazne.length)]; if (s.celija[idx]) continue;
+        const c1 = cetvrtOd(idx % W, Math.floor(idx / W));
+        const z = p.tz * (plata(c1) - plata(c0) - p.T), e = p.ti * d.id * (manjak(c0, d.g) - manjak(c1, d.g)), K = z + e;
+        if (K > najK) { najK = K; naj = idx; najZ = z; najI = e; }
+      }
+      if (naj === null) continue;
+      if (d.novac < p.T) { s.zarobljeni++; continue; }
+      const i0 = d.y * W + d.x; d.novac -= p.T; s.celija[i0] = null; s.celija[naj] = d; d.x = naj % W; d.y = Math.floor(naj / W);
+      prazne[prazne.indexOf(naj)] = i0;
+      if (najZ >= najI) s.selZarada++; else s.selEtn++;
+    }
+    s.god++;
+  }
+  function mjere(s) {
+    const n = brojevi(s), G = [0, 0, 0]; for (const r of n) for (let g = 0; g < 3; g++) G[g] += r[g];
+    let D = 0; for (const [a, b] of [[0, 1], [0, 2], [1, 2]]) { let x = 0; for (const r of n) x += Math.abs(r[a] / G[a] - r[b] / G[b]); D += x / 2 / 3; }
+    let grad = 0, mjes = 0; n.forEach((r, c) => { const t = r[0] + r[1] + r[2]; if (jeGrad(c)) { grad += t; if (t && Math.max(...r) / t <= 0.66) mjes++; } });
+    return { D, uGradu: grad / s.dom.length, mjes };
+  }
+
+  function crtaj(platno, s) {
+    const dpr = window.devicePixelRatio || 1, w = platno.clientWidth, h = platno.clientHeight;
+    if (!w) return;
+    platno.width = Math.round(w * dpr); platno.height = Math.round(h * dpr);
+    const g = platno.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.fillStyle = "#0b0d10"; g.fillRect(0, 0, w, h);
+    const k = Math.min(w / W, h / H), ox = (w - k * W) / 2, oy = (h - k * H) / 2;
+    const boje = [css("--grupa-a"), css("--grupa-b"), css("--grupa-c")];
+    for (let c = 0; c < KX * KY; c++) {
+      const bx = c % KX, by = Math.floor(c / KX);
+      g.strokeStyle = jeGrad(c) ? "#f0894a" : "#38424d"; g.lineWidth = jeGrad(c) ? 1.6 : 1;
+      g.strokeRect(ox + bx * B * k + 1.5, oy + by * B * k + 1.5, B * k - 3, B * k - 3);
+    }
+    for (const d of s.dom) {
+      g.fillStyle = boje[d.g];
+      const bx = Math.floor(d.x / B), by = Math.floor(d.y / B);
+      const x = ox + bx * B * k + 2.5 + (d.x % B) * (B * k - 5) / B, y = oy + by * B * k + 2.5 + (d.y % B) * (B * k - 5) / B;
+      const r = (B * k - 5) / B * 0.38;
+      g.beginPath(); g.arc(x + r * 1.3, y + r * 1.3, r, 0, 2 * Math.PI); g.fill();
+    }
+  }
+
+  // slajd 7
+  let seed = 1, s = null, tajmer = null;
+  const tz = () => +$("#k-tz").value, ti = () => +$("#k-ti").value;
+  function pokazi() {
+    const m = mjere(s);
+    $("#b-god").textContent = s.god; $("#b-grad").textContent = pct(m.uGradu); $("#b-d").textContent = zarez(m.D);
+    $("#b-mjes").textContent = `${m.mjes} od 6`; $("#b-zarada").textContent = s.selZarada; $("#b-etn").textContent = s.selEtn;
+    $("#b-zar").textContent = s.zarobljeni; $("#b-seed").textContent = s.seed;
+    $("#o-tz").textContent = zarez(tz(), 1); $("#o-ti").textContent = zarez(ti(), 1);
+    for (const b of $$("[data-tz]")) b.setAttribute("aria-pressed", +b.dataset.tz === tz() && +b.dataset.ti === ti());
+    if ($("#c-probaj").offsetParent !== null) crtaj($("#c-probaj"), s);
+  }
+  function stani() { if (tajmer) { clearInterval(tajmer); tajmer = null; } }
+  function vrati() { stani(); s = napravi(seed, { ...P0, tz: tz(), ti: ti() }); pokazi(); }
+  function postaviTezine() { s.p.tz = tz(); s.p.ti = ti(); pokazi(); }
+  $("#k-tz").addEventListener("input", postaviTezine); $("#k-ti").addEventListener("input", postaviTezine);
+  for (const b of $$("[data-tz]")) b.addEventListener("click", () => { $("#k-tz").value = b.dataset.tz; $("#k-ti").value = b.dataset.ti; vrati(); });
+  $("#d-1").addEventListener("click", () => { stani(); korak(s); pokazi(); });
+  $("#d-20").addEventListener("click", () => {
+    stani(); let ostalo = 20;
+    tajmer = setInterval(() => { korak(s); pokazi(); if (--ostalo <= 0) stani(); }, 160);
+  });
+  $("#d-kriza").addEventListener("click", () => { for (const d of s.dom) d.novac *= 0.1; pokazi(); });
+  $("#d-vrati").addEventListener("click", vrati);
+  $("#d-novo").addEventListener("click", () => { seed++; vrati(); });
+  vrati();
+
+  // tipka F: cijeli ekran (kao u prezentaciji s vježbi 3)
+  document.addEventListener("keydown", e => {
+    if (e.key.toLowerCase() !== "f" || e.ctrlKey || e.metaKey || e.altKey || e.target.closest("input, textarea, select")) return;
+    try { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); } catch (x) {}
+  });
+
+  Prezentacija("v04-tema", () => {
+    if ($("#c-probaj").offsetParent !== null) crtaj($("#c-probaj"), s);
+  });
+})();
+</script>
+</body>
+</html>

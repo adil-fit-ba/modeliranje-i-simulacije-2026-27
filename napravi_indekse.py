@@ -54,6 +54,10 @@ def v03(p):
       + grupa("Isti modeli u NetLogo Webu (oko 5 MB po stranici)", [k(f"{p}netlogo-web/{m}.html", f"{n}. {t}", "Model se pokreće u web pregledniku, bez instalacije.") for n, _, m, t, _ in BLOKOVI])
       + grupa("Modeli za NetLogo 7.0.4", [k(f"{p}modeli/{m}.nlogox", f"{m}.nlogox", f"Blok {n}: {t.lower()}.") for n, _, m, t, _ in BLOKOVI]))
 
+def v04(p):
+    return grupa("Prezentacija", [
+        k(p + "prezentacije/v04-tema-tri-naroda.html", "Društvo s više naroda", "Seobe i mješovitost mjesta, na primjeru BiH: kostur modela, 12 varijanti teme, simulacija zarade i etničke pripadnosti u web pregledniku (15 slajdova).")])
+
 def stranica(naslov, opis, tijelo, oznaka="Modeliranje i simulacije · FIT UNMO 2026/27"):
     return f"""<!doctype html>
 <html lang="bs">
@@ -76,7 +80,8 @@ def stranica(naslov, opis, tijelo, oznaka="Modeliranje i simulacije · FIT UNMO 
 uvod = '  <p class="siva">Stranice rade u web pregledniku, bez instalacije. Prezentacije se listaju strelicama ← →; opcija „Čitanje“ prikazuje sve slajdove na jednoj stranici. Modeli se otvaraju u NetLogu 7.0.4.</p>\n'
 root = ('  <h1>Modeliranje i simulacije: materijali s vježbi</h1>\n' + uvod
         + '  <h2>Vježbe 2 (17.10.2026.): ponavljanje i prvi model</h2>\n' + v02("vjezbe-02/")
-        + '  <h2>Vježbe 3 (24.10.2026.): interakcije</h2>\n' + v03("vjezbe-03/"))
+        + '  <h2>Vježbe 3 (24.10.2026.): interakcije</h2>\n' + v03("vjezbe-03/")
+        + '  <h2>Vježbe 4 (31.10.2026.): tema „Društvo s više naroda“</h2>\n' + v04("vjezbe-04/"))
 io.open(REPO + "/index.html", "w", encoding="utf-8", newline="\n").write(
     stranica("Modeliranje i simulacije 2026/27 — materijali s vježbi", "Materijali s vježbi: prezentacije, mini-prezentacije i NetLogo modeli.", root, "FIT UNMO · 2026/27"))
 io.open(REPO + "/vjezbe-03/index.html", "w", encoding="utf-8", newline="\n").write(
