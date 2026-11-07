@@ -23,6 +23,17 @@ h3 { font-size: 1.2rem; margin-top: 1.6rem; }
 .veze b { color: var(--narandza); }
 .veze span { display: block; color: var(--siva); font-size: 0.9rem; }
 footer { margin-top: 2.5rem; font-size: 0.85rem; color: var(--siva); border-top: 1px solid var(--linija); padding-top: 0.8rem; }
+</style><style>
+.tok-v05 { display: grid; gap: 0.8rem; margin: 1rem 0; padding: 0; list-style: none; }
+.tok-v05 > li { padding: 1rem; background: var(--list); border: 1px solid var(--linija); border-radius: 6px; }
+.tok-v05 h3 { margin: 0; }
+.tok-v05 .satnica { display: block; margin-bottom: 0.25rem; color: var(--siva); font-size: 0.85rem; }
+.tok-v05 a, .skok-na-v05 { color: var(--narandza); text-underline-offset: 0.16em; }
+.tok-v05 .ulaz { display: inline-block; margin-top: 0.65rem; padding: 0.5rem 0.85rem;
+  background: var(--narandza); color: var(--list); font-weight: 700; border-radius: 4px; }
+.tok-v05 a:focus-visible, .skok-na-v05:focus-visible { outline: 2px solid var(--narandza); outline-offset: 3px; }
+.tok-v05 .pratece { display: flex; flex-wrap: wrap; gap: 0.3rem 1rem; margin: 0.6rem 0 0;
+  padding: 0; list-style: none; font-size: 0.92rem; }
 </style>
 </head>
 <body>
@@ -30,6 +41,7 @@ footer { margin-top: 2.5rem; font-size: 0.85rem; color: var(--siva); border-top:
   <span class="oznaka">FIT UNMO · 2026/27</span>
   <h1>Modeliranje i simulacije: materijali s vježbi</h1>
   <p class="siva">Stranice rade u web pregledniku, bez instalacije. Prezentacije se listaju strelicama ← →; opcija „Čitanje“ prikazuje sve slajdove na jednoj stranici. Modeli se otvaraju u NetLogu 7.0.4.</p>
+  <p><a class="skok-na-v05" href="#vjezbe-05">Idi na tok vježbi 05</a></p>
   <h2>Vježbe 2 (17.10.2026.): ponavljanje i prvi model</h2>
   <h3>Prezentacije</h3>
   <div class="veze">
@@ -89,20 +101,51 @@ footer { margin-top: 2.5rem; font-size: 0.85rem; color: var(--siva); border-top:
   <div class="veze">
     <a href="vjezbe-04/prezentacije/v04-tema-tri-naroda.html"><b>Društvo s više naroda</b><span>Seobe i mješovitost mjesta, na primjeru BiH: kostur modela, 13 varijanti teme, simulacija zarade i etničke pripadnosti u web pregledniku (15 slajdova).</span></a>
   </div>
-  <h2>Vježbe 5 (07.11.2026.) · Model na papiru i scenariji</h2>
-  <h3>Prezentacija i provjera modela</h3>
-  <div class="veze">
-    <a href="vjezbe-05/prezentacije/v05-model-na-papiru-i-scenariji.html"><b>Model na papiru i scenariji</b><span>Uvod, izmišljeni primjer za listu provjere i tema „Društvo s više naroda“ (17 slajdova).</span></a>
-    <a href="vjezbe-05/lista-provjere-model-na-papiru.html"><b>Lista provjere modela na papiru</b><span>Petnaest stavki, dopunjenih prema predavanju 03.11. Oznake se mogu sačuvati u web pregledniku.</span></a>
-    <a href="vjezbe-05/lista-provjere-model-na-papiru.pdf"><b>Lista provjere za štampu (PDF)</b><span>Ažurirana lista provjere u formatu A4.</span></a>
-  </div>
-  <h3>Lekcije i BehaviorSpace</h3>
-  <div class="veze">
-    <a href="vjezbe-05/lekcija1-sta-pravilo-moze.html"><b>Lekcija 1 · Šta pravilo može proizvesti</b><span>Pravilo interakcije, mjere i scenariji. Ilustracija i mjerenja iz NetLoga.</span></a>
-    <a href="vjezbe-05/lekcija2-jedno-pokretanje.html"><b>Lekcija 2 · Jedno pokretanje nije rezultat</b><span>Slučajnost, broj ponavljanja, seed i izvještavanje.</span></a>
-    <a href="vjezbe-05/upute-behaviorspace.html"><b>BehaviorSpace na modelu stava</b><span>Postupak kroz meni, 100 pokretanja po scenariju i izmjerena CSV tabela.</span></a>
-    <a href="vjezbe-05/modeli/v05-model-stav-behaviorspace.nlogox"><b>Model s pripremljenim eksperimentom</b><span>Model stava s vježbi 2 i ugrađen eksperiment v05-mediji, za NetLogo 7.0.4.</span></a>
-  </div>
+  <h2 id="vjezbe-05">Vježbe 5 (07.11.2026.) · Model na papiru i scenariji</h2>
+  <p class="siva">Pratite blokove redom. Istaknuti link u svakom bloku otvara početni slajd.</p>
+  <ol class="tok-v05" role="list">
+    <li>
+      <span class="satnica">14:00–14:20</span>
+      <h3>1. Predviđanje i pravilo interakcije</h3>
+      <a class="ulaz" href="vjezbe-05/prezentacije/v05-model-na-papiru-i-scenariji.html#s1">Počni ovdje · slajd 1</a>
+      <ul class="pratece" role="list">
+        <li><a href="vjezbe-05/lekcija1-sta-pravilo-moze.html#s3">Ilustracija pravila</a></li>
+        <li><a href="vjezbe-05/lekcija1-sta-pravilo-moze.html#s5">Raspodjele stavova</a></li>
+      </ul>
+    </li>
+    <li>
+      <span class="satnica">14:20–14:45</span>
+      <h3>2. Poređenje scenarija i BehaviorSpace</h3>
+      <a class="ulaz" href="vjezbe-05/prezentacije/v05-model-na-papiru-i-scenariji.html#s2">Sastavljanje poređenja · slajd 2</a>
+      <ul class="pratece" role="list">
+        <li><a href="vjezbe-05/lekcija2-jedno-pokretanje.html#s4">Izvlačenje uzorka (po potrebi)</a></li>
+        <li><a href="vjezbe-05/upute-behaviorspace.html">Upute za BehaviorSpace</a></li>
+        <li><a href="vjezbe-05/modeli/v05-model-stav-behaviorspace.nlogox">NetLogo model</a></li>
+        <li><a href="vjezbe-05/prezentacije/v05-model-na-papiru-i-scenariji.html#s4">Rezultati · slajd 4</a></li>
+        <li><a href="vjezbe-05/mjerenja/v05-mediji.csv">Mjerenja (CSV)</a></li>
+      </ul>
+    </li>
+    <li>
+      <span class="satnica">14:45–15:15</span>
+      <h3>3. Model na papiru i lista provjere</h3>
+      <a class="ulaz" href="vjezbe-05/prezentacije/v05-model-na-papiru-i-scenariji.html#s5">Primjer s alatom · slajd 5</a>
+      <ul class="pratece" role="list">
+        <li><a href="vjezbe-05/prezentacije/v05-model-na-papiru-i-scenariji.html#s7">Ispravljeno poređenje · slajd 7</a></li>
+        <li><a href="vjezbe-05/lista-provjere-model-na-papiru.html">Lista provjere</a></li>
+        <li><a href="vjezbe-05/lista-provjere-model-na-papiru.pdf">Lista za štampu (PDF)</a></li>
+      </ul>
+    </li>
+    <li>
+      <span class="satnica">15:15–15:30</span>
+      <h3>4. Društvo s više naroda · samo za tu temu</h3>
+      <a class="ulaz" href="vjezbe-05/prezentacije/v05-model-na-papiru-i-scenariji.html#s9">Uvod u završni blok · slajd 9</a>
+      <ul class="pratece" role="list">
+        <li><a href="vjezbe-05/prezentacije/v05-model-na-papiru-i-scenariji.html#s11">Zajednički kontrolni scenarij · slajd 11</a></li>
+        <li><a href="vjezbe-05/prezentacije/v05-model-na-papiru-i-scenariji.html#s16">Obrazac prijedloga · slajd 16</a></li>
+        <li><a href="vjezbe-05/prezentacije/v05-model-na-papiru-i-scenariji.html#s17">Sljedeći koraci · slajd 17</a></li>
+      </ul>
+    </li>
+  </ol>
 
   <footer>Modeliranje i simulacije, Fakultet informacijskih tehnologija, Univerzitet „Džemal Bijedić“ u Mostaru, 2026/27.</footer>
 </main>

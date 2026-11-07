@@ -58,18 +58,62 @@ def v04(p):
     return grupa("Prezentacija", [
         k(p + "prezentacije/v04-tema-tri-naroda.html", "Društvo s više naroda", "Seobe i mješovitost mjesta, na primjeru BiH: kostur modela, 13 varijanti teme, simulacija zarade i etničke pripadnosti u web pregledniku (15 slajdova).")])
 
-def v05(p):
-    return (grupa("Prezentacija i provjera modela", [
-        k(p + "prezentacije/v05-model-na-papiru-i-scenariji.html", "Model na papiru i scenariji", "Uvod, izmišljeni primjer za listu provjere i tema „Društvo s više naroda“ (17 slajdova)."),
-        k(p + "lista-provjere-model-na-papiru.html", "Lista provjere modela na papiru", "Petnaest stavki, dopunjenih prema predavanju 03.11. Oznake se mogu sačuvati u web pregledniku."),
-        k(p + "lista-provjere-model-na-papiru.pdf", "Lista provjere za štampu (PDF)", "Ažurirana lista provjere u formatu A4.")])
-      + grupa("Lekcije i BehaviorSpace", [
-        k(p + "lekcija1-sta-pravilo-moze.html", "Lekcija 1 · Šta pravilo može proizvesti", "Pravilo interakcije, mjere i scenariji. Ilustracija i mjerenja iz NetLoga."),
-        k(p + "lekcija2-jedno-pokretanje.html", "Lekcija 2 · Jedno pokretanje nije rezultat", "Slučajnost, broj ponavljanja, seed i izvještavanje."),
-        k(p + "upute-behaviorspace.html", "BehaviorSpace na modelu stava", "Postupak kroz meni, 100 pokretanja po scenariju i izmjerena CSV tabela."),
-        k(p + "modeli/v05-model-stav-behaviorspace.nlogox", "Model s pripremljenim eksperimentom", "Model stava s vježbi 2 i ugrađen eksperiment v05-mediji, za NetLogo 7.0.4.")]))
+V05_CSS = """<style>
+.tok-v05 { display: grid; gap: 0.8rem; margin: 1rem 0; padding: 0; list-style: none; }
+.tok-v05 > li { padding: 1rem; background: var(--list); border: 1px solid var(--linija); border-radius: 6px; }
+.tok-v05 h3 { margin: 0; }
+.tok-v05 .satnica { display: block; margin-bottom: 0.25rem; color: var(--siva); font-size: 0.85rem; }
+.tok-v05 a, .skok-na-v05 { color: var(--narandza); text-underline-offset: 0.16em; }
+.tok-v05 .ulaz { display: inline-block; margin-top: 0.65rem; padding: 0.5rem 0.85rem;
+  background: var(--narandza); color: var(--list); font-weight: 700; border-radius: 4px; }
+.tok-v05 a:focus-visible, .skok-na-v05:focus-visible { outline: 2px solid var(--narandza); outline-offset: 3px; }
+.tok-v05 .pratece { display: flex; flex-wrap: wrap; gap: 0.3rem 1rem; margin: 0.6rem 0 0;
+  padding: 0; list-style: none; font-size: 0.92rem; }
+</style>"""
 
-def stranica(naslov, opis, tijelo, oznaka="Modeliranje i simulacije · FIT UNMO 2026/27"):
+def v05(p):
+    deck = "prezentacije/v05-model-na-papiru-i-scenariji.html"
+    koraci = [
+        ("14:00–14:20", "Predviđanje i pravilo interakcije", "s1", "Počni ovdje · slajd 1", [
+            ("lekcija1-sta-pravilo-moze.html#s3", "Ilustracija pravila"),
+            ("lekcija1-sta-pravilo-moze.html#s5", "Raspodjele stavova"),
+        ]),
+        ("14:20–14:45", "Poređenje scenarija i BehaviorSpace", "s2", "Sastavljanje poređenja · slajd 2", [
+            ("lekcija2-jedno-pokretanje.html#s4", "Izvlačenje uzorka (po potrebi)"),
+            ("upute-behaviorspace.html", "Upute za BehaviorSpace"),
+            ("modeli/v05-model-stav-behaviorspace.nlogox", "NetLogo model"),
+            (deck + "#s4", "Rezultati · slajd 4"),
+            ("mjerenja/v05-mediji.csv", "Mjerenja (CSV)"),
+        ]),
+        ("14:45–15:15", "Model na papiru i lista provjere", "s5", "Primjer s alatom · slajd 5", [
+            (deck + "#s7", "Ispravljeno poređenje · slajd 7"),
+            ("lista-provjere-model-na-papiru.html", "Lista provjere"),
+            ("lista-provjere-model-na-papiru.pdf", "Lista za štampu (PDF)"),
+        ]),
+        ("15:15–15:30", "Društvo s više naroda · samo za tu temu", "s9", "Uvod u završni blok · slajd 9", [
+            (deck + "#s11", "Zajednički kontrolni scenarij · slajd 11"),
+            (deck + "#s16", "Obrazac prijedloga · slajd 16"),
+            (deck + "#s17", "Sljedeći koraci · slajd 17"),
+        ]),
+    ]
+    dijelovi = [
+        '  <p class="siva">Pratite blokove redom. Istaknuti link u svakom bloku otvara početni slajd.</p>',
+        '  <ol class="tok-v05" role="list">',
+    ]
+    for broj, (vrijeme, naslov, slajd, ulaz, pratece) in enumerate(koraci, 1):
+        veze = "\n".join(f'        <li><a href="{p}{href}">{opis}</a></li>' for href, opis in pratece)
+        dijelovi.append(f"""    <li>
+      <span class="satnica">{vrijeme}</span>
+      <h3>{broj}. {naslov}</h3>
+      <a class="ulaz" href="{p}{deck}#{slajd}">{ulaz}</a>
+      <ul class="pratece" role="list">
+{veze}
+      </ul>
+    </li>""")
+    dijelovi.append("  </ol>")
+    return "\n".join(dijelovi) + "\n"
+
+def stranica(naslov, opis, tijelo, oznaka="Modeliranje i simulacije · FIT UNMO 2026/27", dodatni_css=""):
     return f"""<!doctype html>
 <html lang="bs">
 <head>
@@ -77,7 +121,7 @@ def stranica(naslov, opis, tijelo, oznaka="Modeliranje i simulacije · FIT UNMO 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{naslov}</title>
 <meta name="description" content="{opis}">
-{CSS}
+{CSS}{dodatni_css}
 </head>
 <body>
 <main>
@@ -90,17 +134,18 @@ def stranica(naslov, opis, tijelo, oznaka="Modeliranje i simulacije · FIT UNMO 
 """
 uvod = '  <p class="siva">Stranice rade u web pregledniku, bez instalacije. Prezentacije se listaju strelicama ← →; opcija „Čitanje“ prikazuje sve slajdove na jednoj stranici. Modeli se otvaraju u NetLogu 7.0.4.</p>\n'
 root = ('  <h1>Modeliranje i simulacije: materijali s vježbi</h1>\n' + uvod
+        + '  <p><a class="skok-na-v05" href="#vjezbe-05">Idi na tok vježbi 05</a></p>\n'
         + '  <h2>Vježbe 2 (17.10.2026.): ponavljanje i prvi model</h2>\n' + v02("vjezbe-02/")
         + '  <h2>Vježbe 3 (24.10.2026.): interakcije</h2>\n' + v03("vjezbe-03/")
         + '  <h2>Vježbe 4 (31.10.2026.): tema „Društvo s više naroda“</h2>\n' + v04("vjezbe-04/")
-        + '  <h2>Vježbe 5 (07.11.2026.) · Model na papiru i scenariji</h2>\n' + v05("vjezbe-05/"))
+        + '  <h2 id="vjezbe-05">Vježbe 5 (07.11.2026.) · Model na papiru i scenariji</h2>\n' + v05("vjezbe-05/"))
 io.open(REPO + "/index.html", "w", encoding="utf-8", newline="\n").write(
-    stranica("Modeliranje i simulacije 2026/27 — materijali s vježbi", "Materijali s vježbi: prezentacije, mini-prezentacije i NetLogo modeli.", root, "FIT UNMO · 2026/27"))
+    stranica("Modeliranje i simulacije 2026/27 — materijali s vježbi", "Materijali s vježbi: prezentacije, mini-prezentacije i NetLogo modeli.", root, "FIT UNMO · 2026/27", dodatni_css=V05_CSS))
 io.open(REPO + "/vjezbe-03/index.html", "w", encoding="utf-8", newline="\n").write(
     stranica("Vježbe 3 — materijali", "Modeliranje i simulacije, FIT UNMO 2026/27: materijali vježbi 3.",
              '  <h1>Vježbe 3: materijali</h1>\n  <p class="siva">Subota, 24.10.2026. ' + uvod.split('siva">')[1] + v03("")))
 io.open(REPO + "/vjezbe-05/index.html", "w", encoding="utf-8", newline="\n").write(
     stranica("Vježbe 5 — materijali", "Modeliranje i simulacije, FIT UNMO 2026/27. Model na papiru i scenariji.",
              '  <h1>Vježbe 5 · Model na papiru i scenariji</h1>\n  <p class="siva">Subota, 07.11.2026. u 14:00.</p>\n'
-             + uvod + v05("")))
+             + uvod + v05(""), dodatni_css=V05_CSS))
 print("ok")
