@@ -209,11 +209,24 @@ canvas.osa { width: 100%; aspect-ratio: 3 / 1; display: block; }
 .g-pojas-za { fill: var(--za); opacity: 0.16; } .g-pojas-protiv { fill: var(--protiv); opacity: 0.14; } .g-pojas-prosjek { fill: var(--tinta); opacity: 0.1; }
 .g-stub-za { fill: var(--za); } .g-stub-protiv { fill: var(--protiv); } .g-stub-neo { fill: var(--neodlucni); }
 </style>
+<style>
+.povratak-v05 {
+  display: inline-block; padding: 0.4rem 0.7rem; border: 1px solid var(--narandza); border-radius: 4px;
+  color: var(--narandza); font: 500 var(--t-0) var(--f-mono); text-decoration: none; white-space: nowrap;
+}
+.povratak-v05:hover { background: var(--narandza); color: var(--list); }
+.povratak-v05:focus-visible { outline: 2px solid var(--narandza); outline-offset: 2px; }
+@media (max-width: 600px) {
+  .vrh .okvir > .povratak-v05 + span { order: -1; flex-basis: 100%; }
+}
+@media print { .povratak-v05, .traka-povratka-v05 { display: none; } }
+</style>
 </head>
 <body>
 
 <header class="vrh">
   <div class="okvir">
+    <a class="povratak-v05" href="index.html#v05-blok-1">← Vježbe 05</a>
     <span><span class="oznaka">Lekcija 1</span> &nbsp;<b>Šta pravilo može proizvesti</b></span>
     <div class="nacin" role="group" aria-label="Način prikaza">
       <button type="button" id="nacin-prezentacija" aria-pressed="true">Prezentacija</button>

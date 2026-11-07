@@ -102,7 +102,7 @@ def v05(p):
     ]
     for broj, (vrijeme, naslov, slajd, ulaz, pratece) in enumerate(koraci, 1):
         veze = "\n".join(f'        <li><a href="{p}{href}">{opis}</a></li>' for href, opis in pratece)
-        dijelovi.append(f"""    <li>
+        dijelovi.append(f"""    <li id="v05-blok-{broj}">
       <span class="satnica">{vrijeme}</span>
       <h3>{broj}. {naslov}</h3>
       <a class="ulaz" href="{p}{deck}#{slajd}">{ulaz}</a>
