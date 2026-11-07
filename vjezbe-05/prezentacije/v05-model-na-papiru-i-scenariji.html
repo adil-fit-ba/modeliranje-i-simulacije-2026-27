@@ -601,6 +601,27 @@ details.info ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.25rem; 
   </tbody></table></div>
   <p style="margin-top:1rem">U prijedlogu navedite najniži sloj koji mehanizam zahtijeva. Učinak se ispituje na tom sloju i na punom modelu. U svakom poređenju mijenja se jedna stvar.</p>
   <p class="oznaka-primjera">Za prikazano pravilo zapošljavanja dovoljan je L0. Firme već postoje, a pravilo se može ispitati uz jednake plate.</p>
+  <details class="info">
+    <summary>Šta znače „najniži sloj“, „puni model“ i „jedna promjena“</summary>
+    <div class="sadrzaj">
+      <div><h4>Zašto slojevi</h4><ul>
+        <li>Svaki sloj dodaje novu silu koja pomjera ljude i može se isključiti prekidačem.</li>
+        <li>U punom modelu isti ishod može imati više uzroka: sela se mogu isprazniti zbog plata (L1), odlaska mladih (L3) ili krize (L4). Ako se mehanizam doda samo u puni model, teško je pokazati da je baš on nešto promijenio.</li></ul></div>
+      <div><h4>1. Najniži sloj</h4><ul>
+        <li>To je najjednostavniji kostur u kojem mehanizam uopšte može djelovati. Pitanje glasi: šta mehanizmu treba?</li>
+        <li>Povjerenje pri zapošljavanju treba firme i zaposlene; firme postoje već u L0, pa je najniži sloj L0.</li>
+        <li>Prijateljstva u školi utiču na izbor mjesta stanovanja tek kad djeca odrastu; starenje postoji u L3, pa je najniži sloj L3.</li>
+        <li>Mehanizam o ponašanju u krizi traži L4. Najniži sloj navedite u prijavi, s razlogom.</li></ul></div>
+      <div><h4>2. Učinak se pokazuje dva puta</h4><ul>
+        <li><b>Na najnižem sloju:</b> ostalih sila je malo, pa se jasno vidi šta radi mehanizam (kao kad se novi dio automobila ispituje na probnom stolu).</li>
+        <li><b>Na punom modelu</b> (L3, a s krizom ako je mehanizam o krizi): provjerava se da li učinak ostaje kad djeluje sve ostalo (kao vožnja po stvarnom putu).</li>
+        <li>Ako učinak postoji na najnižem sloju, a nestane u punom modelu, i to je nalaz koji treba objasniti.</li></ul></div>
+      <div><h4>3. Jedna promjena po poređenju</h4><ul>
+        <li>Porede se model s mehanizmom i isti model bez mehanizma: isti slojevi, isti parametri, isti seed unutar para. Razlika u rezultatu je učinak mehanizma.</li>
+        <li>Ako se istovremeno uključe mehanizam i novi sloj, ne zna se šta je napravilo razliku.</li>
+        <li><b>Primjer (škole i prijateljstva):</b> poređenje 1 na L3 i poređenje 2 na punom modelu (L3, bez krize), u oba mehanizam isključen ili uključen, uz najmanje 10 ponavljanja. U rezultatima se navodi razlika koju je donio mehanizam, npr. „uz mehanizam indeks različitosti po četvrtima niži je za …“.</li></ul></div>
+    </div>
+  </details>
 </div></section>
 
 <section class="slajd" id="s14" data-naslov="Plan poređenja mehanizama"><div class="okvir">
