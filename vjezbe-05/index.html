@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="bs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vježbe 5 — materijali</title>
+<meta name="description" content="Modeliranje i simulacije, FIT UNMO 2026/27. Model na papiru i scenariji.">
+<style>
+:root { --papir: #eef1f4; --list: #fff; --tinta: #17212b; --siva: #56636f; --linija: #d3dae1; --narandza: #b9531a;
+  --f-naslov: Cambria, Georgia, serif; --f-tekst: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+@media (prefers-color-scheme: dark) { :root { --papir: #10161c; --list: #18212a; --tinta: #e3e9ee; --siva: #9ba8b4; --linija: #2a3540; --narandza: #f0894a; color-scheme: dark; } }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--papir); color: var(--tinta); font: 17px/1.5 var(--f-tekst); }
+main { max-width: 960px; margin: 0 auto; padding: 2rem max(16px, env(safe-area-inset-left)) 3rem; }
+h1, h2, h3 { font-family: var(--f-naslov); line-height: 1.2; margin: 0 0 0.4rem; }
+h1 { font-size: 2.1rem; } h2 { font-size: 1.6rem; margin-top: 2.6rem; padding-top: 1.2rem; border-top: 1px solid var(--linija); }
+h3 { font-size: 1.2rem; margin-top: 1.6rem; }
+.oznaka { font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--narandza); }
+.siva { color: var(--siva); }
+.veze { display: grid; gap: 0.7rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr)); margin-top: 0.8rem; }
+.veze a { display: block; text-decoration: none; background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 0.8rem 1rem; color: var(--tinta); }
+.veze a:hover, .veze a:focus-visible { border-color: var(--narandza); }
+.veze b { color: var(--narandza); }
+.veze span { display: block; color: var(--siva); font-size: 0.9rem; }
+footer { margin-top: 2.5rem; font-size: 0.85rem; color: var(--siva); border-top: 1px solid var(--linija); padding-top: 0.8rem; }
+</style>
+</head>
+<body>
+<main>
+  <span class="oznaka">Modeliranje i simulacije · FIT UNMO 2026/27</span>
+  <h1>Vježbe 5 · Model na papiru i scenariji</h1>
+  <p class="siva">Subota, 07.11.2026. u 14:00.</p>
+  <p class="siva">Stranice rade u web pregledniku, bez instalacije. Prezentacije se listaju strelicama ← →; opcija „Čitanje“ prikazuje sve slajdove na jednoj stranici. Modeli se otvaraju u NetLogu 7.0.4.</p>
+  <h3>Prezentacija i provjera modela</h3>
+  <div class="veze">
+    <a href="prezentacije/v05-model-na-papiru-i-scenariji.html"><b>Model na papiru i scenariji</b><span>Uvod, izmišljeni primjer za listu provjere i tema „Društvo s više naroda“ (17 slajdova).</span></a>
+    <a href="lista-provjere-model-na-papiru.html"><b>Lista provjere modela na papiru</b><span>Petnaest stavki, dopunjenih prema predavanju 03.11. Oznake se mogu sačuvati u web pregledniku.</span></a>
+    <a href="lista-provjere-model-na-papiru.pdf"><b>Lista provjere za štampu (PDF)</b><span>Ažurirana lista provjere u formatu A4.</span></a>
+  </div>
+  <h3>Lekcije i BehaviorSpace</h3>
+  <div class="veze">
+    <a href="lekcija1-sta-pravilo-moze.html"><b>Lekcija 1 · Šta pravilo može proizvesti</b><span>Pravilo interakcije, mjere i scenariji. Ilustracija i mjerenja iz NetLoga.</span></a>
+    <a href="lekcija2-jedno-pokretanje.html"><b>Lekcija 2 · Jedno pokretanje nije rezultat</b><span>Slučajnost, broj ponavljanja, seed i izvještavanje.</span></a>
+    <a href="upute-behaviorspace.html"><b>BehaviorSpace na modelu stava</b><span>Postupak kroz meni, 100 pokretanja po scenariju i izmjerena CSV tabela.</span></a>
+    <a href="modeli/v05-model-stav-behaviorspace.nlogox"><b>Model s pripremljenim eksperimentom</b><span>Model stava s vježbi 2 i ugrađen eksperiment v05-mediji, za NetLogo 7.0.4.</span></a>
+  </div>
+
+  <footer>Modeliranje i simulacije, Fakultet informacijskih tehnologija, Univerzitet „Džemal Bijedić“ u Mostaru, 2026/27.</footer>
+</main>
+</body>
+</html>

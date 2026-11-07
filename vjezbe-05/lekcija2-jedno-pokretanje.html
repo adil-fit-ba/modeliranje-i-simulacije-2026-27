@@ -1,0 +1,634 @@
+<!doctype html>
+<html lang="bs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jedno pokretanje nije rezultat</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:wght@500;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Raspored: mini-prezentacija od 10 slajdova; jedan slajd na ekranu (strelice), ili svi jedan ispod
+   drugog (način „Čitanje“). Papir je svijetao, svijet i putanje su na tamnoj podlozi kao u NetLogu. */
+:root {
+  --papir: #eef1f4; --list: #ffffff; --tinta: #17212b; --siva: #56636f; --linija: #d3dae1;
+  --narandza: #b9531a; --narandza-meko: #f6dfd0; --margina: #e5a3a3; --svijet: #0b0d10;
+  --za: #345da9; --protiv: #d73229; --neodlucni: #8d8d8d;
+  --f-naslov: "Bitter", "Georgia", "Cambria", serif;
+  --f-tekst: "IBM Plex Sans", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "IBM Plex Mono", "Cascadia Mono", Consolas, "Courier New", monospace;
+  --t-0: 0.83rem; --t-1: 1rem; --t-2: 1.17rem; --t-3: 1.5rem; --t-4: 2.2rem; --t-5: 3.1rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --papir: #10161c; --list: #18212a; --tinta: #e3e9ee; --siva: #9ba8b4; --linija: #2a3540;
+    --narandza: #f0894a; --narandza-meko: #3a2416; --margina: #6b3535; --za: #5b86d6; --protiv: #e5574e; --neodlucni: #9a9a9a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --papir: #10161c; --list: #18212a; --tinta: #e3e9ee; --siva: #9ba8b4; --linija: #2a3540;
+  --narandza: #f0894a; --narandza-meko: #3a2416; --margina: #6b3535; --za: #5b86d6; --protiv: #e5574e; --neodlucni: #9a9a9a;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { font-size: 18px; }
+@media (max-width: 600px) { html { font-size: 16px; } }
+body { margin: 0; background: var(--papir); color: var(--tinta); font-family: var(--f-tekst); line-height: 1.55; }
+[hidden] { display: none !important; }
+a { color: var(--narandza); text-underline-offset: 0.15em; }
+:focus-visible { outline: 3px solid var(--narandza); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--f-naslov); text-wrap: balance; line-height: 1.18; margin: 0; }
+p { margin: 0; }
+code { font-family: var(--f-mono); font-size: 0.9em; }
+p code, li code, td code { background: var(--narandza-meko); padding: 0.05em 0.3em; border-radius: 3px; }
+.okvir { max-width: 1200px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.oznaka { font-family: var(--f-mono); font-size: var(--t-0); letter-spacing: 0.08em; text-transform: uppercase; color: var(--narandza); font-weight: 500; }
+.siva { color: var(--siva); }
+.mala { font-size: var(--t-0); }
+
+/* traka na vrhu */
+.vrh { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--papir); border-bottom: 1px solid var(--linija); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--papir); }
+.vrh .okvir { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem 1rem; padding-block: 0.55rem; flex-wrap: wrap; }
+.vrh b { font-family: var(--f-naslov); font-weight: 700; }
+.nacin { display: flex; gap: 0.3rem; }
+button { font: 500 var(--t-0) var(--f-mono); border-radius: 4px; padding: 0.4rem 0.8rem; cursor: pointer;
+  border: 1px solid var(--narandza); background: transparent; color: var(--narandza); }
+button[aria-pressed="true"], button.glavno { background: var(--narandza); color: var(--list); }
+button:disabled { opacity: 0.45; cursor: default; }
+
+/* slajdovi */
+.slajd { padding-block: 2rem 6rem; scroll-margin-top: 3.4rem; }
+main.prezentacija .slajd { display: none; min-height: calc(100svh - 3.2rem); }
+main.prezentacija .slajd.aktivan { display: block; }
+main.citanje .slajd { border-bottom: 1px solid var(--linija); padding-block: 2.5rem; }
+.glava { display: grid; gap: 0.35rem; margin-bottom: 1.4rem; }
+.glava h2 { font-size: var(--t-4); max-width: 30ch; }
+.glava .podnaslov { font-size: var(--t-2); color: var(--siva); max-width: 52rem; }
+.dvije { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2rem; align-items: start; }
+.dvije > * { min-width: 0; }
+@media (max-width: 900px) { .dvije { grid-template-columns: minmax(0, 1fr); } }
+.tekst { display: grid; gap: 1rem; }
+.tekst ul { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.35rem; }
+.panel { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 1rem; }
+.pitanje { background: var(--narandza-meko); border-radius: 4px; padding: 0.9rem 1rem; }
+.pitanje h3 { font-size: var(--t-1); margin-bottom: 0.25rem; }
+
+/* naslovni slajd */
+.naslovni { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 2.4rem; align-items: center; padding-top: 1rem; }
+.naslovni > * { min-width: 0; }
+.naslovni h1 { font-size: var(--t-5); letter-spacing: -0.01em; margin: 0.4rem 0 0.9rem; }
+.naslovni .teza { font-size: var(--t-3); font-family: var(--f-naslov); line-height: 1.3; }
+.naslovni .uvod { margin-top: 1rem; color: var(--siva); }
+@media (max-width: 900px) { .naslovni { grid-template-columns: minmax(0, 1fr); } }
+
+/* list papira: pravilo za model na papiru */
+.papir {
+  margin: 0; background-color: var(--list); border: 1px solid var(--linija); border-radius: 4px;
+  padding: 1rem 1.2rem 1.2rem 2.4rem; position: relative; line-height: 1.75rem;
+  background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(1.75rem - 1px), var(--linija) calc(1.75rem - 1px), var(--linija) 1.75rem);
+  background-position: 0 2.55rem;
+}
+.papir::before { content: ""; position: absolute; left: 1.5rem; top: 0; bottom: 0; width: 2px; background: var(--margina); }
+.papir figcaption { font-family: var(--f-mono); font-size: var(--t-0); color: var(--siva); letter-spacing: 0.04em; text-transform: uppercase; line-height: 1.75rem; }
+.papir p, .papir li { font-family: var(--f-naslov); font-size: 1.08rem; }
+.papir ul { list-style: none; margin: 0; padding: 0 0 0 1.2rem; }
+.papir li::before { content: "→ "; color: var(--narandza); font-family: var(--f-tekst); }
+.papir b { color: var(--narandza); }
+
+/* kartice (pojava, sastavni dijelovi, koraci) */
+.kartice { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); }
+.kartica { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 1rem; display: grid; gap: 0.6rem; align-content: start; }
+.kartica h3 { font-size: var(--t-2); }
+.kartica svg { width: 100%; height: auto; display: block; }
+.kartica ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.25rem; }
+.kartica .kod-cip { font-family: var(--f-mono); font-size: 0.78rem; color: var(--siva); border-top: 1px dashed var(--linija); padding-top: 0.5rem; }
+.korak-broj { font-family: var(--f-mono); font-weight: 500; color: var(--narandza); }
+
+/* SVG ilustracije: boje iz tokena */
+.il-osa { stroke: var(--siva); stroke-width: 1.5; }
+.il-tekst { fill: var(--siva); font: 13px var(--f-mono); }
+.il-tekst-veci { fill: var(--tinta); font: 600 15px var(--f-tekst); }
+.il-za { fill: var(--za); } .il-protiv { fill: var(--protiv); } .il-neo { fill: var(--neodlucni); }
+.il-prozor { fill: var(--narandza-meko); stroke: var(--narandza); stroke-dasharray: 4 3; }
+.il-strelica { stroke: var(--narandza); stroke-width: 2.5; fill: none; }
+.il-vrh { fill: var(--narandza); }
+.il-domet { fill: none; stroke: var(--narandza); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.il-svijet { fill: var(--svijet); }
+.il-kuca { fill: #eded2f; }
+.il-precrtano { stroke: var(--protiv); stroke-width: 3; }
+.il-oblak { fill: var(--list); stroke: var(--siva); stroke-width: 1.2; }
+
+/* kalkulator jednog susreta */
+.kalk { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 1.5rem; }
+.kalk > * { min-width: 0; }
+@media (max-width: 900px) { .kalk { grid-template-columns: minmax(0, 1fr); } }
+.klizaci { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem 1.2rem; }
+@media (max-width: 520px) { .klizaci { grid-template-columns: minmax(0, 1fr); } }
+.klizac { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+.klizac label { font-family: var(--f-mono); font-size: var(--t-0); }
+.klizac output { font-family: var(--f-mono); font-size: var(--t-0); font-variant-numeric: tabular-nums; }
+.klizac input { grid-column: 1 / -1; width: 100%; accent-color: var(--narandza); }
+.racun { font-family: var(--f-mono); font-size: 0.86rem; line-height: 1.7; background: var(--papir); border-radius: 4px; padding: 0.7rem 0.9rem; overflow-x: auto; white-space: pre; }
+.racun .da { color: var(--za); font-weight: 600; } .racun .ne { color: var(--protiv); font-weight: 600; }
+.dugmad { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+
+/* putanje stava */
+.putanje-okvir { background: var(--svijet); border-radius: 6px; padding: 0.6rem; }
+canvas.putanje { width: 100%; aspect-ratio: 2 / 1; display: block; }
+.izbor { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.6rem; }
+.izbor button { border-color: var(--linija); color: var(--siva); }
+.izbor button[aria-pressed="true"] { border-color: var(--narandza); color: var(--list); background: var(--narandza); }
+.legenda { display: flex; gap: 1rem; flex-wrap: wrap; font-size: var(--t-0); color: var(--siva); margin-top: 0.4rem; }
+.legenda i { display: inline-block; width: 0.8em; height: 0.8em; border-radius: 50%; margin-right: 0.35em; vertical-align: -0.05em; }
+.potpis { font-size: var(--t-0); color: var(--siva); margin-top: 0.4rem; }
+.potpis b { color: var(--tinta); font-weight: 600; }
+
+/* grafikoni iz mjerenja */
+svg.grafik { width: 100%; height: auto; display: block; overflow: visible; }
+.g-mreza { stroke: var(--linija); stroke-width: 1; } .g-os { stroke: var(--siva); stroke-width: 1; }
+.g-oznaka { fill: var(--siva); font: 12px var(--f-mono); } .g-naslov-x { fill: var(--siva); font: 12px var(--f-tekst); }
+.g-vrijednost { fill: var(--tinta); font: 500 12px var(--f-mono); }
+.g-raspon { stroke: var(--narandza); stroke-width: 3; stroke-linecap: round; opacity: 0.35; }
+.g-tacka { fill: var(--narandza); }
+.g-ref { stroke: var(--siva); stroke-width: 1.2; stroke-dasharray: 4 4; }
+.g-ref-tekst { fill: var(--siva); font: italic 12px var(--f-tekst); }
+
+/* kod */
+.kodovi { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; }
+.kodovi > * { min-width: 0; }
+@media (max-width: 900px) { .kodovi { grid-template-columns: minmax(0, 1fr); } }
+.kod { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; overflow: hidden; }
+.kod .jezik { font-family: var(--f-mono); font-size: var(--t-0); padding: 0.4rem 0.8rem; border-bottom: 1px solid var(--linija); color: var(--siva); }
+.kod pre { margin: 0; padding: 0.8rem; overflow-x: auto; }
+.kod code { font-size: 14px; line-height: 1.55; white-space: pre; }
+.kod .kom { color: var(--siva); font-style: italic; }
+.kod mark { background: var(--narandza-meko); color: inherit; border-radius: 2px; padding: 0 0.15em; }
+.kod mark b { color: var(--narandza); font-family: var(--f-tekst); }
+.oblacici { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: 1rem; margin-top: 1rem; }
+.oblacici div { border-left: 3px solid var(--narandza); padding-left: 0.8rem; }
+.oblacici b.br { font-family: var(--f-mono); color: var(--narandza); margin-right: 0.3rem; }
+
+/* probaj */
+.veze { display: grid; gap: 0.7rem; }
+.veze a { display: block; text-decoration: none; background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 0.8rem 1rem; color: var(--tinta); }
+.veze a:hover { border-color: var(--narandza); }
+.veze a b { color: var(--narandza); }
+.veze a span { display: block; color: var(--siva); font-size: var(--t-0); }
+.literatura { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.35rem; font-size: 0.92rem; }
+
+/* donja navigacija */
+.navigacija { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--papir); border-top: 1px solid var(--linija);
+  padding-bottom: env(safe-area-inset-bottom, 0px); }
+.navigacija .okvir { display: flex; align-items: center; gap: 0.8rem; padding-block: 0.5rem; }
+.navigacija .naslov-slajda { flex: 1; min-width: 0; font-size: var(--t-0); color: var(--siva); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.navigacija .broj { font-family: var(--f-mono); font-size: var(--t-0); font-variant-numeric: tabular-nums; }
+.napredak { position: absolute; top: -1px; left: 0; height: 2px; background: var(--narandza); transition: width 0.25s; }
+main.citanje ~ .navigacija { display: none; }
+@media (prefers-reduced-motion: reduce) { .napredak { transition: none; } }
+
+</style>
+<style>
+/* dodaci za lekciju 2: sala, procjene iz uzoraka */
+:root { --stoji: #f16a15; --sjedi: #3a3d42; }
+.dvije-sale { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.8rem; }
+.dvije-sale figure { margin: 0; }
+.sala-okvir { background: var(--svijet); border-radius: 6px; padding: 0.5rem; }
+canvas.sala { width: 100%; aspect-ratio: 1 / 1; display: block; }
+.dvije-sale h3 { font-size: var(--t-1); margin-bottom: 0.3rem; }
+.g-tacka-uzorak { fill: var(--narandza); opacity: 0.75; }
+.g-tacka-nova { fill: var(--tinta); }
+.velika { font-family: var(--f-mono); font-size: 2.2rem; font-variant-numeric: tabular-nums; color: var(--narandza); line-height: 1.1; }
+.izbor-n { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.izbor-n button { border-color: var(--linija); color: var(--siva); }
+.izbor-n button[aria-pressed="true"] { border-color: var(--narandza); color: var(--list); background: var(--narandza); }
+.tablica { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.tablica th, .tablica td { text-align: left; padding: 0.55rem 0.6rem; border-bottom: 1px solid var(--linija); vertical-align: top; }
+.tablica th { font-family: var(--f-mono); font-size: var(--t-0); color: var(--siva); font-weight: 500; }
+.tablica td:first-child { font-weight: 600; }
+</style>
+</head>
+<body>
+
+<header class="vrh">
+  <div class="okvir">
+    <span><span class="oznaka">Lekcija 2</span> &nbsp;<b>Jedno pokretanje nije rezultat</b></span>
+    <div class="nacin" role="group" aria-label="Način prikaza">
+      <button type="button" id="nacin-prezentacija" aria-pressed="true">Prezentacija</button>
+      <button type="button" id="nacin-citanje" aria-pressed="false">Čitanje</button>
+    </div>
+  </div>
+</header>
+
+<main class="prezentacija" id="slajdovi">
+
+<!-- 1 ============================================================ -->
+<section class="slajd" id="s1" data-naslov="Jedno pokretanje nije rezultat">
+  <div class="okvir naslovni">
+    <div>
+      <span class="oznaka">Modeliranje i simulacije · Vježbe 4 · Lekcija 2 od 2</span>
+      <h1>Jedno pokretanje nije rezultat</h1>
+      <p class="teza">Isti model i iste postavke daju različite ishode. Rezultat je raspodjela ishoda, a ne jedno pokretanje.</p>
+      <p class="uvod">Primjer je sala iz bloka 2 (prag i kaskada): prosječni prag 0,3, rasipanje 0,05, 10 pokretača. Lijevo i desno prikazan je isti model s istim vrijednostima klizača; razlikuju se samo slučajni izbori.</p>
+      <p class="uvod mala">Za promjenu slajda koristite strelice ← → ili dugmad pri dnu. Opcija „Čitanje“ prikazuje sve slajdove na jednoj stranici.</p>
+    </div>
+    <div class="dvije-sale">
+      <figure><h3>Pokretanje A</h3><div class="sala-okvir"><canvas class="sala" id="sala-a" aria-label="Sala nakon pokretanja A"></canvas></div><figcaption class="potpis" id="sala-a-p"></figcaption></figure>
+      <figure><h3>Pokretanje B</h3><div class="sala-okvir"><canvas class="sala" id="sala-b" aria-label="Sala nakon pokretanja B"></canvas></div><figcaption class="potpis" id="sala-b-p"></figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- 2 ============================================================ -->
+<section class="slajd" id="s2" data-naslov="Odakle razlike">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Slučajnost</span>
+      <h2>Zašto se ishodi razlikuju</h2>
+      <p class="podnaslov">Slučajnost je namjerno uključena u model: model ne opisuje jedno konkretno društvo, nego mnogo mogućih.</p>
+    </div>
+    <div class="kartice">
+      <div class="kartica"><h3>Početno stanje</h3>
+        <p>Vrijednosti atributa i raspored određuju se slučajno, prema raspodjeli: gdje sjede pokretači, ko ima nizak prag.</p>
+        <div class="kod-cip">random-float, random-normal, n-of</div></div>
+      <div class="kartica"><h3>Redoslijed</h3>
+        <p><code>ask</code> prolazi kroz agente slučajnim redoslijedom, pri svakom pozivu iznova.</p>
+        <div class="kod-cip">ask ljudi [ … ]</div></div>
+      <div class="kartica"><h3>Susreti i odluke</h3>
+        <p>U svakom ticku ponovo se određuje ko se s kim susreće i hoće li se neki događaj desiti, s određenom vjerovatnoćom.</p>
+        <div class="kod-cip">one-of, random-float 1 &lt; p</div></div>
+    </div>
+    <div class="pitanje" style="margin-top:1.2rem"><h3>Pitanje za vaš model</h3>
+      <p>Gdje je slučajnost u vašem modelu? Što se ishodi više razlikuju među pokretanjima (kao „talas ili ništa“) i što preciznija procjena treba, to je potrebno više pokretanja.</p></div>
+  </div>
+</section>
+
+<!-- 3 ============================================================ -->
+<section class="slajd" id="s3" data-naslov="Koliko pokretanja">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Ishod u NetLogu</span>
+      <h2>S manje pokretanja procjena više varira</h2>
+      <p class="podnaslov">Model iz bloka 2 pokrenut je 400 puta u NetLogu pod istim uslovima. Pokretanja su podijeljena u grupe od po 10, 20, 50 i 200;
+        svaka tačka je procjena vjerovatnoće talasa iz jedne grupe.</p>
+    </div>
+    <div class="dvije">
+      <figure style="margin:0"><div class="panel"><div id="g-uzorci"></div></div>
+        <figcaption class="potpis">Isprekidana linija: udio talasa u svih 400 pokretanja.</figcaption></figure>
+      <div class="tekst">
+        <p id="t-uzorci"></p>
+        <div class="pitanje"><h3>Pouka</h3>
+          <p>Uz 10 pokretanja jedna grupa studenata može zaključiti „talas je rijedak“, a druga „talas je čest“, s istim modelom.
+            Broj pokretanja je dio rezultata i navodi se uz svaku brojku.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 ============================================================ -->
+<section class="slajd" id="s4" data-naslov="Probajte uzorak">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Probajte</span>
+      <h2>Izvucite svoj uzorak pokretanja</h2>
+      <p class="podnaslov">Pri svakom izvlačenju bira se n slučajnih pokretanja od 400 iz NetLoga i računa u koliko je njih nastao talas.</p>
+    </div>
+    <div class="dvije interaktivno">
+      <div class="tekst">
+        <div class="izbor-n" role="group" aria-label="Broj pokretanja u uzorku">
+          <button type="button" data-n="5">n = 5</button>
+          <button type="button" data-n="10" aria-pressed="true">n = 10</button>
+          <button type="button" data-n="20">n = 20</button>
+          <button type="button" data-n="50">n = 50</button>
+          <button type="button" data-n="200">n = 200</button>
+        </div>
+        <div class="dugmad">
+          <button type="button" class="glavno" id="izvuci">Izvuci uzorak</button>
+          <button type="button" id="izvuci10">Izvuci 10 puta</button>
+          <button type="button" id="ocisti">Očisti</button>
+        </div>
+        <div><span class="siva mala">zadnja procjena</span><div class="velika" id="zadnja">–</div>
+          <p class="siva mala" id="zadnja-opis"></p></div>
+        <p class="siva mala">Pitanje prije izvlačenja: ako uzmete 10 pokretanja, koliko procjena može odstupati od 42%?</p>
+      </div>
+      <figure style="margin:0"><div class="panel"><div id="g-izvlacenja"></div></div>
+        <figcaption class="potpis" id="izvlacenja-p">Svaka tačka je jedan uzorak. Isprekidana linija je 42% (svih 400 pokretanja).</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- 5 ============================================================ -->
+<section class="slajd" id="s5" data-naslov="Seed">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Ponovljivost</span>
+      <h2>Isti seed daje isto pokretanje</h2>
+      <p class="podnaslov"><code>random-seed</code> postavlja početak niza slučajnih brojeva. Uz isti seed i iste postavke NetLogo ponovi
+        pokretanje do posljednjeg koraka.</p>
+    </div>
+    <div class="dvije">
+      <div class="kod"><div class="jezik">NetLogo 7.0.4 · v03-blok2-prag.nlogox · Command Center</div>
+<pre><code><span class="kom">; klizači: prosjek-praga 0,3,</span>
+<span class="kom">; rasipanje-praga 0,05, pokretaci 10</span>
+random-seed 1
+setup     <span class="kom">; zatim go: nema talasa (A)</span>
+
+random-seed 8
+setup     <span class="kom">; zatim go: talas (B)</span></code></pre></div>
+      <div class="tekst">
+        <div class="panel"><h3 style="font-size:var(--t-1);margin-bottom:0.3rem">Kada koristiti seed</h3>
+          <ul style="margin:0;padding-left:1.2rem">
+            <li>za sliku ili primjer u radu: čitalac može ponoviti isto pokretanje;</li>
+            <li>za traženje greške: greška se ponovi svaki put.</li>
+            <li>za poređenje scenarija s jednom promjenom. Par koristi isti seed, a sljedeći par dobija drugi seed.</li>
+          </ul></div>
+        <div class="panel"><h3 style="font-size:var(--t-1);margin-bottom:0.3rem">Na šta paziti pri mjerenju</h3>
+          <p>Ako se u postavke eksperimenta upiše isti <code>random-seed</code>, svih 200 ponavljanja bude isto pokretanje. Bez toga se ponavljanja razlikuju. Ako mjerenje treba biti ponovljivo, svako ponavljanje dobije svoj seed, npr. <code>random-seed behaviorspace-run-number</code> prije <code>setup</code>.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 ============================================================ -->
+<section class="slajd" id="s6" data-naslov="Šta se izvještava">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Izvještavanje</span>
+      <h2>Kako se rezultat zapisuje</h2>
+      <p class="podnaslov">Uz svaku brojku navode se broj pokretanja i način sažimanja.</p>
+    </div>
+    <table class="tablica">
+      <thead><tr><th>Vrsta mjere</th><th>Šta se navodi</th><th>Primjer s vježbi 3</th></tr></thead>
+      <tbody>
+        <tr><td>broj ili udio na kraju</td><td>medijan i raspon (najmanja–najveća vrijednost), broj pokretanja</td><td id="pr-grupe"></td></tr>
+        <tr><td>ishod „da ili ne“</td><td>broj pokretanja u kojima se ishod desio i ukupan broj pokretanja</td><td id="pr-talas"></td></tr>
+        <tr><td>tok kroz vrijeme</td><td>medijan po ticku i pojas raspona</td><td>lekcija 1: prosjek i udjeli kroz 150 sedmica, 20 pokretanja</td></tr>
+        <tr><td>jedno pokretanje</td><td>samo kao primjer, uz seed i napomenu da je riječ o jednom pokretanju</td><td>zapisi sale na slajdu 1 (random-seed 1 i 8)</td></tr>
+      </tbody>
+    </table>
+    <div class="pitanje" style="margin-top:1.2rem"><h3>Koliko je dovoljno</h3>
+      <p>Na predavanju 03.11. prikazan je postupak sa 100 pokretanja po scenariju. Broj dalje povećavajte prema rasipanju i potrebnoj preciznosti. Postojeći primjeri prikazuju različite brojeve pokretanja. Stabilnost procjene provjerava se dodatnim ponavljanjima.</p></div>
+  </div>
+</section>
+
+<!-- 7 ============================================================ -->
+<section class="slajd" id="s7" data-naslov="U modelu na papiru">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Model na papiru</span>
+      <h2>Šta zapisati prije kodiranja</h2>
+      <p class="podnaslov">Zapišite uz mjere i scenarije u modelu na papiru.</p>
+    </div>
+    <div class="dvije">
+      <figure class="papir">
+        <figcaption>Mjere i scenariji</figcaption>
+        <ul>
+          <li><b>Mjera</b>: šta se mjeri i kada (npr. udio „za“ u sedmici 150);</li>
+          <li><b>Sažimanje</b>: medijan i raspon ili broj pokretanja u kojima se ishod desio;</li>
+          <li><b>Scenariji</b> imaju vezu s ciljem i razlikuju se u jednoj postavci.</li>
+          <li><b>Ponavljanja</b> se planiraju po scenariju, npr. 100 kao na predavanju.</li>
+          <li><b>Seed</b> je isti unutar para scenarija, različit između ponavljanja.</li>
+        </ul>
+      </figure>
+      <div class="tekst">
+        <div class="panel"><h3 style="font-size:var(--t-1);margin-bottom:0.3rem">Primjer</h3>
+          <p>„Poredimo model stava s medijima i bez njih, uz ostale fiksirane postavke. Svaki scenarij pokrećemo 100 puta po 150 sedmica. Mjerimo udio ‚za‘ na kraju i navodimo medijan i raspon. Svaki par scenarija koristi isti seed.“ To je plan eksperimenta za vježbe 5.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 ============================================================ -->
+<section class="slajd" id="s8" data-naslov="Probajte u NetLogu">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Probajte</span>
+      <h2>Provjera u NetLogu</h2>
+    </div>
+    <div class="dvije">
+      <div class="veze">
+        <a href="../vjezbe-03/modeli/v03-blok2-prag.nlogox"><b>v03-blok2-prag.nlogox</b>
+          <span>Za NetLogo 7.0.4 (File → Open). BehaviorSpace eksperiment: rasipanje.</span></a>
+        <a href="../vjezbe-03/netlogo-web/v03-blok2-prag.html" target="_blank" rel="noopener"><b>NetLogo Web ↗</b>
+          <span>Isti model u web pregledniku, bez instalacije.</span></a>
+        <a href="../vjezbe-03/blokovi/blok2-prag-i-kaskada.html" target="_blank" rel="noopener"><b>Blok 2: prag i kaskada ↗</b>
+          <span>Mini-prezentacija bloka, sa zapisima sale.</span></a>
+        <a href="lekcija1-sta-pravilo-moze.html"><b>Lekcija 1: šta pravilo može proizvesti</b>
+          <span>Prosjek, udio i raspodjela.</span></a>
+      </div>
+      <div class="tekst">
+        <div class="panel"><h3 style="font-size:var(--t-1);margin-bottom:0.4rem">Šta isprobati</h3>
+          <ul>
+            <li>Uz rasipanje 0,05 pokrenite model pet puta (setup, go) i zapišite koliko je puta nastao talas. Uporedite s kolegama.</li>
+            <li>U Command Centeru ponovite pokretanja A i B sa slajda 1 (naredbe su na slajdu 5).</li>
+            <li>BehaviorSpace (Tools → BehaviorSpace): u eksperimentu postavite 20 ponavljanja, pa 100. Kako se mijenja udio pokretanja s talasom?</li>
+          </ul></div>
+        <p class="mala siva">Brojke su iz NetLoga 7.0.4 (headless): dva eksperimenta s po 200 pokretanja pod istim uslovima; zapisi sale su
+          pojedinačna pokretanja sa seedom. Izvlačenje uzoraka na slajdu 4 koristi tih 400 ishoda. Modeliranje i simulacije, FIT UNMO, 2026/27.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<nav class="navigacija" aria-label="Slajdovi">
+  <div class="napredak" id="napredak"></div>
+  <div class="okvir">
+    <button type="button" id="nazad" aria-label="Prethodni slajd">←</button>
+    <span class="broj" id="broj">1 / 8</span>
+    <button type="button" id="naprijed" aria-label="Sljedeći slajd">→</button>
+    <span class="naslov-slajda" id="naslov-slajda"></span>
+  </div>
+</nav>
+
+<script>window.L2 = {"ishodi":[1,0,0,0,1,0,0,1,1,0,0,1,1,1,0,0,0,1,1,0,0,0,0,1,0,1,0,1,1,1,0,1,0,0,0,1,0,1,0,0,1,0,1,0,0,1,0,0,1,1,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,1,0,1,1,0,1,0,0,0,1,0,1,0,1,0,1,1,1,1,1,1,0,1,1,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,1,0,0,1,1,0,0,0,0,0,1,1,0,1,0,1,1,0,1,0,0,1,0,0,1,0,0,0,0,0,1,1,1,1,1,1,1,0,1,0,1,1,1,0,0,0,1,0,1,1,1,0,1,0,1,0,1,1,0,1,0,0,1,1,0,0,0,1,0,0,0,0,1,0,1,0,1,1,1,1,1,0,0,0,1,0,1,0,0,0,1,1,1,1,1,0,0,0,1,0,0,0,0,0,1,0,1,1,0,1,1,0,1,1,1,1,1,0,1,0,0,0,0,0,0,1,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1,1,0,1,1,0,0,0,1,1,0,0,1,1,1,1,0,1,0,0,0,1,1,0,0,1,0,1,1,1,1,0,1,0,1,0,0,1,0,0,0,1,0,1,1,0,0,0,1,1,0,1,0,0,0,0,0,1,0,0,1,1,1,0,0,1,1,0,0,0,0,1,1,0,1,0,1,1,1,1,1,0,0,0,1,1,0,0,1,1,1,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,1,1,0,0,1],"uzorci":{"10":[0.4,0.5,0.5,0.3,0.5,0.2,0.1,0.2,0.5,0.7,0.3,0.1,0.1,0.2,0.3,0.6,0.2,0.8,0.5,0.6,0.4,0.5,0.4,0.6,0.3,0.8,0.2,0.2,0.3,0.5,0.5,0.7,0.3,0.5,0.3,0.4,0.8,0.5,0.7,0.3],"20":[0.45,0.4,0.35,0.15,0.6,0.2,0.15,0.45,0.5,0.55,0.45,0.5,0.55,0.2,0.4,0.6,0.4,0.35,0.65,0.5],"50":[0.44,0.34,0.2,0.54,0.44,0.4,0.46,0.54],"200":[0.38,0.46]},"sala":31,"zapisi":[{"kljuc":"ras005-bez","rasipanje":0.05,"seed":1,"prosjek":0.3,"pokretaci":10,"prag":[315,240,254,322,297,266,291,270,336,337,213,328,265,300,248,266,251,351,291,308,245,316,358,365,317,279,297,339,275,343,283,311,299,312,282,294,248,330,287,223,254,293,353,228,214,266,428,314,347,326,441,312,233,371,348,232,256,464,286,267,385,305,301,300,356,290,253,382,205,286,215,334,230,324,375,278,352,315,316,305,322,301,270,313,225,293,141,304,307,230,238,340,326,283,375,276,422,189,268,244,160,273,274,356,265,242,234,281,304,290,303,322,347,268,339,333,221,302,318,343,252,325,317,209,253,244,229,310,327,407,211,319,324,310,301,352,248,309,309,320,293,320,286,362,415,347,254,250,256,358,316,312,263,219,312,279,296,268,238,316,276,357,302,371,278,291,209,297,348,303,293,296,281,312,308,270,310,258,342,338,197,276,277,222,214,334,341,349,328,352,283,241,320,197,292,295,187,291,342,272,338,273,332,282,299,318,312,341,273,412,212,418,230,216,294,316,237,305,283,245,255,284,260,289,352,333,263,328,318,353,278,365,359,251,244,396,285,275,250,392,373,364,335,328,216,374,202,315,369,382,344,278,307,304,347,400,382,318,290,254,262,308,240,281,309,263,270,262,232,269,296,269,315,224,344,246,391,320,250,299,257,268,318,348,359,279,320,231,331,337,299,319,332,241,294,382,277,276,220,294,279,373,315,304,281,301,218,314,319,360,244,305,222,351,248,316,202,267,325,350,300,325,267,277,333,234,248,319,314,193,282,378,315,322,310,285,302,213,292,343,231,235,290,332,282,316,192,315,423,313,336,203,336,221,329,403,308,278,207,341,274,288,356,302,261,332,356,336,339,251,241,345,401,225,388,307,329,300,267,354,307,286,390,267,230,296,308,322,266,300,386,371,292,245,356,230,359,291,243,204,314,310,282,341,250,294,234,329,338,254,318,269,186,397,200,281,284,336,304,263,246,358,406,309,356,250,295,315,320,280,289,409,378,368,361,363,268,319,294,335,310,317,336,247,336,295,335,315,254,279,222,279,297,337,333,332,272,347,309,322,305,255,385,286,161,354,287,257,331,287,340,359,281,360,351,232,318,388,369,273,386,348,230,292,365,361,226,350,333,327,256,399,246,330,223,282,381,336,311,279,290,229,315,250,350,244,345,312,290,258,270,343,337,317,293,248,263,307,293,167,299,378,283,261,280,375,279,324,252,307,324,282,258,250,318,268,261,274,326,354,356,325,373,237,301,315,261,207,287,304,340,245,259,363,316,316,255,351,288,283,297,252,293,262,360,339,257,337,232,339,306,326,237,254,357,333,304,234,343,300,269,275,330,388,224,231,274,241,273,218,370,330,373,304,302,294,256,304,294,252,348,330,342,329,298,344,344,364,405,327,289,294,327,403,288,320,202,284,320,320,263,291,298,273,312,347,221,262,298,380,274,355,283,238,311,320,312,317,401,327,291,331,272,363,248,302,281,385,321,291,238,256,274,298,247,391,219,254,288,269,230,295,314,252,237,198,274,390,281,203,251,246,355,273,391,338,228,366,225,375,294,280,316,356,415,312,279,329,282,293,291,358,376,291,269,326,208,339,352,365,341,313,378,278,250,332,326,357,231,331,264,244,378,355,271,221,259,268,237,398,271,234,251,294,279,384,230,370,293,340,224,385,316,331,284,308,328,270,340,312,304,259,268,294,318,330,230,311,241,309,327,336,275,284,290,280,334,312,259,292,300,246,300,299,326,279,236,276,319,262,239,303,267,307,379,249,354,332,341,322,301,409,282,325,332,377,230,200,314,393,255,314,385,382,289,304,309,339,264,239,364,291,288,269,328,384,344,262,342,284,331,342,349,303,206,336,341,216,256,373,316,308,369,277,346,253,382,218,292,272,173,280,399,430,245,227,274,268,300,322,230,271,271,199,180,312,291,352,365,234,268,295,337,296,371,361,198,317,283,310,410,266,371,260,354,374,406,383,338,293,384,412,347,367,364,322,309,302,192,315,240,306,397,329,343,307,406,258,339,284,320,359,323,334,356,362,344,340,193,231,297,365,357,346,446,317,224,209,293,235,300,372,321,290,297,316,345,258,365,355,310,367,314,273,292,278,216,294,251,395,233,192,311,308,279,246,324,311,297,222,245,313,292,377,231,355,385,333,239,280,334,284,302,274,266,249,322,335,260,287,261],"ustao":[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],"krugova":0,"udio_kraj":0.01040582726326743},{"kljuc":"ras005-sa","rasipanje":0.05,"seed":8,"prosjek":0.3,"pokretaci":10,"prag":[277,289,238,375,320,268,257,248,209,353,360,349,290,315,368,319,313,303,300,318,343,308,273,300,234,331,254,252,399,287,278,365,278,319,314,352,209,383,262,298,260,424,356,325,327,218,300,290,350,271,229,249,294,331,293,332,369,336,384,246,332,267,260,355,236,235,389,288,298,254,400,275,329,383,239,357,314,324,255,353,305,304,337,252,346,282,293,321,277,243,332,231,244,356,312,291,347,273,323,327,317,218,280,216,411,281,428,247,301,311,289,213,348,200,316,255,384,313,265,351,222,318,267,339,267,238,379,352,353,295,192,295,256,361,362,251,306,288,290,355,379,231,254,273,269,211,311,299,279,297,251,327,313,306,352,267,294,324,225,318,379,342,271,402,268,250,254,286,324,305,337,349,298,275,316,287,279,321,209,325,242,333,250,244,301,322,281,417,300,315,349,272,313,308,382,325,328,283,411,335,199,329,299,325,271,391,368,292,293,238,249,270,262,364,254,280,308,256,390,350,312,367,238,355,280,340,276,304,410,367,295,362,293,268,314,306,364,284,274,274,286,309,280,252,294,306,330,305,215,320,394,321,290,304,253,312,355,224,261,257,304,311,390,275,264,278,279,422,315,279,269,217,327,291,306,299,310,374,368,294,397,315,326,244,235,239,248,412,359,315,213,264,329,303,278,208,306,301,288,352,301,270,253,207,297,177,282,299,261,387,359,282,348,269,319,278,367,340,241,236,336,301,301,260,303,347,255,259,310,306,287,328,336,272,312,225,270,282,243,180,350,240,326,244,371,343,284,307,268,312,377,318,346,309,281,318,394,368,179,282,230,263,317,431,313,250,355,291,300,315,344,252,204,344,257,223,206,284,304,294,275,360,335,205,392,305,266,308,354,321,355,252,252,312,236,358,268,332,387,235,269,338,294,303,390,227,340,229,351,287,415,451,267,242,290,352,296,303,280,245,402,272,275,261,311,306,316,274,182,356,279,336,195,285,353,312,315,276,294,313,321,347,256,233,296,251,296,347,299,274,320,226,328,371,298,265,338,394,390,333,382,367,339,306,297,265,284,239,286,288,275,319,318,281,319,256,315,249,302,339,274,290,338,319,312,321,209,305,257,327,257,291,275,264,265,259,315,234,430,324,230,244,308,305,319,279,259,328,282,278,358,259,363,306,273,214,206,347,326,251,239,258,279,307,330,331,349,259,247,234,364,291,296,282,341,379,291,397,286,366,201,347,289,358,276,324,222,230,210,375,284,320,354,236,237,305,252,262,261,256,343,369,251,222,307,227,281,340,337,235,237,266,323,296,297,204,363,286,237,316,215,274,274,252,276,271,272,318,187,341,326,221,266,282,270,303,304,256,275,229,315,354,276,329,336,295,294,248,321,380,191,319,343,343,323,297,376,290,342,270,339,254,296,277,451,325,291,249,290,372,284,279,296,326,307,240,365,266,359,311,246,253,330,312,344,239,254,402,308,314,352,300,248,295,319,233,427,355,246,360,261,305,252,330,319,341,333,321,325,347,281,306,304,330,328,286,203,355,290,228,344,304,334,227,279,334,432,305,220,243,272,250,245,295,248,376,275,347,280,237,330,383,248,325,365,300,259,230,283,211,282,249,306,292,277,344,355,320,348,297,378,251,311,309,347,233,231,443,344,214,329,273,293,153,374,275,308,292,268,239,389,280,243,376,286,309,299,338,300,231,257,341,278,325,336,211,349,269,409,304,315,262,334,367,307,273,256,337,334,323,258,344,278,271,262,356,358,330,320,381,236,316,335,368,328,240,236,369,320,408,301,370,303,238,299,250,320,260,292,279,396,358,347,293,261,401,323,299,327,313,275,341,383,260,202,342,454,275,361,307,290,300,266,281,284,288,257,303,332,241,367,314,293,266,327,311,364,390,267,276,275,320,384,351,314,279,253,289,301,273,248,291,331,365,347,223,352,252,141,298,317,295,283,178,290,294,357,301,318,354,315,325,297,319,286,218,284,376,265,283,319,281,191,302,297,300,196,262,242,326,330,276,277,272,207,285,179,175,284,224,269,368,398,347,348,297,254,313,288,408,282,292,343,327,320,275,355,266,318,338,306,319,334,323,320,290,264,231,304,299,313,204,325,351,303,302,353,351,218,342,311,312,348,282,398,267,301,240,340,301,339,284,325,337,308,305,365,198,287,334,371],"ustao":[37,36,35,33,31,30,28,26,25,23,21,20,19,18,17,16,15,14,13,12,11,11,10,10,10,11,11,12,13,14,14,37,36,35,34,32,30,29,27,25,24,22,20,19,18,17,16,15,14,13,11,10,10,9,9,9,10,10,12,12,13,14,38,37,35,34,33,31,29,27,26,24,23,21,19,18,0,16,15,14,12,11,9,8,8,8,8,8,9,9,11,12,13,39,38,36,35,33,31,30,28,26,25,23,22,20,19,17,16,15,13,11,10,7,7,7,7,5,6,7,8,10,12,13,39,38,37,36,34,32,30,29,27,26,24,23,21,20,18,17,16,12,11,9,0,6,6,4,3,4,6,8,9,11,12,39,38,37,36,35,33,31,30,29,27,25,24,22,20,19,17,15,13,12,10,8,7,5,0,2,0,5,7,9,11,12,40,39,37,36,35,34,32,31,30,28,26,25,23,21,19,18,16,14,13,11,9,8,6,2,1,3,6,8,10,12,13,41,40,37,36,35,34,33,31,29,28,27,26,24,22,20,19,17,15,14,12,10,9,7,5,4,5,7,9,11,13,14,41,40,38,36,35,34,33,32,30,28,27,26,25,23,21,19,18,16,15,13,11,10,8,6,6,7,8,10,12,14,15,42,41,39,37,35,34,33,31,31,29,27,26,25,24,22,20,18,17,16,14,12,11,9,8,7,8,9,11,13,14,15,42,41,40,38,36,35,33,32,30,29,28,26,25,24,23,21,19,18,17,15,13,12,11,10,9,9,10,12,13,14,15,43,42,40,39,37,36,34,32,31,30,28,27,25,24,23,22,20,19,18,16,15,14,13,12,11,11,12,13,14,15,16,43,42,41,39,38,37,35,33,31,29,28,26,26,24,23,22,21,20,19,17,16,15,14,14,13,13,14,14,15,16,17,44,43,41,40,39,38,36,34,32,30,0,27,27,25,0,23,22,22,20,19,18,17,16,15,15,14,15,16,17,17,18,45,44,42,41,40,39,37,35,33,30,29,28,28,26,25,24,24,23,22,21,20,19,18,18,17,16,17,18,18,19,19,46,45,43,42,41,40,38,36,34,32,31,30,29,28,27,26,25,24,23,22,21,20,20,19,19,18,19,19,20,20,20,46,45,44,43,41,40,39,37,35,33,32,31,30,29,28,27,26,25,24,23,22,22,21,21,20,20,20,21,21,21,21,46,45,44,43,42,41,40,38,37,35,34,32,31,30,29,28,27,26,25,24,23,23,23,22,22,21,21,22,22,22,22,47,46,45,44,42,41,40,39,38,36,35,33,32,31,30,29,28,27,26,25,24,24,24,24,23,23,23,23,23,23,23,48,47,46,45,43,0,41,40,39,37,35,34,33,32,31,30,29,28,27,27,26,25,25,25,25,24,24,25,24,24,24,49,49,48,47,46,43,42,41,40,38,36,35,34,33,32,31,31,30,29,28,27,27,26,26,26,25,26,27,26,25,25,50,50,49,48,46,45,43,42,41,39,38,37,36,35,34,33,32,32,31,30,29,28,28,27,27,27,28,28,27,27,26,51,51,50,49,48,46,44,43,42,40,39,38,37,37,36,35,34,33,33,32,30,30,29,29,28,28,29,29,29,28,28,52,52,51,50,49,47,46,45,43,41,40,39,38,38,38,36,35,35,34,33,31,31,31,30,29,29,29,30,30,29,29,53,53,52,51,50,48,47,46,44,42,41,40,40,39,39,38,37,36,35,34,33,32,32,31,30,0,30,31,31,31,30,54,54,54,53,52,49,48,47,45,43,42,41,41,41,40,39,38,37,36,35,34,34,33,33,32,33,32,32,32,32,33,55,55,55,54,53,51,50,48,46,45,44,43,42,42,42,41,40,39,38,37,36,35,35,34,34,34,34,33,33,34,34,56,56,56,55,54,53,51,49,48,47,46,45,44,43,43,42,41,40,39,38,37,36,36,36,35,35,35,35,35,35,35,57,57,57,56,55,54,52,50,50,49,48,47,46,45,44,43,42,41,40,39,38,38,37,37,37,36,36,36,36,36,36,58,58,58,57,55,54,53,52,51,50,49,48,47,46,45,44,43,42,42,41,40,39,39,38,38,38,37,37,37,37,37,59,59,58,56,55,54,53,52,51,50,49,48,47,46,45,44,0,43,43,42,41,40,40,39,39,39,38,38,38,0,38],"krugova":59,"udio_kraj":1.0}],"eksperimenti":[76,92],"b1_grupe_500":{"prag=0.1":{"n":10,"sred":6.4,"med":7.0,"min":4.0,"max":8.0,"iznad_0_9":10,"ispod_0_1":0},"prag=0.2":{"n":10,"sred":4.2,"med":4.0,"min":3.0,"max":5.0,"iznad_0_9":10,"ispod_0_1":0},"prag=0.3":{"n":10,"sred":2.8,"med":3.0,"min":2.0,"max":4.0,"iznad_0_9":10,"ispod_0_1":0},"prag=0.5":{"n":10,"sred":1.7,"med":2.0,"min":1.0,"max":2.0,"iznad_0_9":10,"ispod_0_1":0},"prag=1":{"n":10,"sred":1.0,"med":1.0,"min":1.0,"max":1.0,"iznad_0_9":10,"ispod_0_1":0},"prag=2":{"n":10,"sred":1.0,"med":1.0,"min":1.0,"max":1.0,"iznad_0_9":10,"ispod_0_1":0}}};</script>
+<script>
+// Zajednički dio lekcija (isti kao u mini-prezentacijama blokova s vježbi 3): jedan slajd na ekranu ili svi jedan
+// ispod drugog (način „Čitanje“), strelice i prevlačenje, adresa #sN, zapamćen način prikaza.
+// Upotreba: Prezentacija("lekcija1", crtajVidljivo), gdje crtajVidljivo iscrta grafike na vidljivim slajdovima.
+window.Prezentacija = function (kljuc, crtajVidljivo) {
+  const $ = s => document.querySelector(s);
+  const main = $("#slajdovi"), slajdovi = [...document.querySelectorAll(".slajd")];
+  let tren = 0;
+  function prikazi(i, izHasha) {
+    tren = Math.max(0, Math.min(slajdovi.length - 1, i));
+    slajdovi.forEach((s, k) => s.classList.toggle("aktivan", k === tren));
+    $("#broj").textContent = `${tren + 1} / ${slajdovi.length}`;
+    $("#naslov-slajda").textContent = slajdovi[tren].dataset.naslov;
+    $("#napredak").style.width = `${((tren + 1) / slajdovi.length) * 100}%`;
+    $("#nazad").disabled = tren === 0; $("#naprijed").disabled = tren === slajdovi.length - 1;
+    if (!izHasha) { try { history.replaceState(null, "", "#" + slajdovi[tren].id); } catch (e) {} }
+    if (main.classList.contains("prezentacija")) window.scrollTo(0, 0);
+    crtajVidljivo();
+  }
+  $("#nazad").addEventListener("click", () => prikazi(tren - 1));
+  $("#naprijed").addEventListener("click", () => prikazi(tren + 1));
+  document.addEventListener("keydown", e => {
+    if (!main.classList.contains("prezentacija") || e.target.closest("input, textarea, select")) return;
+    if (["ArrowRight", "PageDown"].includes(e.key) || (e.key === " " && !e.target.closest("button"))) { e.preventDefault(); prikazi(tren + 1); }
+    if (["ArrowLeft", "PageUp"].includes(e.key)) { e.preventDefault(); prikazi(tren - 1); }
+    if (e.key === "Home") prikazi(0);
+    if (e.key === "End") prikazi(slajdovi.length - 1);
+  });
+  let dodirX = null;
+  main.addEventListener("touchstart", e => { dodirX = e.touches[0].clientX; }, { passive: true });
+  main.addEventListener("touchend", e => {
+    if (dodirX === null || !main.classList.contains("prezentacija")) return;
+    const dx = e.changedTouches[0].clientX - dodirX; dodirX = null;
+    if (e.target.closest("input, select, canvas, .interaktivno")) return;
+    if (Math.abs(dx) > 70) prikazi(tren + (dx < 0 ? 1 : -1));
+  });
+  function nacin(citanje) {
+    main.classList.toggle("citanje", citanje); main.classList.toggle("prezentacija", !citanje);
+    $("#nacin-citanje").setAttribute("aria-pressed", citanje); $("#nacin-prezentacija").setAttribute("aria-pressed", !citanje);
+    try { localStorage.setItem(kljuc + "-nacin", citanje ? "citanje" : "prezentacija"); } catch (e) {}
+    if (citanje) requestAnimationFrame(() => slajdovi[tren].scrollIntoView());
+    crtajVidljivo();
+  }
+  $("#nacin-citanje").addEventListener("click", () => nacin(true));
+  $("#nacin-prezentacija").addEventListener("click", () => nacin(false));
+  addEventListener("resize", () => crtajVidljivo());
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => crtajVidljivo());
+
+  let pocetni = 0;
+  const h = location.hash.replace("#", ""), k = slajdovi.findIndex(s => s.id === h); if (k >= 0) pocetni = k;
+  let sacuvano = null; try { sacuvano = localStorage.getItem(kljuc + "-nacin"); } catch (e) {}
+  if (sacuvano === "citanje") nacin(true);
+  prikazi(pocetni, true);
+  if (main.classList.contains("prezentacija")) setTimeout(() => window.scrollTo(0, 0), 0);
+  addEventListener("hashchange", () => {
+    const i = slajdovi.findIndex(s => s.id === location.hash.replace("#", ""));
+    if (i >= 0 && i !== tren) { prikazi(i, true); if (main.classList.contains("citanje")) slajdovi[i].scrollIntoView(); }
+  });
+  return { prikazi };
+};
+
+// Zajedničke pomoćne funkcije za grafike (SVG) i brojeve.
+window.Pomoc = (() => {
+  const SVG = "http://www.w3.org/2000/svg";
+  const el = (ime, atr = {}, tekst) => { const e = document.createElementNS(SVG, ime); for (const [k, v] of Object.entries(atr)) e.setAttribute(k, v); if (tekst !== undefined) e.textContent = tekst; return e; };
+  const zarez = (x, d = 2) => x.toFixed(d).replace(".", ",").replace("-", "−");
+  const pct = x => `${Math.round(x * 100)}%`;
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  // mulberry32: ponovljivi slučajni brojevi za ilustracije u web pregledniku
+  const rng = seed => () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  return { el, zarez, pct, css, rng };
+})();
+
+</script>
+<script>
+(() => {
+  const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+  const { el, zarez, pct } = window.Pomoc;
+  const D = window.L2, ISH = D.ishodi, UKUPNO = ISH.reduce((a, b) => a + b, 0) / ISH.length;
+
+  // ---------------- sala na kraju pokretanja ----------------
+  const N = D.sala, Z = {}; for (const z of D.zapisi) Z[z.kljuc] = z;
+  function sala(canvas, z) {
+    const dpr = Math.min(devicePixelRatio || 1, 2), w = canvas.clientWidth || 300;
+    canvas.width = Math.round(w * dpr); canvas.height = Math.round(w * dpr);
+    const g = canvas.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.fillStyle = "#0b0d10"; g.fillRect(0, 0, w, w);
+    const k = w / N;
+    for (let i = 0; i < N * N; i++) {
+      const u = z.ustao[i]; g.fillStyle = u >= 0 && u <= z.krugova ? "#f16a15" : "#3a3d42";
+      g.fillRect((i % N) * k + 0.5, Math.floor(i / N) * k + 0.5, k - 1, k - 1);
+    }
+  }
+  const opisSale = z => z.udio_kraj > 0.9
+    ? `random-seed ${z.seed}: talas; nakon ${z.krugova} krugova stoji ${pct(z.udio_kraj)} ljudi u sali.`
+    : `random-seed ${z.seed}: talas nije nastao, stoje samo pokretači (${pct(z.udio_kraj)}).`;
+  function crtajSale() {
+    sala($("#sala-a"), Z["ras005-bez"]); sala($("#sala-b"), Z["ras005-sa"]);
+    $("#sala-a-p").textContent = opisSale(Z["ras005-bez"]); $("#sala-b-p").textContent = opisSale(Z["ras005-sa"]);
+  }
+
+  // ---------------- procjene po veličini grupe (SVG) ----------------
+  function tackice(cilj, kolone, oznake) {
+    cilj.replaceChildren();
+    const W = 460, H = 260, L = 44, R = 12, T = 12, B = 40;
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, class: "grafik", role: "img", "aria-label": "Procjene vjerovatnoće talasa po veličini uzorka" });
+    const sir = (W - L - R) / kolone.length, x = i => L + sir * (i + 0.5), y = v => T + (H - T - B) * (1 - v);
+    for (const v of [0, 0.25, 0.5, 0.75, 1]) {
+      svg.append(el("line", { x1: L, x2: W - R, y1: y(v), y2: y(v), class: "g-mreza" }));
+      svg.append(el("text", { x: L - 6, y: y(v) + 4, "text-anchor": "end", class: "g-oznaka" }, pct(v)));
+    }
+    svg.append(el("line", { x1: L, x2: W - R, y1: y(UKUPNO), y2: y(UKUPNO), class: "g-ref" }));
+    kolone.forEach((vr, i) => {
+      const brojac = {};
+      for (const v of vr) {
+        const kl = Math.round(v * 1000), r = brojac[kl] = (brojac[kl] || 0) + 1;
+        const pomak = ((r - 1) % 2 ? 1 : -1) * Math.ceil((r - 1) / 2) * 5.5;
+        svg.append(el("circle", { cx: x(i) + pomak, cy: y(v), r: 2.8, class: "g-tacka-uzorak" }));
+      }
+      svg.append(el("text", { x: x(i), y: H - B + 16, "text-anchor": "middle", class: "g-oznaka" }, oznake[i]));
+    });
+    svg.append(el("text", { x: L + (W - L - R) / 2, y: H - 6, "text-anchor": "middle", class: "g-naslov-x" }, "pokretanja u grupi"));
+    cilj.append(svg);
+  }
+  const VEL = ["10", "20", "50", "200"];
+  tackice($("#g-uzorci"), VEL.map(n => D.uzorci[n]), VEL.map(n => `${n} (${D.uzorci[n].length}×)`));
+  const raspon = n => `od ${pct(Math.min(...D.uzorci[n]))} do ${pct(Math.max(...D.uzorci[n]))}`;
+  $("#t-uzorci").innerHTML = `U svih ${ISH.length} pokretanja talas je nastao ${ISH.reduce((a, b) => a + b, 0)} puta (${pct(UKUPNO)}). ` +
+    `Procjene iz grupa od 10 pokretanja idu ${raspon("10")}, iz grupa od 20 ${raspon("20")}, a iz grupa od 50 ${raspon("50")}. ` +
+    `Dva eksperimenta od po 200 pokretanja dala su ${D.eksperimenti[0]} i ${D.eksperimenti[1]} talasa (${pct(D.eksperimenti[0] / 200)} i ${pct(D.eksperimenti[1] / 200)}).`;
+
+  // ---------------- izvlačenje uzoraka ----------------
+  let n = 10, izvucene = [];
+  function izvuci() {
+    const idx = ISH.map((_, i) => i);
+    for (let i = 0; i < n; i++) { const j = i + Math.floor(Math.random() * (idx.length - i)); [idx[i], idx[j]] = [idx[j], idx[i]]; }
+    const talasa = idx.slice(0, n).reduce((a, i) => a + ISH[i], 0);
+    izvucene.push({ n, p: talasa / n });
+    $("#zadnja").textContent = pct(talasa / n);
+    $("#zadnja-opis").textContent = `${talasa} talasa u ${n} pokretanja`;
+  }
+  function crtajIzvlacenja() {
+    const cilj = $("#g-izvlacenja"); cilj.replaceChildren();
+    const W = 460, H = 220, L = 18, R = 18, T = 14, B = 34;
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, class: "grafik", role: "img", "aria-label": "Izvučeni uzorci na osi od 0 do 100%" });
+    const x = v => L + (W - L - R) * v;
+    for (const v of [0, 0.25, 0.5, 0.75, 1]) {
+      svg.append(el("line", { x1: x(v), x2: x(v), y1: T, y2: H - B, class: "g-mreza" }));
+      svg.append(el("text", { x: x(v), y: H - B + 16, "text-anchor": "middle", class: "g-oznaka" }, pct(v)));
+    }
+    svg.append(el("line", { x1: x(UKUPNO), x2: x(UKUPNO), y1: T, y2: H - B, class: "g-ref" }));
+    const red = {}, visina = {};
+    for (const u of izvucene) { const k = Math.round(u.p * 200); visina[k] = (visina[k] || 0) + 1; }
+    const korak = Math.min(8, (H - B - T - 8) / Math.max(1, ...Object.values(visina)));   // stub uvijek stane u grafik
+    izvucene.forEach((u, i) => {
+      const k = Math.round(u.p * 200), r = red[k] = (red[k] || 0) + 1;
+      svg.append(el("circle", { cx: x(u.p), cy: H - B - 6 - (r - 1) * korak, r: Math.min(3.6, korak / 2 + 0.4), class: i === izvucene.length - 1 ? "g-tacka-nova" : "g-tacka-uzorak" }));
+    });
+    svg.append(el("text", { x: L + (W - L - R) / 2, y: H - 4, "text-anchor": "middle", class: "g-naslov-x" }, "procjena vjerovatnoće talasa"));
+    cilj.append(svg);
+    if (izvucene.length) {
+      const p = izvucene.filter(u => u.n === n).map(u => u.p);
+      $("#izvlacenja-p").textContent = p.length
+        ? `Uzoraka s n = ${n}: ${p.length}, procjene od ${pct(Math.min(...p))} do ${pct(Math.max(...p))}. Isprekidana linija: ${pct(UKUPNO)} (svih 400).`
+        : `Isprekidana linija: ${pct(UKUPNO)} (svih 400 pokretanja).`;
+    }
+  }
+  for (const b of $$("[data-n]")) b.addEventListener("click", () => {
+    n = +b.dataset.n; $$("[data-n]").forEach(x => x.setAttribute("aria-pressed", x === b)); crtajIzvlacenja();
+  });
+  $("#izvuci").addEventListener("click", () => { izvuci(); crtajIzvlacenja(); });
+  $("#izvuci10").addEventListener("click", () => { for (let i = 0; i < 10; i++) izvuci(); crtajIzvlacenja(); });
+  $("#ocisti").addEventListener("click", () => { izvucene = []; $("#zadnja").textContent = "–"; $("#zadnja-opis").textContent = "";
+    $("#izvlacenja-p").textContent = `Svaka tačka je jedan uzorak. Isprekidana linija je ${pct(UKUPNO)} (svih 400 pokretanja).`; crtajIzvlacenja(); });
+  crtajIzvlacenja();
+
+  // ---------------- primjeri izvještavanja ----------------
+  const g = D.b1_grupe_500["prag=0.2"];
+  $("#pr-grupe").textContent = `blok 1, prag 0,2: broj grupa nakon 500 sedmica, medijan ${g.med} (${g.min}–${g.max}), ${g.n} pokretanja`;
+  $("#pr-talas").textContent = `blok 2, rasipanje 0,05: talas u ${ISH.reduce((a, b) => a + b, 0)} od ${ISH.length} pokretanja (${pct(UKUPNO)})`;
+
+  Prezentacija("lekcija2", () => { if ($("#sala-a").offsetParent !== null) crtajSale(); });
+})();
+</script>
+</body>
+</html>

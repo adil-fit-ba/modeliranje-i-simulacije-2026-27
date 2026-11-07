@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="bs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Model na papiru i scenariji · Vježbe 5</title>
+<style>
+/* Raspored: mini-prezentacija od 10 slajdova; jedan slajd na ekranu (strelice), ili svi jedan ispod
+   drugog (način „Čitanje“). Papir je svijetao, svijet i putanje su na tamnoj podlozi kao u NetLogu. */
+:root {
+  --papir: #eef1f4; --list: #ffffff; --tinta: #17212b; --siva: #56636f; --linija: #d3dae1;
+  --narandza: #b9531a; --narandza-meko: #f6dfd0; --margina: #e5a3a3; --svijet: #0b0d10;
+  --za: #345da9; --protiv: #d73229; --neodlucni: #8d8d8d;
+  --f-naslov: "Bitter", "Georgia", "Cambria", serif;
+  --f-tekst: "IBM Plex Sans", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "IBM Plex Mono", "Cascadia Mono", Consolas, "Courier New", monospace;
+  --t-0: 0.83rem; --t-1: 1rem; --t-2: 1.17rem; --t-3: 1.5rem; --t-4: 2.2rem; --t-5: 3.1rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --papir: #10161c; --list: #18212a; --tinta: #e3e9ee; --siva: #9ba8b4; --linija: #2a3540;
+    --narandza: #f0894a; --narandza-meko: #3a2416; --margina: #6b3535; --za: #5b86d6; --protiv: #e5574e; --neodlucni: #9a9a9a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --papir: #10161c; --list: #18212a; --tinta: #e3e9ee; --siva: #9ba8b4; --linija: #2a3540;
+  --narandza: #f0894a; --narandza-meko: #3a2416; --margina: #6b3535; --za: #5b86d6; --protiv: #e5574e; --neodlucni: #9a9a9a;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { font-size: 18px; }
+@media (max-width: 600px) { html { font-size: 16px; } }
+body { margin: 0; background: var(--papir); color: var(--tinta); font-family: var(--f-tekst); line-height: 1.55; }
+[hidden] { display: none !important; }
+a { color: var(--narandza); text-underline-offset: 0.15em; }
+:focus-visible { outline: 3px solid var(--narandza); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--f-naslov); text-wrap: balance; line-height: 1.18; margin: 0; }
+p { margin: 0; }
+code { font-family: var(--f-mono); font-size: 0.9em; }
+p code, li code, td code { background: var(--narandza-meko); padding: 0.05em 0.3em; border-radius: 3px; }
+.okvir { max-width: 1200px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.oznaka { font-family: var(--f-mono); font-size: var(--t-0); letter-spacing: 0.08em; text-transform: uppercase; color: var(--narandza); font-weight: 500; }
+.siva { color: var(--siva); }
+.mala { font-size: var(--t-0); }
+
+/* traka na vrhu */
+.vrh { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--papir); border-bottom: 1px solid var(--linija); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--papir); }
+.vrh .okvir { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem 1rem; padding-block: 0.55rem; flex-wrap: wrap; }
+.vrh b { font-family: var(--f-naslov); font-weight: 700; }
+.nacin { display: flex; gap: 0.3rem; }
+button { font: 500 var(--t-0) var(--f-mono); border-radius: 4px; padding: 0.4rem 0.8rem; cursor: pointer;
+  border: 1px solid var(--narandza); background: transparent; color: var(--narandza); }
+button[aria-pressed="true"], button.glavno { background: var(--narandza); color: var(--list); }
+button:disabled { opacity: 0.45; cursor: default; }
+
+/* slajdovi */
+.slajd { padding-block: 2rem 6rem; scroll-margin-top: 3.4rem; }
+main.prezentacija .slajd { display: none; min-height: calc(100svh - 3.2rem); }
+main.prezentacija .slajd.aktivan { display: block; }
+main.citanje .slajd { border-bottom: 1px solid var(--linija); padding-block: 2.5rem; }
+.glava { display: grid; gap: 0.35rem; margin-bottom: 1.4rem; }
+.glava h2 { font-size: var(--t-4); max-width: 30ch; }
+.glava .podnaslov { font-size: var(--t-2); color: var(--siva); max-width: 52rem; }
+.dvije { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2rem; align-items: start; }
+.dvije > * { min-width: 0; }
+@media (max-width: 900px) { .dvije { grid-template-columns: minmax(0, 1fr); } }
+.tekst { display: grid; gap: 1rem; }
+.tekst ul { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.35rem; }
+.panel { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 1rem; }
+.pitanje { background: var(--narandza-meko); border-radius: 4px; padding: 0.9rem 1rem; }
+.pitanje h3 { font-size: var(--t-1); margin-bottom: 0.25rem; }
+
+/* naslovni slajd */
+.naslovni { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 2.4rem; align-items: center; padding-top: 1rem; }
+.naslovni > * { min-width: 0; }
+.naslovni h1 { font-size: var(--t-5); letter-spacing: -0.01em; margin: 0.4rem 0 0.9rem; }
+.naslovni .teza { font-size: var(--t-3); font-family: var(--f-naslov); line-height: 1.3; }
+.naslovni .uvod { margin-top: 1rem; color: var(--siva); }
+@media (max-width: 900px) { .naslovni { grid-template-columns: minmax(0, 1fr); } }
+
+/* list papira: pravilo za model na papiru */
+.papir {
+  margin: 0; background-color: var(--list); border: 1px solid var(--linija); border-radius: 4px;
+  padding: 1rem 1.2rem 1.2rem 2.4rem; position: relative; line-height: 1.75rem;
+  background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(1.75rem - 1px), var(--linija) calc(1.75rem - 1px), var(--linija) 1.75rem);
+  background-position: 0 2.55rem;
+}
+.papir::before { content: ""; position: absolute; left: 1.5rem; top: 0; bottom: 0; width: 2px; background: var(--margina); }
+.papir figcaption { font-family: var(--f-mono); font-size: var(--t-0); color: var(--siva); letter-spacing: 0.04em; text-transform: uppercase; line-height: 1.75rem; }
+.papir p, .papir li { font-family: var(--f-naslov); font-size: 1.08rem; }
+.papir ul { list-style: none; margin: 0; padding: 0 0 0 1.2rem; }
+.papir li::before { content: "→ "; color: var(--narandza); font-family: var(--f-tekst); }
+.papir b { color: var(--narandza); }
+
+/* kartice (pojava, sastavni dijelovi, koraci) */
+.kartice { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); }
+.kartica { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 1rem; display: grid; gap: 0.6rem; align-content: start; }
+.kartica h3 { font-size: var(--t-2); }
+.kartica svg { width: 100%; height: auto; display: block; }
+.kartica ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.25rem; }
+.kartica .kod-cip { font-family: var(--f-mono); font-size: 0.78rem; color: var(--siva); border-top: 1px dashed var(--linija); padding-top: 0.5rem; }
+.korak-broj { font-family: var(--f-mono); font-weight: 500; color: var(--narandza); }
+
+/* SVG ilustracije: boje iz tokena */
+.il-osa { stroke: var(--siva); stroke-width: 1.5; }
+.il-tekst { fill: var(--siva); font: 13px var(--f-mono); }
+.il-tekst-veci { fill: var(--tinta); font: 600 15px var(--f-tekst); }
+.il-za { fill: var(--za); } .il-protiv { fill: var(--protiv); } .il-neo { fill: var(--neodlucni); }
+.il-prozor { fill: var(--narandza-meko); stroke: var(--narandza); stroke-dasharray: 4 3; }
+.il-strelica { stroke: var(--narandza); stroke-width: 2.5; fill: none; }
+.il-vrh { fill: var(--narandza); }
+.il-domet { fill: none; stroke: var(--narandza); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.il-svijet { fill: var(--svijet); }
+.il-kuca { fill: #eded2f; }
+.il-precrtano { stroke: var(--protiv); stroke-width: 3; }
+.il-oblak { fill: var(--list); stroke: var(--siva); stroke-width: 1.2; }
+
+/* kalkulator jednog susreta */
+.kalk { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 1.5rem; }
+.kalk > * { min-width: 0; }
+@media (max-width: 900px) { .kalk { grid-template-columns: minmax(0, 1fr); } }
+.klizaci { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem 1.2rem; }
+@media (max-width: 520px) { .klizaci { grid-template-columns: minmax(0, 1fr); } }
+.klizac { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+.klizac label { font-family: var(--f-mono); font-size: var(--t-0); }
+.klizac output { font-family: var(--f-mono); font-size: var(--t-0); font-variant-numeric: tabular-nums; }
+.klizac input { grid-column: 1 / -1; width: 100%; accent-color: var(--narandza); }
+.racun { font-family: var(--f-mono); font-size: 0.86rem; line-height: 1.7; background: var(--papir); border-radius: 4px; padding: 0.7rem 0.9rem; overflow-x: auto; white-space: pre; }
+.racun .da { color: var(--za); font-weight: 600; } .racun .ne { color: var(--protiv); font-weight: 600; }
+.dugmad { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+
+/* putanje stava */
+.putanje-okvir { background: var(--svijet); border-radius: 6px; padding: 0.6rem; }
+canvas.putanje { width: 100%; aspect-ratio: 2 / 1; display: block; }
+.izbor { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.6rem; }
+.izbor button { border-color: var(--linija); color: var(--siva); }
+.izbor button[aria-pressed="true"] { border-color: var(--narandza); color: var(--list); background: var(--narandza); }
+.legenda { display: flex; gap: 1rem; flex-wrap: wrap; font-size: var(--t-0); color: var(--siva); margin-top: 0.4rem; }
+.legenda i { display: inline-block; width: 0.8em; height: 0.8em; border-radius: 50%; margin-right: 0.35em; vertical-align: -0.05em; }
+.potpis { font-size: var(--t-0); color: var(--siva); margin-top: 0.4rem; }
+.potpis b { color: var(--tinta); font-weight: 600; }
+
+/* grafikoni iz mjerenja */
+svg.grafik { width: 100%; height: auto; display: block; overflow: visible; }
+.g-mreza { stroke: var(--linija); stroke-width: 1; } .g-os { stroke: var(--siva); stroke-width: 1; }
+.g-oznaka { fill: var(--siva); font: 12px var(--f-mono); } .g-naslov-x { fill: var(--siva); font: 12px var(--f-tekst); }
+.g-vrijednost { fill: var(--tinta); font: 500 12px var(--f-mono); }
+.g-raspon { stroke: var(--narandza); stroke-width: 3; stroke-linecap: round; opacity: 0.35; }
+.g-tacka { fill: var(--narandza); }
+.g-ref { stroke: var(--siva); stroke-width: 1.2; stroke-dasharray: 4 4; }
+.g-ref-tekst { fill: var(--siva); font: italic 12px var(--f-tekst); }
+
+/* kod */
+.kodovi { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; }
+.kodovi > * { min-width: 0; }
+@media (max-width: 900px) { .kodovi { grid-template-columns: minmax(0, 1fr); } }
+.kod { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; overflow: hidden; }
+.kod .jezik { font-family: var(--f-mono); font-size: var(--t-0); padding: 0.4rem 0.8rem; border-bottom: 1px solid var(--linija); color: var(--siva); }
+.kod pre { margin: 0; padding: 0.8rem; overflow-x: auto; }
+.kod code { font-size: 14px; line-height: 1.55; white-space: pre; }
+.kod .kom { color: var(--siva); font-style: italic; }
+.kod mark { background: var(--narandza-meko); color: inherit; border-radius: 2px; padding: 0 0.15em; }
+.kod mark b { color: var(--narandza); font-family: var(--f-tekst); }
+.oblacici { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: 1rem; margin-top: 1rem; }
+.oblacici div { border-left: 3px solid var(--narandza); padding-left: 0.8rem; }
+.oblacici b.br { font-family: var(--f-mono); color: var(--narandza); margin-right: 0.3rem; }
+
+/* probaj */
+.veze { display: grid; gap: 0.7rem; }
+.veze a { display: block; text-decoration: none; background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 0.8rem 1rem; color: var(--tinta); }
+.veze a:hover { border-color: var(--narandza); }
+.veze a b { color: var(--narandza); }
+.veze a span { display: block; color: var(--siva); font-size: var(--t-0); }
+.literatura { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.35rem; font-size: 0.92rem; }
+
+/* donja navigacija */
+.navigacija { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--papir); border-top: 1px solid var(--linija);
+  padding-bottom: env(safe-area-inset-bottom, 0px); }
+.navigacija .okvir { display: flex; align-items: center; gap: 0.8rem; padding-block: 0.5rem; }
+.navigacija .naslov-slajda { flex: 1; min-width: 0; font-size: var(--t-0); color: var(--siva); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.navigacija .broj { font-family: var(--f-mono); font-size: var(--t-0); font-variant-numeric: tabular-nums; }
+.napredak { position: absolute; top: -1px; left: 0; height: 2px; background: var(--narandza); transition: width 0.25s; }
+main.citanje ~ .navigacija { display: none; }
+@media (prefers-reduced-motion: reduce) { .napredak { transition: none; } }
+
+.tablica { width:100%; border-collapse:collapse; }
+.tablica th,.tablica td { padding:.55rem .65rem; text-align:left; vertical-align:top; border-bottom:1px solid var(--linija); }
+.tablica th { color:var(--narandza); }
+.tablica-okvir { overflow-x:auto; }
+.tekst ol { margin:0; padding-left:1.4rem; display:grid; gap:.7rem; }
+.oznaka-primjera { margin-top:1rem; color:var(--siva); font-size:var(--t-0); }
+.papir p { margin:.3rem 0; }
+.papir ol { margin:.55rem 0 0; padding-left:1.25rem; }
+.papir ol li::before { content:none; }
+@media print { main.prezentacija .slajd { display:block; min-height:0; break-after:page; } .vrh,.navigacija { display:none; } }
+</style>
+</head>
+<body>
+
+<header class="vrh"><div class="okvir">
+  <span><span class="oznaka">Vježbe 5</span> &nbsp;<b>Model na papiru i scenariji</b></span>
+  <div class="nacin" role="group" aria-label="Način prikaza">
+    <button type="button" id="nacin-prezentacija" aria-pressed="true">Prezentacija</button>
+    <button type="button" id="nacin-citanje" aria-pressed="false">Čitanje</button>
+  </div>
+</div></header>
+<main class="prezentacija" id="slajdovi">
+
+<section class="slajd" id="s1" data-naslov="Model na papiru i scenariji"><div class="okvir naslovni">
+  <div><span class="oznaka">Modeliranje i simulacije · FIT UNMO · 07.11.2026.</span>
+    <h1>Model na papiru i scenariji</h1>
+    <p class="teza">Pravilo, mjera i poređenje scenarija trebaju biti povezani prije kodiranja.</p>
+    <p class="uvod">Adil Joldić · subota u 14:00 · čas se snima</p>
+    <p class="uvod mala">Strelice ← → mijenjaju slajd. „Čitanje“ prikazuje cijelu prezentaciju.</p>
+  </div>
+  <div class="tekst"><span class="oznaka">0–20 min</span><h2>Može li udio ljudi „za“ pasti dok prosječan stav ostaje skoro isti?</h2>
+    <p>Zamislite da nema medija. Pri susretu se stav svake osobe pomjeri prema stavu druge za isti dio razlike.</p>
+    <p>U chat upišite očekujete li promjenu <b>prosječnog stava</b> i <b>udjela ljudi „za“</b>.</p>
+    <div class="veze">
+      <a href="../lekcija1-sta-pravilo-moze.html#s3"><b>Lekcija 1</b><span>Ilustracija pravila</span></a>
+      <a href="../lekcija1-sta-pravilo-moze.html#s5"><b>Raspodjele iz modela stava</b><span>Početak i kraj jednog pokretanja</span></a>
+    </div>
+  </div>
+</div></section>
+
+<section class="slajd" id="s2" data-naslov="Kako bismo izmjerili učinak medija?"><div class="okvir">
+  <div class="glava"><span class="oznaka">20–45 min</span><h2>Kako bismo izmjerili učinak medija?</h2>
+    <p class="podnaslov">Na predavanju 03.11. poredili smo scenarije na modelu Wolf Sheep Predation. Sada sami sastavljamo poređenje.</p></div>
+  <div class="kartice">
+    <div class="kartica"><h3>Šta mijenjamo?</h3><p>Predložite dva scenarija za isto pitanje.</p></div>
+    <div class="kartica"><h3>Šta držimo fiksnim?</h3><p>Navedite postavke koje oba scenarija trebaju dijeliti.</p></div>
+    <div class="kartica"><h3>Šta mjerimo?</h3><p>Odaberite mjeru koju ćemo očitati nakon 150 koraka.</p></div>
+  </div>
+  <div class="pitanje" style="margin-top:1rem"><h3>Odgovor u chatu</h3><p>Napišite šta mijenjate, šta fiksirate i šta mjerite. Šta bismo mogli zaključiti iz samo jednog para pokretanja?</p></div>
+  <div class="veze"><a href="../lekcija2-jedno-pokretanje.html#s4"><b>Lekcija 2</b><span>Izvlačenje uzorka pokretanja</span></a></div>
+</div></section>
+
+<section class="slajd" id="s3" data-naslov="Eksperiment s medijima i bez njih"><div class="okvir">
+  <div class="glava"><h2>Eksperiment s medijima i bez njih</h2></div>
+  <div class="kartice">
+    <div class="kartica"><h3>Jedna promjena</h3><p>Mediji su u prvom scenariju isključeni, a u drugom uključeni. Ostale parametre fiksiramo.</p></div>
+    <div class="kartica"><h3>100 parova pokretanja</h3><p>U svakom paru koristimo isti seed. Za svaki sljedeći par uzimamo drugi seed.</p></div>
+    <div class="kartica"><h3>Mjere nakon 150 koraka</h3><p>Bilježimo prosječan stav i udio ljudi „za“. U tabeli čuvamo i seed svakog pokretanja.</p></div>
+  </div>
+  <div class="pitanje" style="margin-top:1rem"><h3>Predviđanje prije pokretanja</h3><p>Kako će se uključivanje medija odraziti na udio ljudi „za“?</p></div>
+</div></section>
+
+<section class="slajd" id="s4" data-naslov="Rezultati iz BehaviorSpacea"><div class="okvir">
+  <div class="glava"><h2>Rezultati iz BehaviorSpacea</h2>
+    <p class="podnaslov">Udio ljudi „za“ nakon 150 koraka, iz 100 pokretanja po scenariju.</p></div>
+  <div class="tablica-okvir"><table class="tablica"><thead><tr><th scope="col">Scenarij</th><th scope="col">Medijan</th><th scope="col">Raspon</th></tr></thead><tbody>
+    <tr><th scope="row">Mediji isključeni</th><td>2,5%</td><td>0% do 27,5%</td></tr>
+    <tr><th scope="row">Mediji uključeni</th><td>92,75%</td><td>57% do 100%</td></tr>
+  </tbody></table></div>
+  <div class="pitanje" style="margin-top:1rem"><h3>Čitanje rezultata</h3><p>Šta saznajemo iz raspona što nam sam medijan ne govori?</p></div>
+  <div class="veze">
+    <a href="../upute-behaviorspace.html"><b>Upute za BehaviorSpace</b><span>Postavke, pokretanje eksperimenta i čitanje CSV tabele</span></a>
+  </div>
+</div></section>
+
+<section class="slajd" id="s5" data-naslov="Poređenje koje treba popraviti"><div class="okvir">
+  <div class="glava"><span class="oznaka">45–75 min · Izmišljeni nastavni primjer</span>
+    <h2>Zajedničko posuđivanje alata u naselju</h2>
+    <p class="podnaslov">Želimo ispitati da li razgovor s poznanicima utiče na uspješno posuđivanje alata.</p></div>
+  <div class="tablica-okvir"><table class="tablica"><thead><tr><th scope="col">Scenarij</th><th scope="col">Uticaj poznanika</th><th scope="col">Početna zaliha po centru</th></tr></thead><tbody>
+    <tr><th scope="row">A</th><td>Isključen</td><td>10 komada</td></tr>
+    <tr><th scope="row">B</th><td>Uključen</td><td>20 komada</td></tr>
+  </tbody></table></div>
+  <div class="pitanje" style="margin-top:1rem"><h3>Ako u B više domaćinstava posudi alat, šta je napravilo razliku?</h3>
+    <p>Imate dvije minute. U chat napišite <b>jedno pravilo, dva scenarija i jednu mjeru</b> kojima biste ispitali učinak razgovora.</p>
+  </div>
+</div></section>
+
+<section class="slajd" id="s6" data-naslov="Agenti i interakcije izmišljenog modela"><div class="okvir">
+  <div class="glava"><h2>Atributi se koriste u pravilima</h2></div>
+  <div class="dvije"><div class="tekst"><h3>Domaćinstvo</h3><ul>
+    <li><b>Stav od 0 do 1</b> određuje vjerovatnoću da zatraži posudbu kada mu zatreba alat.</li>
+    <li><b>Integritet od 0 do 1</b> smanjuje promjenu stava pri razgovoru. Na gornjoj granici stav ostaje isti.</li>
+    <li><b>Nenegativan budžet</b> ograničava plaćanje naknade. Posudba umanjuje budžet za isti iznos.</li>
+    <li><b>Poznanci, trenutna posudba i iskustvo</b> određuju kontakte i daljnje zahtjeve.</li>
+  </ul></div><div class="tekst"><h3>Centar i redoslijed sedmice</h3><ol>
+    <li>Alat iz prethodne sedmice vrati se centru i poveća njegovu raspoloživu zalihu.</li>
+    <li>Domaćinstva razgovaraju s poznanicima. Stav primaoca približi se iskustvu sagovornika, prema integritetu i snazi uticaja.</li>
+    <li>Nastanu slučajne potrebe za alatom. Domaćinstvo prema stavu i budžetu pošalje zahtjev najbližem centru.</li>
+    <li>Centar rasporedi alat slučajnim redom do iscrpljenja zalihe. Ishod ažurira iskustvo domaćinstva.</li>
+  </ol></div></div>
+  <p style="margin-top:1rem"><b>Pravilo razgovora</b><br>novi stav = stav + (iskustvo sagovornika − stav) × (1 − integritet) × snaga uticaja</p>
+  <p class="oznaka-primjera">Jedan turtle predstavlja domaćinstvo, jedan tick sedmicu, a centar je nepokretni agent. Iskustvo je 1 nakon uspješne posudbe i 0 nakon odbijanja. Snaga uticaja je od 0 do 1. Lista provjere · B i C, stavke 3–8.</p>
+</div></section>
+
+<section class="slajd" id="s7" data-naslov="Mjere i scenariji izmišljenog modela"><div class="okvir">
+  <div class="glava"><h2>Jedna promjena po poređenju</h2></div>
+  <div class="tablica-okvir"><table class="tablica"><thead><tr><th>Scenarij</th><th>Šta se mijenja</th><th>Šta ostaje zadano</th></tr></thead><tbody>
+    <tr><td>Bez uticaja poznanika</td><td>Društveni uticaj je isključen.</td><td rowspan="2">Početni stavovi i budžeti, mreža poznanstava, postavke za potrebe, naknada, 10 komada alata po centru, trajanje i način mjerenja.</td></tr>
+    <tr><td>Uticaj poznanika</td><td>Uključen je uticaj razgovora na stav.</td></tr>
+  </tbody></table></div>
+  <div class="dvije" style="margin-top:1rem"><div class="tekst"><h3>Mjere na kraju perioda</h3><ul>
+    <li>Udio domaćinstava s barem jednom uspješnom posudbom.</li>
+    <li>Broj odbijenih zahtjeva zbog nedostatka alata i broj zahtjeva koje je ograničio budžet.</li>
+    <li>Prosječan stav i rasipanje stavova.</li>
+  </ul></div><div class="tekst"><h3>Plan provjere</h3>
+    <p>Planiramo 100 pokretanja po scenariju. Svaki par koristi isto sjeme, sljedeći par drugo. Navodimo medijan i raspon.</p>
+    <p>U zasebnom poređenju mijenjamo zalihu centra, uz fiksiran društveni uticaj. Tako ispitujemo svrhu slajdera kapaciteta.</p>
+  </div></div>
+  <p class="oznaka-primjera">Lista provjere · E, stavke 10–12. Ovo je plan hipotetičkog eksperimenta.</p>
+</div></section>
+
+<section class="slajd" id="s8" data-naslov="Podaci i provjera modela na papiru"><div class="okvir">
+  <div class="glava"><h2>Šta još treba zapisati uz primjer</h2></div>
+  <div class="dvije"><div class="tekst"><h3>Podaci i pretpostavke</h3><ul>
+    <li>Početni stav i integritet imaju ravnomjerne raspodjele na rasponu od 0 do 1. To je nastavna pretpostavka koju treba opravdati podacima.</li>
+    <li>Za potrebe, naknadu i raspoloživi alat trebali bi evidencija centra i podaci o budžetu.</li>
+    <li>Snaga društvenog uticaja zahtijeva literaturu ili ispitivanje osjetljivosti.</li>
+    <li>Za svaku vrijednost treba označiti izvor ili pretpostavku. U ovom primjeru izvori tek trebaju biti pronađeni.</li>
+  </ul></div><div class="tekst"><h3>Izvedivost i originalnost</h3>
+    <p>Slični modeli posudbe i društvenog uticaja trebaju se pretražiti u literaturi i zbirkama modela. Potencijalni doprinos je veza iskustva poznanika s ograničenom zalihom.</p>
+    <p>Prvo se razrađuju posudba, povrat i razgovor. Proširenje broja vrsta alata ostaje za kasnije.</p>
+    <div class="veze"><a href="../lista-provjere-model-na-papiru.html"><b>Lista provjere modela na papiru</b><span>Označite stavke koje smo provjerili na primjeru.</span></a></div>
+  </div></div>
+  <p class="oznaka-primjera">Prijava tema je završena. Model na papiru razrađuje se približno do 08.12.2026. i pokazuje na predavanju dijeljenjem ekrana.</p>
+</div></section>
+
+<section class="slajd" id="s9" data-naslov="Društvo s više naroda"><div class="okvir naslovni">
+  <div><span class="oznaka">75–90 min · Završni dio</span><h1>Društvo s više naroda</h1>
+    <p class="teza">Seobe i mješovitost mjesta, na primjeru BiH.</p>
+    <p class="uvod">Ovaj dio je za timove koji rade temu i studente upućene na nju na predavanju. Ostali studenti mogu završiti praćenje časa.</p>
+  </div><div class="tekst"><h2>Kako bismo izmjerili učinak povjerenja pri zapošljavanju?</h2>
+    <p>Zamislimo da firma pri izboru između jednako sposobnih kandidata uzima u obzir povjerenje prema njihovoj grupi.</p>
+    <p>Koja dva scenarija biste poredili? Šta biste mjerili?</p>
+  </div>
+</div></section>
+
+<section class="slajd" id="s10" data-naslov="Zajednički kostur i mehanizam tima"><div class="okvir">
+  <div class="glava"><h2>Zajednički kostur i pravilo zapošljavanja</h2></div>
+  <div class="dvije"><div class="tekst"><h3>Predloženi kostur</h3><ul>
+    <li>Osobe pripadaju domaćinstvima, traže posao i školuju se.</li>
+    <li>Firme, institucije, četvrti, mjesta i teritorije čine okruženje.</li>
+    <li>Selidba povezuje zaradu, troškove i važnost etničke pripadnosti.</li>
+    <li>Identitet i integritet su atributi osobe. Ista početna raspodjela identiteta vrijedi za sve grupe.</li>
+  </ul></div><div class="tekst"><h3>Par scenarija za učinak pravila</h3>
+    <p>U prvom scenariju vrijedi osnovno pravilo zapošljavanja.</p>
+    <p>U drugom scenariju firma među jednako sposobnim kandidatima daje prednost kandidatu iz grupe kojoj više vjeruje.</p>
+    <p>Ostale postavke su iste. Na kraju perioda poredimo udio mješovitih radnih mjesta.</p>
+  </div></div>
+  <p class="oznaka-primjera">Jedan tick je godina. Period bira tim. Novac se mjeri u potrošačkim korpama. Grupe se označavaju A, B, C i po potrebi D.</p>
+</div></section>
+
+<section class="slajd" id="s11" data-naslov="Kontrolni scenarij za sve timove"><div class="okvir">
+  <div class="glava"><h2>Kontrolni scenarij za sve timove</h2>
+    <p class="podnaslov">Pokazuje koliko razdvajanja nastaje iz ekonomije i početnog sastava.</p></div>
+  <div class="dvije"><figure class="papir"><figcaption>Postavke kontrole</figcaption><ul>
+    <li><b>Identitet je 0</b> za sve osobe.</li><li>Moduli i mehanizmi su isključeni.</li>
+    <li>Kriza je isključena.</li><li>Sve institucije su zajedničke.</li><li>Prelazak granice je besplatan.</li>
+    <li><b>Ekonomija i demografija su aktivne.</b></li>
+  </ul></figure><div class="tekst"><h3>Posebno poređenje učinka</h3>
+    <p>Za mehanizam tima pripremamo par scenarija na izabranom sloju. Razlikuju se po uključenosti tog mehanizma.</p>
+    <p>Svaki par ima iste parametre i isti seed. Između ponavljanja seed se mijenja.</p>
+    <p>Koje postavke zajednička kontrola mijenja osim isključivanja pravila zapošljavanja? Šta njome saznajemo?</p>
+  </div></div>
+</div></section>
+
+<section class="slajd" id="s12" data-naslov="Zajedničke mjere"><div class="okvir">
+  <div class="glava"><h2>Zajedničke mjere povezuju modele timova</h2>
+    <p class="podnaslov">U prijedlogu navedite koje mjere koristite i koja je dodatna mjera potrebna vašem pitanju.</p></div>
+  <div class="kartice"><div class="kartica"><h3>Prostor i selidbe</h3><ul>
+    <li>Indeks različitosti po četvrtima, mjestima i teritorijama.</li><li>Mješovite četvrti, mjesta i radna mjesta.</li><li>Selidbe po razlogu.</li>
+  </ul></div><div class="kartica"><h3>Ekonomija</h3><ul>
+    <li>Domaćinstva ispod korpe.</li><li>Prihod i nezaposlenost po grupi.</li><li>Udio putnika i zarobljenih.</li>
+  </ul></div><div class="kartica"><h3>Stanovništvo i identitet</h3><ul>
+    <li>Stanovništvo i starost sela i gradova.</li><li>Mjesta bez djece školskog uzrasta.</li><li>Identitet po grupi i tipu mjesta.</li>
+  </ul></div></div>
+  <div class="pitanje" style="margin-top:1rem"><h3>Dogovor uz mjeru</h3><p>Značenje, naziv u kodu, jedinica, trenutak očitavanja i način sažimanja usklađuju se kroz ugovor.</p></div>
+</div></section>
+
+<section class="slajd" id="s13" data-naslov="Slojevi modela"><div class="okvir">
+  <div class="glava"><h2>Mehanizam se ispituje na potrebnom sloju</h2></div>
+  <div class="tablica-okvir"><table class="tablica"><thead><tr><th>Sloj</th><th>Šta dodaje</th><th>Primjer pitanja</th></tr></thead><tbody>
+    <tr><td>L0</td><td>Etnička pripadnost, selidba i firme s istom platom</td><td>Kako se mijenja mješovitost susjedstva?</td></tr>
+    <tr><td>L1</td><td>Različite plate po mjestu i firmi</td><td>Kako posao mijenja pravac selidbe?</td></tr>
+    <tr><td>L2</td><td>Putovanje na posao</td><td>Kada putovanje zamjenjuje selidbu?</td></tr>
+    <tr><td>L3</td><td>Demografija</td><td>Kako se mijenja starost mjesta?</td></tr>
+    <tr><td>L4</td><td>Kriza</td><td>Koliko domaćinstava ostaje zarobljeno?</td></tr>
+  </tbody></table></div>
+  <p style="margin-top:1rem">U prijedlogu navedite najniži sloj koji mehanizam zahtijeva. Učinak se ispituje na tom sloju i na punom modelu. U svakom poređenju mijenja se jedna stvar.</p>
+  <p class="oznaka-primjera">Za prikazano pravilo zapošljavanja dovoljan je L0. Firme već postoje, a pravilo se može ispitati uz jednake plate.</p>
+</div></section>
+
+<section class="slajd" id="s14" data-naslov="Plan poređenja mehanizama"><div class="okvir">
+  <div class="glava"><h2>Kako se pokazuje učinak mehanizma</h2></div>
+  <div class="dvije"><div class="tekst"><ol>
+    <li>Izaberemo sloj, početno stanje, period i mjere.</li>
+    <li>Pokrenemo scenarij s mehanizmom i scenarij bez njega, uz iste ostale postavke.</li>
+    <li>U svakom paru koristimo isti seed. Za sljedeći par uzmemo drugi.</li>
+    <li>Uporedimo medijan, raspon i razlike unutar parova. Sačuvamo postavke i tabelu.</li>
+  </ol></div><div class="tekst"><h3>Broj ponavljanja</h3>
+    <p>Specifikacija teme navodi najmanje 10 ponavljanja po scenariju. Na ovom času postupak pokazujemo sa 100 pokretanja po scenariju, kao na predavanju.</p>
+    <p>Za dodatnu preciznost broj se povećava prema rasipanju rezultata. Svaki mehanizam ima zaseban prekidač, pa se ispituju pojedinačni i zajednički učinci.</p>
+    <p>Zaključak treba povezati promjenu mjere s pravilom koje je proizvodi.</p>
+  </div></div>
+</div></section>
+
+<section class="slajd" id="s15" data-naslov="Varijanta teme i formiranje timova"><div class="okvir">
+  <div class="glava"><h2>Varijanta teme i formiranje timova</h2></div>
+  <div class="dvije"><div class="tekst"><h3>Mogući pravci</h3><ul>
+    <li>Školovanje, odlazak mladih i starenje mjesta.</li><li>Putovanje na posao i selidba.</li>
+    <li>Kriza, oporavak i zarobljena domaćinstva.</li><li>Susreti, mediji i promjena identiteta.</li>
+    <li>Mješovita domaćinstva i generacije.</li>
+  </ul><p>Dva tima mogu ispitivati istu pojavu kroz različita pravila. Period i podatak za provjeru prate pitanje tima.</p></div>
+  <div class="tekst"><h3>Organizacija</h3><ul>
+    <li>Tim ima najviše tri člana i vođu koji evidentira doprinose.</li>
+    <li>Pri predstavljanju navedite broj tima, sastav i izabranu varijantu.</li>
+    <li>Sastav tima prijavljuje se u Teams kanalu General.</li>
+    <li>Zajednički kostur i mjere dogovaraju se kroz ugovor.</li>
+  </ul><p>Zaključci se odnose na mehanizme i ponašanje pojedinaca. Za provjeru koristimo podatke na kraju izabranog perioda.</p></div></div>
+</div></section>
+
+<section class="slajd" id="s16" data-naslov="Obrazac prijedloga tima"><div class="okvir">
+  <div class="glava"><h2>Obrazac prijedloga tima</h2></div>
+  <div class="dvije"><figure class="papir"><figcaption>Tri dijela prijedloga</figcaption><ol>
+    <li><b>Šta želimo analizirati</b><br>Imenujemo jednu pojavu u društvu.</li>
+    <li><b>Mehanizam</b><br>Pravilo pišemo u obliku „kada se dogodi …, tada …“.</li>
+    <li><b>Pitanje</b><br>Navodimo šta tačno želimo saznati iz modela.</li>
+  </ol></figure><div class="tekst"><h3>Primjer sa zapošljavanjem</h3><ol>
+    <li>Mješovitost radnih mjesta.</li>
+    <li>Kada firma bira između jednako sposobnih kandidata, tada daje prednost kandidatu iz grupe kojoj više vjeruje.</li>
+    <li>Kako to pravilo mijenja udio mješovitih radnih mjesta na kraju perioda?</li>
+  </ol></div></div>
+  <p style="margin-top:1rem"><b>Uz prijedlog</b> navedite broj tima, vođu i članove, mjeru i podatak za provjeru, šta vam treba od kostura i najniži potreban sloj L0–L4.</p>
+  <p>Nakon prijedloga slijede pisane dopune i zajedničko usvajanje ugovora.</p>
+</div></section>
+
+<section class="slajd" id="s17" data-naslov="Sljedeći koraci"><div class="okvir">
+  <div class="glava"><h2>Sljedeći koraci</h2></div>
+  <div class="tablica-okvir"><table class="tablica"><thead><tr><th>Korak</th><th>Termin</th></tr></thead><tbody>
+    <tr><td>Sastav tima i izabrana varijanta teme „tri naroda“</td><td><b>Petak 13.11.2026.</b> · prijedlog roka, potvrditi</td></tr>
+    <tr><td>Prijedlog tima po obrascu</td><td><b>Petak 20.11.2026.</b> · prijedlog roka, potvrditi</td></tr>
+    <tr><td>Razrada modela na papiru za sve timove</td><td><b>Približno do 08.12.2026.</b></td></tr>
+    <tr><td>Vježbe s kodiranjem modela u NetLogu (asistent Adil Eminagić)</td><td><b>Od petka 13.11.2026.</b>, redovni termin petkom</td></tr>
+  </tbody></table></div>
+  <div class="pitanje" style="margin-top:1.4rem"><h3>Za pokazivanje na predavanju</h3>
+    <p>Pripremite tekst s agentima, atributima, interakcijama, mjerama i scenarijima. Model se predstavlja dijeljenjem ekrana.</p></div>
+</div></section>
+</main>
+<nav class="navigacija" aria-label="Slajdovi"><div class="napredak" id="napredak"></div><div class="okvir">
+  <button type="button" id="nazad" aria-label="Prethodni slajd">←</button><span class="broj" id="broj">1 / 17</span>
+  <button type="button" id="naprijed" aria-label="Sljedeći slajd">→</button><span class="naslov-slajda" id="naslov-slajda"></span>
+</div></nav>
+<script>
+// Zajednički dio lekcija (isti kao u mini-prezentacijama blokova s vježbi 3): jedan slajd na ekranu ili svi jedan
+// ispod drugog (način „Čitanje“), strelice i prevlačenje, adresa #sN, zapamćen način prikaza.
+// Upotreba: Prezentacija("lekcija1", crtajVidljivo), gdje crtajVidljivo iscrta grafike na vidljivim slajdovima.
+window.Prezentacija = function (kljuc, crtajVidljivo) {
+  const $ = s => document.querySelector(s);
+  const main = $("#slajdovi"), slajdovi = [...document.querySelectorAll(".slajd")];
+  let tren = 0;
+  function prikazi(i, izHasha) {
+    tren = Math.max(0, Math.min(slajdovi.length - 1, i));
+    slajdovi.forEach((s, k) => s.classList.toggle("aktivan", k === tren));
+    $("#broj").textContent = `${tren + 1} / ${slajdovi.length}`;
+    $("#naslov-slajda").textContent = slajdovi[tren].dataset.naslov;
+    $("#napredak").style.width = `${((tren + 1) / slajdovi.length) * 100}%`;
+    $("#nazad").disabled = tren === 0; $("#naprijed").disabled = tren === slajdovi.length - 1;
+    if (!izHasha) { try { history.replaceState(null, "", "#" + slajdovi[tren].id); } catch (e) {} }
+    if (main.classList.contains("prezentacija")) window.scrollTo(0, 0);
+    crtajVidljivo();
+  }
+  $("#nazad").addEventListener("click", () => prikazi(tren - 1));
+  $("#naprijed").addEventListener("click", () => prikazi(tren + 1));
+  document.addEventListener("keydown", e => {
+    if (!main.classList.contains("prezentacija") || e.target.closest("input, textarea, select")) return;
+    if (["ArrowRight", "PageDown"].includes(e.key) || (e.key === " " && !e.target.closest("button"))) { e.preventDefault(); prikazi(tren + 1); }
+    if (["ArrowLeft", "PageUp"].includes(e.key)) { e.preventDefault(); prikazi(tren - 1); }
+    if (e.key === "Home") prikazi(0);
+    if (e.key === "End") prikazi(slajdovi.length - 1);
+  });
+  let dodirX = null;
+  main.addEventListener("touchstart", e => { dodirX = e.touches[0].clientX; }, { passive: true });
+  main.addEventListener("touchend", e => {
+    if (dodirX === null || !main.classList.contains("prezentacija")) return;
+    const dx = e.changedTouches[0].clientX - dodirX; dodirX = null;
+    if (e.target.closest("input, select, canvas, .interaktivno")) return;
+    if (Math.abs(dx) > 70) prikazi(tren + (dx < 0 ? 1 : -1));
+  });
+  function nacin(citanje) {
+    main.classList.toggle("citanje", citanje); main.classList.toggle("prezentacija", !citanje);
+    $("#nacin-citanje").setAttribute("aria-pressed", citanje); $("#nacin-prezentacija").setAttribute("aria-pressed", !citanje);
+    try { localStorage.setItem(kljuc + "-nacin", citanje ? "citanje" : "prezentacija"); } catch (e) {}
+    if (citanje) requestAnimationFrame(() => slajdovi[tren].scrollIntoView());
+    crtajVidljivo();
+  }
+  $("#nacin-citanje").addEventListener("click", () => nacin(true));
+  $("#nacin-prezentacija").addEventListener("click", () => nacin(false));
+  addEventListener("resize", () => crtajVidljivo());
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => crtajVidljivo());
+
+  let pocetni = 0;
+  const h = location.hash.replace("#", ""), k = slajdovi.findIndex(s => s.id === h); if (k >= 0) pocetni = k;
+  let sacuvano = null; try { sacuvano = localStorage.getItem(kljuc + "-nacin"); } catch (e) {}
+  if (sacuvano === "citanje") nacin(true);
+  prikazi(pocetni, true);
+  if (main.classList.contains("prezentacija")) setTimeout(() => window.scrollTo(0, 0), 0);
+  addEventListener("hashchange", () => {
+    const i = slajdovi.findIndex(s => s.id === location.hash.replace("#", ""));
+    if (i >= 0 && i !== tren) { prikazi(i, true); if (main.classList.contains("citanje")) slajdovi[i].scrollIntoView(); }
+  });
+  return { prikazi };
+};
+
+// Zajedničke pomoćne funkcije za grafike (SVG) i brojeve.
+window.Pomoc = (() => {
+  const SVG = "http://www.w3.org/2000/svg";
+  const el = (ime, atr = {}, tekst) => { const e = document.createElementNS(SVG, ime); for (const [k, v] of Object.entries(atr)) e.setAttribute(k, v); if (tekst !== undefined) e.textContent = tekst; return e; };
+  const zarez = (x, d = 2) => x.toFixed(d).replace(".", ",").replace("-", "−");
+  const pct = x => `${Math.round(x * 100)}%`;
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  // mulberry32: ponovljivi slučajni brojevi za ilustracije u web pregledniku
+  const rng = seed => () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  return { el, zarez, pct, css, rng };
+})();
+
+Prezentacija("v05-model-na-papiru", () => {});
+</script>
+</body>
+</html>

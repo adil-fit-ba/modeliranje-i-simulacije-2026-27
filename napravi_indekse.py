@@ -1,4 +1,4 @@
-"""Pravi početnu stranicu repozitorija i vjezbe-03/index.html u istom izgledu kao vjezbe-02/index.html."""
+"""Pravi početnu stranicu i indekse vježbi 3 i 5 u istom izgledu kao vjezbe-02/index.html."""
 import io, sys
 REPO = sys.argv[1] if len(sys.argv) > 1 else __import__("os").path.dirname(__import__("os").path.abspath(__file__))
 CSS = """<style>
@@ -58,6 +58,17 @@ def v04(p):
     return grupa("Prezentacija", [
         k(p + "prezentacije/v04-tema-tri-naroda.html", "Društvo s više naroda", "Seobe i mješovitost mjesta, na primjeru BiH: kostur modela, 13 varijanti teme, simulacija zarade i etničke pripadnosti u web pregledniku (15 slajdova).")])
 
+def v05(p):
+    return (grupa("Prezentacija i provjera modela", [
+        k(p + "prezentacije/v05-model-na-papiru-i-scenariji.html", "Model na papiru i scenariji", "Uvod, izmišljeni primjer za listu provjere i tema „Društvo s više naroda“ (17 slajdova)."),
+        k(p + "lista-provjere-model-na-papiru.html", "Lista provjere modela na papiru", "Petnaest stavki, dopunjenih prema predavanju 03.11. Oznake se mogu sačuvati u web pregledniku."),
+        k(p + "lista-provjere-model-na-papiru.pdf", "Lista provjere za štampu (PDF)", "Ažurirana lista provjere u formatu A4.")])
+      + grupa("Lekcije i BehaviorSpace", [
+        k(p + "lekcija1-sta-pravilo-moze.html", "Lekcija 1 · Šta pravilo može proizvesti", "Pravilo interakcije, mjere i scenariji. Ilustracija i mjerenja iz NetLoga."),
+        k(p + "lekcija2-jedno-pokretanje.html", "Lekcija 2 · Jedno pokretanje nije rezultat", "Slučajnost, broj ponavljanja, seed i izvještavanje."),
+        k(p + "upute-behaviorspace.html", "BehaviorSpace na modelu stava", "Postupak kroz meni, 100 pokretanja po scenariju i izmjerena CSV tabela."),
+        k(p + "modeli/v05-model-stav-behaviorspace.nlogox", "Model s pripremljenim eksperimentom", "Model stava s vježbi 2 i ugrađen eksperiment v05-mediji, za NetLogo 7.0.4.")]))
+
 def stranica(naslov, opis, tijelo, oznaka="Modeliranje i simulacije · FIT UNMO 2026/27"):
     return f"""<!doctype html>
 <html lang="bs">
@@ -81,10 +92,15 @@ uvod = '  <p class="siva">Stranice rade u web pregledniku, bez instalacije. Prez
 root = ('  <h1>Modeliranje i simulacije: materijali s vježbi</h1>\n' + uvod
         + '  <h2>Vježbe 2 (17.10.2026.): ponavljanje i prvi model</h2>\n' + v02("vjezbe-02/")
         + '  <h2>Vježbe 3 (24.10.2026.): interakcije</h2>\n' + v03("vjezbe-03/")
-        + '  <h2>Vježbe 4 (31.10.2026.): tema „Društvo s više naroda“</h2>\n' + v04("vjezbe-04/"))
+        + '  <h2>Vježbe 4 (31.10.2026.): tema „Društvo s više naroda“</h2>\n' + v04("vjezbe-04/")
+        + '  <h2>Vježbe 5 (07.11.2026.) · Model na papiru i scenariji</h2>\n' + v05("vjezbe-05/"))
 io.open(REPO + "/index.html", "w", encoding="utf-8", newline="\n").write(
     stranica("Modeliranje i simulacije 2026/27 — materijali s vježbi", "Materijali s vježbi: prezentacije, mini-prezentacije i NetLogo modeli.", root, "FIT UNMO · 2026/27"))
 io.open(REPO + "/vjezbe-03/index.html", "w", encoding="utf-8", newline="\n").write(
     stranica("Vježbe 3 — materijali", "Modeliranje i simulacije, FIT UNMO 2026/27: materijali vježbi 3.",
              '  <h1>Vježbe 3: materijali</h1>\n  <p class="siva">Subota, 24.10.2026. ' + uvod.split('siva">')[1] + v03("")))
+io.open(REPO + "/vjezbe-05/index.html", "w", encoding="utf-8", newline="\n").write(
+    stranica("Vježbe 5 — materijali", "Modeliranje i simulacije, FIT UNMO 2026/27. Model na papiru i scenariji.",
+             '  <h1>Vježbe 5 · Model na papiru i scenariji</h1>\n  <p class="siva">Subota, 07.11.2026. u 14:00.</p>\n'
+             + uvod + v05("")))
 print("ok")

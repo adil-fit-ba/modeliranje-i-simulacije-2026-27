@@ -1,0 +1,40 @@
+<experiments>
+  <experiment name="v05-mediji" repetitions="100" sequentialRunOrder="true" runMetricsEveryStep="false" timeLimit="150">
+    <setup>random-seed (1 + ((behaviorspace-run-number - 1) mod 100))
+setup</setup>
+    <go>go</go>
+    <metrics>
+      <metric>prosjecan-stav</metric>
+      <metric>udio-za</metric>
+      <metric>ticks</metric>
+      <metric>1 + ((behaviorspace-run-number - 1) mod 100)</metric>
+    </metrics>
+    <constants>
+      <enumeratedValueSet variable="mediji-rade?">
+        <value value="false" />
+        <value value="true" />
+      </enumeratedValueSet>
+      <enumeratedValueSet variable="broj-ljudi">
+        <value value="200" />
+      </enumeratedValueSet>
+      <enumeratedValueSet variable="broj-medija">
+        <value value="4" />
+      </enumeratedValueSet>
+      <enumeratedValueSet variable="domet">
+        <value value="3" />
+      </enumeratedValueSet>
+      <enumeratedValueSet variable="uticaj">
+        <value value="0.2" />
+      </enumeratedValueSet>
+      <enumeratedValueSet variable="poruka-medija">
+        <value value="1" />
+      </enumeratedValueSet>
+      <enumeratedValueSet variable="snaga-medija">
+        <value value="0.1" />
+      </enumeratedValueSet>
+      <enumeratedValueSet variable="domet-medija">
+        <value value="8" />
+      </enumeratedValueSet>
+    </constants>
+  </experiment>
+</experiments>
