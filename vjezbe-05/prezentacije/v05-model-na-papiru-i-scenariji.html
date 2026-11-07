@@ -194,6 +194,40 @@ main.citanje ~ .navigacija { display: none; }
 .papir p { margin:.3rem 0; }
 .papir ol { margin:.55rem 0 0; padding-left:1.25rem; }
 .papir ol li::before { content:none; }
+canvas.osa { width: 100%; aspect-ratio: 3 / 1; display: block; }
+.osa-okvir { background: var(--svijet); border-radius: 6px; padding: 0.6rem; }
+.brojke { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.5rem; margin-top: 0.7rem; }
+@media (max-width: 600px) { .brojke { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.brojke div { background: var(--papir); border-radius: 4px; padding: 0.45rem 0.6rem; }
+.brojke span { display: block; font-family: var(--f-mono); font-size: var(--t-0); color: var(--siva); }
+.brojke b { font-family: var(--f-mono); font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+.izbor-pravila { display: grid; gap: 0.35rem; margin-bottom: 0.7rem; }
+.izbor-pravila label { display: flex; gap: 0.5rem; align-items: baseline; cursor: pointer; }
+.izbor-pravila input { accent-color: var(--narandza); }
+.histogrami { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+@media (max-width: 900px) { .histogrami { grid-template-columns: minmax(0, 1fr); } }
+.histogrami h3 { font-size: var(--t-1); margin-bottom: 0.3rem; }
+@media (min-width: 901px) and (max-height: 800px) {
+  main.prezentacija #v05-raspodjele { padding-top: 1rem; }
+  main.prezentacija #v05-raspodjele .glava { margin-bottom: 0.8rem; }
+  main.prezentacija #v05-raspodjele .glava h2 { max-width: none; }
+  main.prezentacija #v05-raspodjele .histogrami .panel { padding: 0.5rem; }
+  main.prezentacija #v05-raspodjele .histogrami .grafik { max-height: 155px; }
+}
+.g-stub-za { fill: var(--za); } .g-stub-protiv { fill: var(--protiv); } .g-stub-neo { fill: var(--neodlucni); }
+.g-tacka-uzorak { fill: var(--narandza); opacity: 0.75; }
+.g-tacka-nova { fill: var(--tinta); }
+.velika { font-family: var(--f-mono); font-size: 2.2rem; font-variant-numeric: tabular-nums; color: var(--narandza); line-height: 1.1; }
+.izbor-n { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.izbor-n button { border-color: var(--linija); color: var(--siva); }
+.izbor-n button[aria-pressed="true"] { border-color: var(--narandza); color: var(--list); background: var(--narandza); }
+details.info { margin-top: 0.9rem; background: var(--list); border: 1px solid var(--linija); border-radius: 6px; }
+details.info > summary { cursor: pointer; padding: 0.6rem 0.9rem; font-family: var(--f-mono); font-size: var(--t-0); color: var(--narandza); font-weight: 500; }
+details.info[open] > summary { border-bottom: 1px solid var(--linija); }
+details.info .sadrzaj { padding: 0.7rem 0.9rem; display: grid; gap: 0.8rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); }
+details.info h4 { margin: 0 0 0.3rem; font-family: var(--f-naslov); font-size: var(--t-1); }
+details.info ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.25rem; font-size: 0.92rem; }
+@media print { details.info > :not(summary) { display: block; } }
 @media print { main.prezentacija .slajd { display:block; min-height:0; break-after:page; } .vrh,.navigacija { display:none; } }
 </style>
 <style>
@@ -232,11 +266,110 @@ main.citanje ~ .navigacija { display: none; }
     <p>Zamislite da nema medija. Pri susretu se stav svake osobe pomjeri prema stavu druge za isti dio razlike.</p>
     <p>U chat upišite očekujete li promjenu <b>prosječnog stava</b> i <b>udjela ljudi „za“</b>.</p>
     <div class="veze">
-      <a href="../lekcija1-sta-pravilo-moze.html#s3"><b>Lekcija 1</b><span>Ilustracija pravila</span></a>
-      <a href="../lekcija1-sta-pravilo-moze.html#s5"><b>Raspodjele iz modela stava</b><span>Početak i kraj jednog pokretanja</span></a>
+      <a href="#v05-pravila"><b>Ilustracija pravila · slajd 2</b></a>
+      <a href="#v05-raspodjele"><b>Raspodjele iz modela stava · slajd 3</b><span>Početak i kraj jednog pokretanja</span></a>
     </div>
   </div>
 </div></section>
+
+<section class="slajd" id="v05-pravila" data-naslov="Probajte tri pravila">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Probajte</span>
+      <h2>Isti ljudi, tri pravila</h2>
+      <p class="podnaslov">Šezdeset ljudi sa slučajnim stavovima razgovara u parovima. Izaberite pravilo i pokrenite razgovore.
+        Bijeli trougao je prosjek, isprekidana linija prosjek na početku.</p>
+    </div>
+    <div class="dvije interaktivno">
+      <div>
+        <div class="osa-okvir"><canvas class="osa" id="osa" aria-label="Stavovi šezdeset ljudi na osi od −1 do +1"></canvas></div>
+        <div class="brojke">
+          <div><span>prosjek</span><b id="b-prosjek">0</b></div>
+          <div><span>udio „za“</span><b id="b-za">0</b></div>
+          <div><span>udio „protiv“</span><b id="b-protiv">0</b></div>
+          <div><span>rasipanje</span><b id="b-sd">0</b></div>
+        </div>
+        <p class="potpis" id="b-razgovora">razgovora: 0</p>
+      </div>
+      <div class="tekst">
+        <div class="izbor-pravila" role="radiogroup" aria-label="Pravilo razgovora">
+          <label><input type="radio" name="pravilo" value="pribliz" checked> <span><b>1. Približavanje:</b> oba se približe za isti dio razlike.</span></label>
+          <label><input type="radio" name="pravilo" value="nesim"> <span><b>2. Nesimetrično:</b> stav „protiv“ prenosi se lakše od stava „za“.</span></label>
+          <label><input type="radio" name="pravilo" value="mediji"> <span><b>3. Približavanje i mediji:</b> uz razgovore, poneko čuje poruku „za“.</span></label>
+        </div>
+        <div class="dugmad">
+          <button type="button" class="glavno" id="t-100">100 razgovora</button>
+          <button type="button" id="t-1000">1000 razgovora</button>
+          <button type="button" id="t-vrati">Ispočetka</button>
+        </div>
+        <p class="siva mala">Ilustracija u web pregledniku, s jednostavnim pravilima: svi imaju isti uticaj, nema integriteta ni kretanja.
+          Rezultati modela stava prikazani su na sljedećem slajdu i dobijeni su u NetLogu.</p>
+        <div class="pitanje"><h3>Šta posmatrati</h3>
+          <p>Uz pravilo 1 prosjek ostaje na isprekidanoj liniji i nakon hiljada razgovora, a udjeli „za“ i „protiv“ padaju. Uz pravila 2 i 3 prosjek se pomjera.</p></div>
+      </div>
+    </div>
+  
+    <details class="info">
+      <summary>Šta se ovdje dešava — tri pravila razgovora</summary>
+      <div class="sadrzaj">
+        <div><h4>Elementi</h4><ul>
+          <li>„1. Približavanje“ pomjera oba stava za isti dio razlike. „2. Nesimetrično“ jače pomjera pozitivniji stav prema negativnijem. „3. Približavanje i mediji“ dodaje poruke „za“. Izbor pravila vraća početno stanje.</li>
+          <li>„100 razgovora“ i „1000 razgovora“ dodaju toliko susreta. „Ispočetka“ vraća iste početne stavove i poništava broj razgovora.</li>
+        </ul></div>
+        <div><h4>Graf ili tabela</h4><ul>
+          <li>Svaka tačka predstavlja jednu od 60 osoba. Vodoravno je stav od −1 do +1, a visina samo razdvaja tačke. Plavo označava stav iznad 0,2 („za“), crveno ispod −0,2 („protiv“), a sivo neodlučne.</li>
+          <li>Bijeli trougao označava trenutni prosjek, a narandžasta isprekidana linija početni prosjek. „rasipanje“ je standardna devijacija stavova.</li>
+        </ul></div>
+        <div><h4>Šta zaključujemo</h4><ul>
+          <li>Simetrično približavanje čuva prosjek, dok se rasipanje i udjeli mogu smanjiti. Nesimetrično pravilo i mediji pomjeraju i prosjek.</li>
+          <li>Ovo je ilustracija u web pregledniku. Mjerenja modela stava iz NetLoga prikazana su na sljedećem slajdu.</li>
+        </ul></div>
+      </div>
+    </details>
+</div>
+</section>
+
+
+<section class="slajd" id="v05-raspodjele" data-naslov="Mjera nije samo prosjek">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Mjere</span>
+      <h2>Gotovo isti prosjek, a sasvim drugačija raspodjela</h2>
+      <p class="podnaslov">Raspodjela stavova 200 ljudi u jednom pokretanju modela stava (NetLogo, random-seed 1).</p>
+    </div>
+    <div class="histogrami">
+      <figure style="margin:0"><h3>Početak</h3><div class="panel"><div id="h-pocetak"></div></div><figcaption class="potpis" id="h-pocetak-p"></figcaption></figure>
+      <figure style="margin:0"><h3>Sedmica 150, bez medija</h3><div class="panel"><div id="h-bez"></div></div><figcaption class="potpis" id="h-bez-p"></figcaption></figure>
+      <figure style="margin:0"><h3>Sedmica 150, s medijima</h3><div class="panel"><div id="h-sa"></div></div><figcaption class="potpis" id="h-sa-p"></figcaption></figure>
+    </div>
+    <div class="dvije" style="margin-top:1.2rem">
+      <div class="tekst"><p>Bez medija prosjek je na početku i na kraju gotovo isti, ali se raspodjela stavova promijenila: na početku su stavovi raspoređeni od −1 do +1, a na kraju je gotovo svako neodlučan. Sam prosjek ne pokazuje tu promjenu.</p></div>
+      <div class="panel"><h3 style="font-size:var(--t-1);margin-bottom:0.3rem">Mjere koje pokazuju dodatne promjene</h3>
+        <ul style="margin:0;padding-left:1.2rem">
+          <li><b>udio „za“ i „protiv“</b>: koliko ljudi ima stav iznad 0,2, odnosno ispod −0,2;</li>
+          <li><b>rasipanje</b> (standardna devijacija): koliko se ljudi razlikuju;</li>
+          <li><b>broj grupa</b>: kao u bloku 1 (ograničeno povjerenje);</li>
+          <li><b>vrijeme</b> do nekog stanja: npr. dok udio ne padne ispod 10%.</li>
+        </ul></div>
+    </div>
+  
+    <details class="info">
+      <summary>Šta se ovdje dešava — čitanje raspodjele stavova</summary>
+      <div class="sadrzaj">
+        <div><h4>Graf ili tabela</h4><ul>
+          <li>„Početak“, „Sedmica 150, bez medija“ i „Sedmica 150, s medijima“ prikazuju 200 osoba iz modela stava u NetLogu, uz random-seed 1.</li>
+          <li>Vodoravno je stav od −1 do +1, a visina stuba je broj osoba u intervalu stavova. Plavi stubovi označavaju „za“, crveni „protiv“, a sivi neodlučne, uz granice −0,2 i 0,2. Narandžasta isprekidana linija označava prosjek.</li>
+          <li>Vrh uspravne skale prilagođen je svakom histogramu. Broj uz vrh treba očitati prije poređenja visina stubova. Ispod grafova su prosjek i udjeli.</li>
+        </ul></div>
+        <div><h4>Šta zaključujemo</h4><ul>
+          <li>Bez medija prosjek ostaje gotovo isti, a stavovi se skupljaju oko sredine. Uključeni mediji pomjeraju raspodjelu prema „za“.</li>
+          <li>Prosjek treba čitati zajedno s raspodjelom i udjelima. Prikaz sadrži izmjerene podatke iz NetLoga za jedno pokretanje po scenariju. Rasipanje između pokretanja ispituje se ponavljanjima.</li>
+        </ul></div>
+      </div>
+    </details>
+</div>
+</section>
+
 
 <section class="slajd" id="s2" data-naslov="Kako bismo izmjerili učinak medija?"><div class="okvir">
   <div class="glava"><span class="oznaka">20–45 min</span><h2>Kako bismo izmjerili učinak medija?</h2>
@@ -247,8 +380,61 @@ main.citanje ~ .navigacija { display: none; }
     <div class="kartica"><h3>Šta mjerimo?</h3><p>Odaberite mjeru koju ćemo očitati nakon 150 koraka.</p></div>
   </div>
   <div class="pitanje" style="margin-top:1rem"><h3>Odgovor u chatu</h3><p>Napišite šta mijenjate, šta fiksirate i šta mjerite. Šta bismo mogli zaključiti iz samo jednog para pokretanja?</p></div>
-  <div class="veze"><a href="../lekcija2-jedno-pokretanje.html#s4"><b>Lekcija 2</b><span>Izvlačenje uzorka pokretanja</span></a></div>
+  <div class="veze">
+    <a href="#v05-uzorak"><b>Izvlačenje uzorka pokretanja · slajd 5</b><span>Po potrebi</span></a>
+    <a href="#s3"><b>Postavke eksperimenta · slajd 6</b></a>
+  </div>
 </div></section>
+
+<section class="slajd" id="v05-uzorak" data-naslov="Probajte uzorak">
+  <div class="okvir">
+    <div class="glava">
+      <span class="oznaka">Probajte · po potrebi</span>
+      <h2>Izvucite svoj uzorak pokretanja</h2>
+      <p class="podnaslov">Pri svakom izvlačenju bira se n slučajnih pokretanja od 400 iz NetLoga i računa u koliko je njih nastao talas.</p>
+    </div>
+    <div class="dvije interaktivno">
+      <div class="tekst">
+        <div class="izbor-n" role="group" aria-label="Broj pokretanja u uzorku">
+          <button type="button" data-n="5">n = 5</button>
+          <button type="button" data-n="10" aria-pressed="true">n = 10</button>
+          <button type="button" data-n="20">n = 20</button>
+          <button type="button" data-n="50">n = 50</button>
+          <button type="button" data-n="200">n = 200</button>
+        </div>
+        <div class="dugmad">
+          <button type="button" class="glavno" id="izvuci">Izvuci uzorak</button>
+          <button type="button" id="izvuci10">Izvuci 10 puta</button>
+          <button type="button" id="ocisti">Očisti</button>
+        </div>
+        <div><span class="siva mala">zadnja procjena</span><div class="velika" id="zadnja">–</div>
+          <p class="siva mala" id="zadnja-opis"></p></div>
+        <p class="siva mala">Pitanje prije izvlačenja: ako uzmete 10 pokretanja, koliko procjena može odstupati od 42%?</p>
+      </div>
+      <figure style="margin:0"><div class="panel"><div id="g-izvlacenja"></div></div>
+        <figcaption class="potpis" id="izvlacenja-p">Svaka tačka je jedan uzorak. Isprekidana linija je 42% (svih 400 pokretanja).</figcaption></figure>
+    </div>
+  
+    <details class="info">
+      <summary>Šta se ovdje dešava — uzorci pokretanja i procjene</summary>
+      <div class="sadrzaj">
+        <div><h4>Elementi</h4><ul>
+          <li>„n = 5“, „n = 10“, „n = 20“, „n = 50“ i „n = 200“ biraju broj pokretanja u sljedećem uzorku. Ranije tačke ostaju na grafu.</li>
+          <li>„Izvuci uzorak“ bira jedan slučajan uzorak iz 400 izmjerenih pokretanja. „Izvuci 10 puta“ dodaje deset uzoraka. „Očisti“ uklanja tačke i zadnju procjenu.</li>
+        </ul></div>
+        <div><h4>Graf ili tabela</h4><ul>
+          <li>Vodoravno je procijenjeni udio pokretanja s talasom, od 0% do 100%. Svaka tačka predstavlja jedan uzorak. Najnovija je u boji teksta, a ranije su narandžaste. Tačke s istom procjenom slažu se uspravno.</li>
+          <li>Isprekidana linija je 42%, odnosno 168 talasa u svih 400 pokretanja iz NetLoga. „zadnja procjena“ i tekst ispod nje prikazuju ishod posljednjeg uzorka. Potpis grafa navodi raspon procjena za trenutno odabrani n.</li>
+        </ul></div>
+        <div><h4>Šta zaključujemo</h4><ul>
+          <li>Procjena zavisi od izvučenog uzorka. Veći uzorci obično daju manje rasipanje procjena oko udjela u cijelom skupu.</li>
+          <li>Izvlačenje se obavlja u web pregledniku nad postojećim mjerenjima iz NetLoga. Ponovljeno izvlačenje pokazuje varijabilnost uzorkovanja.</li>
+        </ul></div>
+      </div>
+    </details>
+</div>
+</section>
+
 
 <section class="slajd" id="s3" data-naslov="Eksperiment s medijima i bez njih"><div class="okvir">
   <div class="glava"><h2>Eksperiment s medijima i bez njih</h2></div>
@@ -271,10 +457,23 @@ main.citanje ~ .navigacija { display: none; }
   <div class="veze">
     <a href="../upute-behaviorspace.html"><b>Upute za BehaviorSpace</b><span>Postavke, pokretanje eksperimenta i čitanje CSV tabele</span></a>
   </div>
+  <details class="info">
+    <summary>Šta se ovdje dešava — medijan i raspon rezultata</summary>
+    <div class="sadrzaj">
+      <div><h4>Graf ili tabela</h4><ul>
+        <li>Redovi su scenariji „Mediji isključeni“ i „Mediji uključeni“. Mjera je udio ljudi „za“ nakon 150 koraka, iz 100 pokretanja po scenariju u NetLogu, izmjerenih kroz BehaviorSpace.</li>
+        <li>„Medijan“ je sredina poredanih rezultata, ovdje prosjek dviju srednjih vrijednosti. „Raspon“ ide od najmanjeg do najvećeg izmjerenog udjela i pokazuje razlike između pokretanja.</li>
+      </ul></div>
+      <div><h4>Šta zaključujemo</h4><ul>
+        <li>Bez medija medijan je 2,5%, uz raspon od 0% do 27,5%. S medijima medijan je 92,75%, uz raspon od 57% do 100%. U ovom eksperimentu rasponi se ne preklapaju.</li>
+        <li>Mediji povećavaju udio „za“ u prikazanom modelu i postavkama. Medijan sažima rezultate, a raspon pokazuje koliko se izmjerena pokretanja razlikuju. Tabela prikazuje mjerenja iz NetLoga.</li>
+      </ul></div>
+    </div>
+  </details>
 </div></section>
 
 <section class="slajd" id="s5" data-naslov="Poređenje koje treba popraviti"><div class="okvir">
-  <div class="glava"><span class="oznaka">45–75 min · Izmišljeni nastavni primjer</span>
+  <div class="glava"><span class="oznaka">45–75 min · Pojednostavljen primjer</span>
     <h2>Zajedničko posuđivanje alata u naselju</h2>
     <p class="podnaslov">Želimo ispitati da li razgovor s poznanicima utiče na uspješno posuđivanje alata.</p></div>
   <div class="tablica-okvir"><table class="tablica"><thead><tr><th scope="col">Scenarij</th><th scope="col">Uticaj poznanika</th><th scope="col">Početna zaliha po centru</th></tr></thead><tbody>
@@ -286,7 +485,7 @@ main.citanje ~ .navigacija { display: none; }
   </div>
 </div></section>
 
-<section class="slajd" id="s6" data-naslov="Agenti i interakcije izmišljenog modela"><div class="okvir">
+<section class="slajd" id="s6" data-naslov="Agenti i interakcije pojednostavljenog modela"><div class="okvir">
   <div class="glava"><h2>Atributi se koriste u pravilima</h2></div>
   <div class="dvije"><div class="tekst"><h3>Domaćinstvo</h3><ul>
     <li><b>Stav od 0 do 1</b> određuje vjerovatnoću da zatraži posudbu kada mu zatreba alat.</li>
@@ -303,7 +502,7 @@ main.citanje ~ .navigacija { display: none; }
   <p class="oznaka-primjera">Jedan turtle predstavlja domaćinstvo, jedan tick sedmicu, a centar je nepokretni agent. Iskustvo je 1 nakon uspješne posudbe i 0 nakon odbijanja. Snaga uticaja je od 0 do 1. Lista provjere · B i C, stavke 3–8.</p>
 </div></section>
 
-<section class="slajd" id="s7" data-naslov="Mjere i scenariji izmišljenog modela"><div class="okvir">
+<section class="slajd" id="s7" data-naslov="Mjere i scenariji pojednostavljenog modela"><div class="okvir">
   <div class="glava"><h2>Jedna promjena po poređenju</h2></div>
   <div class="tablica-okvir"><table class="tablica"><thead><tr><th>Scenarij</th><th>Šta se mijenja</th><th>Šta ostaje zadano</th></tr></thead><tbody>
     <tr><td>Bez uticaja poznanika</td><td>Društveni uticaj je isključen.</td><td rowspan="2">Početni stavovi i budžeti, mreža poznanstava, postavke za potrebe, naknada, 10 komada alata po centru, trajanje i način mjerenja.</td></tr>
@@ -457,7 +656,7 @@ main.citanje ~ .navigacija { display: none; }
 </div></section>
 </main>
 <nav class="navigacija" aria-label="Slajdovi"><div class="napredak" id="napredak"></div><div class="okvir">
-  <button type="button" id="nazad" aria-label="Prethodni slajd">←</button><span class="broj" id="broj">1 / 17</span>
+  <button type="button" id="nazad" aria-label="Prethodni slajd">←</button><span class="broj" id="broj">1 / 20</span>
   <button type="button" id="naprijed" aria-label="Sljedeći slajd">→</button><span class="naslov-slajda" id="naslov-slajda"></span>
 </div></nav>
 <script>
@@ -534,7 +733,151 @@ window.Pomoc = (() => {
   return { el, zarez, pct, css, rng };
 })();
 
-Prezentacija("v05-model-na-papiru", () => {});
+(() => {
+  const crtajPravila = (() => {
+    const slajd = document.querySelector("#v05-pravila");
+    const $ = s => slajd.querySelector(s), $$ = s => [...slajd.querySelectorAll(s)];
+    const { zarez, pct, css, rng } = window.Pomoc;
+  const N = 60, U = 0.08;
+  let ljudi = [], pocetniProsjek = 0, razgovora = 0, slucaj = rng(7);
+  function vrati() {
+    slucaj = rng(7); ljudi = Array.from({ length: N }, () => ({ s: slucaj() * 2 - 1, y: 0.15 + slucaj() * 0.7 }));
+    pocetniProsjek = ljudi.reduce((a, c) => a + c.s, 0) / N; razgovora = 0; nacrtaj();
+  }
+  function razgovaraj(koliko) {
+    const pravilo = $("input[name=pravilo]:checked").value;
+    for (let n = 0; n < koliko; n++) {
+      const i = Math.floor(slucaj() * N); let j = Math.floor(slucaj() * (N - 1)); if (j >= i) j++;
+      const a = ljudi[i], b = ljudi[j], d = b.s - a.s;
+      if (pravilo === "nesim") {          // onaj s pozitivnijim stavom pomjeri se jače prema negativnijem
+        const pozitivniji = d > 0 ? b : a, negativniji = d > 0 ? a : b, raz = pozitivniji.s - negativniji.s;
+        pozitivniji.s -= raz * U * 1.6; negativniji.s += raz * U * 0.4;
+      } else { a.s += d * U; b.s -= d * U; }
+      if (pravilo === "mediji" && slucaj() < 0.25) { const c = ljudi[Math.floor(slucaj() * N)]; c.s += (1 - c.s) * 0.1; }
+    }
+    razgovora += koliko; nacrtaj();
+  }
+  function nacrtaj() {
+    const c = $("#osa"), dpr = Math.min(devicePixelRatio || 1, 2), w = c.clientWidth || 600, h = w / 3;
+    c.width = Math.round(w * dpr); c.height = Math.round(h * dpr);
+    const g = c.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.fillStyle = "#0b0d10"; g.fillRect(0, 0, w, h);
+    const X = v => 16 + (w - 32) * (v + 1) / 2;
+    g.strokeStyle = "#5a636d"; g.lineWidth = 1; g.beginPath(); g.moveTo(X(-1), h - 18); g.lineTo(X(1), h - 18); g.stroke();
+    g.fillStyle = "#9aa4ae"; g.font = "12px IBM Plex Mono, monospace"; g.textAlign = "center";
+    for (const v of [-1, -0.2, 0.2, 1]) g.fillText(zarez(v, v % 1 ? 1 : 0), X(v), h - 4);
+    g.setLineDash([5, 4]); g.strokeStyle = "#f0894a"; g.beginPath(); g.moveTo(X(pocetniProsjek), 6); g.lineTo(X(pocetniProsjek), h - 22); g.stroke(); g.setLineDash([]);
+    const ZA = css("--za"), PROTIV = css("--protiv"), NEO = css("--neodlucni");
+    for (const p of ljudi) { g.fillStyle = p.s > 0.2 ? ZA : p.s < -0.2 ? PROTIV : NEO; g.beginPath(); g.arc(X(p.s), 6 + p.y * (h - 34), 4.2, 0, 2 * Math.PI); g.fill(); }
+    const pr = ljudi.reduce((a, c) => a + c.s, 0) / N;
+    g.fillStyle = "#ffffff"; g.beginPath(); g.moveTo(X(pr), h - 22); g.lineTo(X(pr) - 7, h - 10); g.lineTo(X(pr) + 7, h - 10); g.closePath(); g.fill();
+    const sd = Math.sqrt(ljudi.reduce((a, c) => a + (c.s - pr) ** 2, 0) / N);
+    $("#b-prosjek").textContent = zarez(pr); $("#b-sd").textContent = zarez(sd);
+    $("#b-za").textContent = pct(ljudi.filter(p => p.s > 0.2).length / N); $("#b-protiv").textContent = pct(ljudi.filter(p => p.s < -0.2).length / N);
+    $("#b-razgovora").textContent = `razgovora: ${razgovora}`;
+  }
+  $("#t-100").addEventListener("click", () => razgovaraj(100));
+  $("#t-1000").addEventListener("click", () => razgovaraj(1000));
+  $("#t-vrati").addEventListener("click", vrati);
+  for (const r of $$("input[name=pravilo]")) r.addEventListener("change", vrati);
+  vrati();
+
+
+    return () => { if (slajd.offsetParent !== null) nacrtaj(); };
+  })();
+
+  (() => {
+    const slajd = document.querySelector("#v05-raspodjele");
+    const $ = s => slajd.querySelector(s);
+    const { el, zarez, pct } = window.Pomoc;
+    const D = {"raspodjela":{"true":{"0":[0.892,-0.517,-0.738,0.197,-0.91,0.192,0.93,0.689,0.458,0.592,0.983,0.569,-0.809,-0.495,-0.391,-0.782,0.072,-0.383,-0.978,0.954,-0.64,0.088,-0.796,0.584,0.84,-0.913,-0.581,-0.289,-0.592,0.256,-0.392,-0.17,-0.75,-0.519,-0.151,0.086,0.866,0.308,0.273,-0.617,-0.049,-0.938,0.63,-0.301,-0.291,0.875,-0.074,0.464,0.885,0.343,0.131,-0.336,-0.496,0.593,0.549,-0.948,-0.7,0.949,-0.025,0.342,0.581,-0.869,-0.476,-0.943,0.574,0.377,0.81,0.137,0.356,0.528,0.342,0.915,0.202,0.116,0.253,0.006,-0.247,-0.128,0.003,0.303,-0.061,0.661,0.141,-0.312,-0.905,-0.004,0.22,0.798,0.283,0.054,-0.833,-0.652,0.9,0.175,-0.135,-0.081,0.218,-0.315,0.358,-0.927,0.944,-0.926,-0.489,-0.61,-0.975,0.856,-0.599,-0.686,-0.41,-0.888,-0.154,0.1,-0.392,-0.524,-0.797,-0.778,0.694,0.936,0.3,-0.897,-0.05,0.337,-0.177,-0.731,0.418,-0.08,-0.55,0.833,0.021,-0.096,-0.012,-0.943,0.049,0.638,-0.149,-0.491,-0.787,0.75,-0.53,0.052,-0.069,0.117,0.218,-0.39,0.401,0.632,0.966,0.118,-0.32,0.819,0.9,0.083,0.454,0.488,0.74,-0.21,-0.842,0.608,-0.493,-0.405,0.025,0.168,-0.147,-0.936,-0.168,-0.021,-0.651,0.91,-0.131,-0.084,-0.6,-0.595,0.586,-0.984,0.395,0.25,0.017,-0.936,-0.834,0.836,0.01,0.676,-0.453,-0.834,-0.939,-0.153,0.063,-0.825,0.955,-0.442,-0.333,0.773,-0.333,0.471,0.372,-0.701,-0.238,0.615,0.095,0.407],"150":[0.388,0.914,0.206,0.463,0.659,0.474,0.824,0.319,0.631,-0.253,0.713,0.658,0.24,0.474,0.266,0.512,0.258,0.33,-0.092,0.468,0.75,0.521,0.541,0.897,0.681,0.271,0.333,0.405,0.835,0.804,0.908,0.888,0.578,0.829,0.807,0.55,0.645,0.727,0.522,0.604,0.845,0.717,0.663,0.569,0.889,0.946,0.363,0.866,0.669,0.916,0.766,0.368,0.453,0.921,0.888,0.944,0.453,0.359,0.609,0.617,0.562,0.127,0.773,0.578,0.829,0.275,0.898,0.258,0.138,0.642,0.374,0.904,0.859,0.468,0.914,0.722,0.396,0.717,0.671,0.827,0.718,0.749,0.874,0.33,0.614,0.68,0.503,0.316,0.237,0.552,0.592,0.454,0.246,0.487,0.912,0.519,0.575,0.608,0.82,0.498,0.885,0.187,0.819,0.89,0.878,0.616,0.902,0.197,0.776,0.78,0.445,0.779,0.317,0.924,0.837,0.483,0.688,0.748,0.501,0.921,0.682,0.496,0.85,0.62,0.715,0.304,0.81,0.435,0.691,0.846,0.648,0.759,0.48,0.689,0.619,0.765,0.073,0.485,0.624,0.841,-0.173,0.788,0.641,0.238,0.866,0.421,0.943,0.442,0.895,0.602,0.569,0.218,0.889,0.891,0.714,0.885,0.898,0.675,0.886,0.215,0.801,0.892,0.486,0.896,0.766,0.913,0.902,0.262,0.858,0.857,0.262,0.932,0.835,0.503,0.85,0.914,0.676,0.863,0.197,0.305,0.638,0.622,0.504,0.861,0.66,0.731,0.65,0.375,0.749,0.567,0.633,0.621,0.855,0.722,0.824,0.336,0.91,0.452,0.862,0.315]},"false":{"0":[0.892,-0.517,-0.738,0.197,-0.91,0.192,0.93,0.689,0.458,0.592,0.983,0.569,-0.809,-0.495,-0.391,-0.782,0.072,-0.383,-0.978,0.954,-0.64,0.088,-0.796,0.584,0.84,-0.913,-0.581,-0.289,-0.592,0.256,-0.392,-0.17,-0.75,-0.519,-0.151,0.086,0.866,0.308,0.273,-0.617,-0.049,-0.938,0.63,-0.301,-0.291,0.875,-0.074,0.464,0.885,0.343,0.131,-0.336,-0.496,0.593,0.549,-0.948,-0.7,0.949,-0.025,0.342,0.581,-0.869,-0.476,-0.943,0.574,0.377,0.81,0.137,0.356,0.528,0.342,0.915,0.202,0.116,0.253,0.006,-0.247,-0.128,0.003,0.303,-0.061,0.661,0.141,-0.312,-0.905,-0.004,0.22,0.798,0.283,0.054,-0.833,-0.652,0.9,0.175,-0.135,-0.081,0.218,-0.315,0.358,-0.927,0.944,-0.926,-0.489,-0.61,-0.975,0.856,-0.599,-0.686,-0.41,-0.888,-0.154,0.1,-0.392,-0.524,-0.797,-0.778,0.694,0.936,0.3,-0.897,-0.05,0.337,-0.177,-0.731,0.418,-0.08,-0.55,0.833,0.021,-0.096,-0.012,-0.943,0.049,0.638,-0.149,-0.491,-0.787,0.75,-0.53,0.052,-0.069,0.117,0.218,-0.39,0.401,0.632,0.966,0.118,-0.32,0.819,0.9,0.083,0.454,0.488,0.74,-0.21,-0.842,0.608,-0.493,-0.405,0.025,0.168,-0.147,-0.936,-0.168,-0.021,-0.651,0.91,-0.131,-0.084,-0.6,-0.595,0.586,-0.984,0.395,0.25,0.017,-0.936,-0.834,0.836,0.01,0.676,-0.453,-0.834,-0.939,-0.153,0.063,-0.825,0.955,-0.442,-0.333,0.773,-0.333,0.471,0.372,-0.701,-0.238,0.615,0.095,0.407],"150":[-0.005,-0.123,-0.343,0.006,-0.082,0.006,-0.058,-0.008,-0.08,-0.571,-0.117,-0.121,0.027,-0.091,-0.011,-0.037,0.06,-0.025,-0.304,-0.014,-0.051,-0.133,-0.139,-0.121,0.0,0.241,0.021,-0.024,-0.106,-0.091,-0.081,-0.133,0.054,-0.122,-0.062,0.162,-0.053,-0.083,-0.137,-0.05,-0.114,-0.083,0.014,-0.071,-0.117,-0.106,0.007,-0.11,-0.033,-0.033,-0.221,0.015,-0.154,-0.039,-0.106,-0.116,-0.141,-0.034,-0.024,-0.109,-0.096,-0.12,-0.085,-0.015,-0.131,-0.101,-0.124,0.081,0.128,-0.11,-0.115,-0.103,-0.119,-0.03,-0.131,-0.085,-0.046,-0.018,-0.089,-0.016,-0.249,-0.095,-0.096,0.039,-0.225,-0.018,0.009,-0.009,-0.056,-0.072,-0.22,-0.001,0.031,-0.012,-0.103,-0.116,-0.114,-0.105,-0.11,-0.01,-0.08,0.025,-0.11,-0.083,-0.116,-0.071,-0.021,0.008,-0.207,-0.136,-0.029,-0.052,-0.041,-0.113,-0.061,0.023,-0.066,-0.195,0.021,-0.027,-0.113,-0.108,-0.124,0.008,-0.179,0.043,-0.007,-0.149,-0.011,-0.123,-0.036,-0.104,-0.009,0.062,-0.098,-0.009,-0.163,-0.024,-0.04,-0.12,-0.236,-0.129,-0.001,0.032,-0.038,-0.102,-0.1,-0.046,-0.122,0.008,-0.066,0.092,-0.118,-0.117,-0.014,-0.13,-0.085,-0.174,-0.125,-0.152,-0.067,-0.07,-0.013,-0.121,-0.077,-0.036,-0.129,0.06,-0.076,-0.122,-0.009,-0.056,-0.117,-0.118,-0.013,-0.048,-0.093,-0.113,0.101,-0.008,-0.096,-0.049,-0.013,-0.055,-0.109,-0.046,-0.07,0.054,-0.047,-0.041,-0.013,-0.007,-0.103,-0.101,-0.083,0.058,-0.123,-0.061,-0.095,-0.001]}}};
+  function histogram(cilj, stavovi) {
+    cilj.replaceChildren();
+    const W = 300, H = 170, L = 30, R = 8, T = 10, B = 30, K = 20, br = new Array(K).fill(0);
+    for (const v of stavovi) br[Math.min(K - 1, Math.floor((v + 1) / 2 * K))]++;
+    const vrh = Math.max(40, ...br), x = i => L + (W - L - R) * i / K, y = c => T + (H - T - B) * (1 - c / vrh);
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, class: "grafik", role: "img", "aria-label": "Raspodjela stavova od −1 do +1" });
+    br.forEach((c, i) => {
+      const sred = -1 + (i + 0.5) * 2 / K, kl = sred > 0.2 ? "g-stub-za" : sred < -0.2 ? "g-stub-protiv" : "g-stub-neo";
+      svg.append(el("rect", { x: x(i) + 1, y: y(c), width: (W - L - R) / K - 2, height: y(0) - y(c), class: kl }));
+    });
+    const p = stavovi.reduce((a, b) => a + b, 0) / stavovi.length, xp = L + (W - L - R) * (p + 1) / 2;
+    svg.append(el("line", { x1: xp, x2: xp, y1: T - 4, y2: y(0), style: "stroke:var(--narandza);stroke-width:2;stroke-dasharray:4 3" }));
+    svg.append(el("line", { x1: L, x2: W - R, y1: y(0), y2: y(0), class: "g-os" }));
+    for (const v of [-1, 0, 1]) svg.append(el("text", { x: L + (W - L - R) * (v + 1) / 2, y: H - B + 16, "text-anchor": "middle", class: "g-oznaka" }, zarez(v, 0)));
+    svg.append(el("text", { x: L - 4, y: y(vrh) + 4, "text-anchor": "end", class: "g-oznaka" }, vrh));
+    cilj.append(svg);
+    return p;
+  }
+  const R = D.raspodjela, opisi = (p, st) => {
+    const za = st.filter(v => v > 0.2).length / st.length, protiv = st.filter(v => v < -0.2).length / st.length;
+    return `prosjek ${zarez(p)} · „za“ ${pct(za)} · „protiv“ ${pct(protiv)}`;
+  };
+  const crtajHistograme = () => {
+    $("#h-pocetak-p").textContent = opisi(histogram($("#h-pocetak"), R["false"]["0"]), R["false"]["0"]);
+    $("#h-bez-p").textContent = opisi(histogram($("#h-bez"), R["false"]["150"]), R["false"]["150"]);
+    $("#h-sa-p").textContent = opisi(histogram($("#h-sa"), R["true"]["150"]), R["true"]["150"]);
+  };
+  crtajHistograme();
+
+
+  })();
+
+  (() => {
+    const slajd = document.querySelector("#v05-uzorak");
+    const $ = s => slajd.querySelector(s), $$ = s => [...slajd.querySelectorAll(s)];
+    const { el, pct } = window.Pomoc;
+    const ISH = [1,0,0,0,1,0,0,1,1,0,0,1,1,1,0,0,0,1,1,0,0,0,0,1,0,1,0,1,1,1,0,1,0,0,0,1,0,1,0,0,1,0,1,0,0,1,0,0,1,1,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,1,0,1,1,0,1,0,0,0,1,0,1,0,1,0,1,1,1,1,1,1,0,1,1,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,1,0,0,1,1,0,0,0,0,0,1,1,0,1,0,1,1,0,1,0,0,1,0,0,1,0,0,0,0,0,1,1,1,1,1,1,1,0,1,0,1,1,1,0,0,0,1,0,1,1,1,0,1,0,1,0,1,1,0,1,0,0,1,1,0,0,0,1,0,0,0,0,1,0,1,0,1,1,1,1,1,0,0,0,1,0,1,0,0,0,1,1,1,1,1,0,0,0,1,0,0,0,0,0,1,0,1,1,0,1,1,0,1,1,1,1,1,0,1,0,0,0,0,0,0,1,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1,1,0,1,1,0,0,0,1,1,0,0,1,1,1,1,0,1,0,0,0,1,1,0,0,1,0,1,1,1,1,0,1,0,1,0,0,1,0,0,0,1,0,1,1,0,0,0,1,1,0,1,0,0,0,0,0,1,0,0,1,1,1,0,0,1,1,0,0,0,0,1,1,0,1,0,1,1,1,1,1,0,0,0,1,1,0,0,1,1,1,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,1,1,0,0,1];
+    const UKUPNO = ISH.reduce((a, b) => a + b, 0) / ISH.length;
+  let n = 10, izvucene = [];
+  function izvuci() {
+    const idx = ISH.map((_, i) => i);
+    for (let i = 0; i < n; i++) { const j = i + Math.floor(Math.random() * (idx.length - i)); [idx[i], idx[j]] = [idx[j], idx[i]]; }
+    const talasa = idx.slice(0, n).reduce((a, i) => a + ISH[i], 0);
+    izvucene.push({ n, p: talasa / n });
+    $("#zadnja").textContent = pct(talasa / n);
+    $("#zadnja-opis").textContent = `${talasa} talasa u ${n} pokretanja`;
+  }
+  function crtajIzvlacenja() {
+    const cilj = $("#g-izvlacenja"); cilj.replaceChildren();
+    const W = 460, H = 220, L = 18, R = 18, T = 14, B = 34;
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, class: "grafik", role: "img", "aria-label": "Izvučeni uzorci na osi od 0 do 100%" });
+    const x = v => L + (W - L - R) * v;
+    for (const v of [0, 0.25, 0.5, 0.75, 1]) {
+      svg.append(el("line", { x1: x(v), x2: x(v), y1: T, y2: H - B, class: "g-mreza" }));
+      svg.append(el("text", { x: x(v), y: H - B + 16, "text-anchor": "middle", class: "g-oznaka" }, pct(v)));
+    }
+    svg.append(el("line", { x1: x(UKUPNO), x2: x(UKUPNO), y1: T, y2: H - B, class: "g-ref" }));
+    const red = {}, visina = {};
+    for (const u of izvucene) { const k = Math.round(u.p * 200); visina[k] = (visina[k] || 0) + 1; }
+    const korak = Math.min(8, (H - B - T - 8) / Math.max(1, ...Object.values(visina)));   // stub uvijek stane u grafik
+    izvucene.forEach((u, i) => {
+      const k = Math.round(u.p * 200), r = red[k] = (red[k] || 0) + 1;
+      svg.append(el("circle", { cx: x(u.p), cy: H - B - 6 - (r - 1) * korak, r: Math.min(3.6, korak / 2 + 0.4), class: i === izvucene.length - 1 ? "g-tacka-nova" : "g-tacka-uzorak" }));
+    });
+    svg.append(el("text", { x: L + (W - L - R) / 2, y: H - 4, "text-anchor": "middle", class: "g-naslov-x" }, "procjena vjerovatnoće talasa"));
+    cilj.append(svg);
+    if (izvucene.length) {
+      const p = izvucene.filter(u => u.n === n).map(u => u.p);
+      $("#izvlacenja-p").textContent = p.length
+        ? `Uzoraka s n = ${n}: ${p.length}, procjene od ${pct(Math.min(...p))} do ${pct(Math.max(...p))}. Isprekidana linija: ${pct(UKUPNO)} (svih 400).`
+        : `Isprekidana linija: ${pct(UKUPNO)} (svih 400 pokretanja).`;
+    }
+  }
+  for (const b of $$("[data-n]")) b.addEventListener("click", () => {
+    n = +b.dataset.n; $$("[data-n]").forEach(x => x.setAttribute("aria-pressed", x === b)); crtajIzvlacenja();
+  });
+  $("#izvuci").addEventListener("click", () => { izvuci(); crtajIzvlacenja(); });
+  $("#izvuci10").addEventListener("click", () => { for (let i = 0; i < 10; i++) izvuci(); crtajIzvlacenja(); });
+  $("#ocisti").addEventListener("click", () => { izvucene = []; $("#zadnja").textContent = "–"; $("#zadnja-opis").textContent = "";
+    $("#izvlacenja-p").textContent = `Svaka tačka je jedan uzorak. Isprekidana linija je ${pct(UKUPNO)} (svih 400 pokretanja).`; crtajIzvlacenja(); });
+  crtajIzvlacenja();
+
+
+  })();
+
+  Prezentacija("v05-model-na-papiru", crtajPravila);
+})();
 </script>
 </body>
 </html>

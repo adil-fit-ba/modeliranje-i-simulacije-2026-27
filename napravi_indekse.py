@@ -21,6 +21,9 @@ h3 { font-size: 1.2rem; margin-top: 1.6rem; }
 footer { margin-top: 2.5rem; font-size: 0.85rem; color: var(--siva); border-top: 1px solid var(--linija); padding-top: 0.8rem; }
 </style>"""
 k = lambda href, naslov, opis: f'    <a href="{href}"><b>{naslov}</b><span>{opis}</span></a>\n'
+def web(href, opis):
+    return f'    <a href="{href}" target="_blank" rel="noopener"><b>Otvori u NetLogo Web</b><span>{opis}</span></a>\n'
+
 grupa = lambda naslov, kartice: f'  <h3>{naslov}</h3>\n  <div class="veze">\n{"".join(kartice)}  </div>\n'
 
 def v02(p):
@@ -36,7 +39,9 @@ def v02(p):
         k(p + "mini/rps.html", "Rock Paper Scissors", "Ciklična dominacija bez trajnog pobjednika.")])
       + grupa("Modeli", [
         k(p + "modeli/v02-model-stav.nlogox", "v02-model-stav.nlogox", "Kompletan model stava (NetLogo 7.0.4)."),
-        k(p + "modeli/v02-zadatak.nlogox", "v02-zadatak.nlogox", "Model s praznim procedurama razgovaraj i slusaj-medije.")]))
+        web("https://www.netlogoweb.org/launch#https://adil-fit-ba.github.io/modeliranje-i-simulacije-2026-27/vjezbe-02/modeli/v02-model-stav.nlogox", "u web pregledniku, bez instalacije. BehaviorSpace radi samo u NetLogu 7.0.4 na računaru."),
+        k(p + "modeli/v02-zadatak.nlogox", "v02-zadatak.nlogox", "Model s praznim procedurama razgovaraj i slusaj-medije."),
+        web("https://www.netlogoweb.org/launch#https://adil-fit-ba.github.io/modeliranje-i-simulacije-2026-27/vjezbe-02/modeli/v02-zadatak.nlogox", "u web pregledniku, bez instalacije. BehaviorSpace radi samo u NetLogu 7.0.4 na računaru.")]))
 
 BLOKOVI = [("1", "blok1-ograniceno-povjerenje", "v03-blok1-povjerenje", "Ograničeno povjerenje", "Razgovor mijenja stav samo kada je razlika stavova dovoljno mala."),
            ("2", "blok2-prag-i-kaskada", "v03-blok2-prag", "Prag i kaskada", "Čovjek ustaje kada udio susjeda koji stoje dostigne njegov prag."),
@@ -51,7 +56,7 @@ def v03(p):
         k(p + "v03-blokovi-interakcije.html", "Blokovi interakcije", "Šest tipičnih interakcija: simulacije, mjerenja, kod u NetLogu i C#, obrazac za model na papiru."),
         k(p + "MiS-vjezbe-03-v3.zip", "Svi materijali (ZIP, 17 MB)", "Stranice, prezentacija (PPTX i PDF), NetLogo modeli, mjerenja i C# projekat netlogo-kroz-csharp.")])
       + grupa("Mini-prezentacije", [k(f"{p}blokovi/{b}.html", f"{n}. {t}", o) for n, b, _, t, o in BLOKOVI])
-      + grupa("Isti modeli u NetLogo Webu (oko 5 MB po stranici)", [k(f"{p}netlogo-web/{m}.html", f"{n}. {t}", "Model se pokreće u web pregledniku, bez instalacije.") for n, _, m, t, _ in BLOKOVI])
+      + grupa("Isti modeli u NetLogo Webu (oko 5 MB po stranici)", [web(f"{p}netlogo-web/{m}.html", f"{n}. {t} — u web pregledniku, bez instalacije. BehaviorSpace radi samo u NetLogu 7.0.4 na računaru.") for n, _, m, t, _ in BLOKOVI])
       + grupa("Modeli za NetLogo 7.0.4", [k(f"{p}modeli/{m}.nlogox", f"{m}.nlogox", f"Blok {n}: {t.lower()}.") for n, _, m, t, _ in BLOKOVI]))
 
 def v04(p):
@@ -75,25 +80,22 @@ def v05(p):
     deck = "prezentacije/v05-model-na-papiru-i-scenariji.html"
     koraci = [
         ("14:00–14:20", "Predviđanje i pravilo interakcije", "s1", "Počni ovdje · slajd 1", [
-            ("lekcija1-sta-pravilo-moze.html#s3", "Ilustracija pravila"),
-            ("lekcija1-sta-pravilo-moze.html#s5", "Raspodjele stavova"),
+            (deck + "#v05-pravila", "Ilustracija pravila · slajd 2"),
+            (deck + "#v05-raspodjele", "Raspodjele stavova · slajd 3"),
         ]),
-        ("14:20–14:45", "Poređenje scenarija i BehaviorSpace", "s2", "Sastavljanje poređenja · slajd 2", [
-            ("lekcija2-jedno-pokretanje.html#s4", "Izvlačenje uzorka (po potrebi)"),
-            ("upute-behaviorspace.html", "Upute za BehaviorSpace"),
+        ("14:20–14:45", "Poređenje scenarija i BehaviorSpace", "s2", "Sastavljanje poređenja · slajd 4", [
+            (deck + "#v05-uzorak", "Izvlačenje uzorka · slajd 5 (po potrebi)"),
             ("modeli/v05-model-stav-behaviorspace.nlogox", "NetLogo model"),
-            (deck + "#s4", "Rezultati · slajd 4"),
-            ("mjerenja/v05-mediji.csv", "Mjerenja (CSV)"),
+            ("https://www.netlogoweb.org/launch#https://adil-fit-ba.github.io/modeliranje-i-simulacije-2026-27/vjezbe-05/modeli/v05-model-stav-behaviorspace.nlogox", "Otvori u NetLogo Web"),
+            (deck + "#s4", "Rezultati · slajd 7"),
         ]),
-        ("14:45–15:15", "Model na papiru i lista provjere", "s5", "Primjer s alatom · slajd 5", [
-            (deck + "#s7", "Ispravljeno poređenje · slajd 7"),
-            ("lista-provjere-model-na-papiru.html", "Lista provjere"),
-            ("lista-provjere-model-na-papiru.pdf", "Lista za štampu (PDF)"),
+        ("14:45–15:15", "Model na papiru i lista provjere", "s5", "Primjer s alatom · slajd 8", [
+            (deck + "#s7", "Ispravljeno poređenje · slajd 10"),
         ]),
-        ("15:15–15:30", "Društvo s više naroda · samo za tu temu", "s9", "Uvod u završni blok · slajd 9", [
-            (deck + "#s11", "Zajednički kontrolni scenarij · slajd 11"),
-            (deck + "#s16", "Obrazac prijedloga · slajd 16"),
-            (deck + "#s17", "Sljedeći koraci · slajd 17"),
+        ("15:15–15:30", "Društvo s više naroda · samo za tu temu", "s9", "Uvod u završni blok · slajd 12", [
+            (deck + "#s11", "Zajednički kontrolni scenarij · slajd 14"),
+            (deck + "#s16", "Obrazac prijedloga · slajd 19"),
+            (deck + "#s17", "Sljedeći koraci · slajd 20"),
         ]),
     ]
     dijelovi = [
@@ -101,7 +103,15 @@ def v05(p):
         '  <ol class="tok-v05" role="list">',
     ]
     for broj, (vrijeme, naslov, slajd, ulaz, pratece) in enumerate(koraci, 1):
-        veze = "\n".join(f'        <li><a href="{p}{href}">{opis}</a></li>' for href, opis in pratece)
+        veze = []
+        for href, opis in pratece:
+            if href.startswith("https://"):
+                veze.append(f'        <li><a href="{href}" target="_blank" rel="noopener">{opis}</a>'
+                            '<span> · u web pregledniku, bez instalacije. BehaviorSpace nije dostupan u NetLogo Webu. '
+                            'Za eksperimente je potreban NetLogo 7.0.4 na računaru. Sam model možete istraživati u NetLogo Webu.</span></li>')
+            else:
+                veze.append(f'        <li><a href="{p}{href}">{opis}</a></li>')
+        veze = "\n".join(veze)
         dijelovi.append(f"""    <li id="v05-blok-{broj}">
       <span class="satnica">{vrijeme}</span>
       <h3>{broj}. {naslov}</h3>
@@ -111,6 +121,17 @@ def v05(p):
       </ul>
     </li>""")
     dijelovi.append("  </ol>")
+    dijelovi.append(grupa("Za čitanje i pripremu", [
+        k(p + "lekcija1-sta-pravilo-moze.html", "Lekcija 1 · Šta pravilo može proizvesti", "Pravilo interakcije, mjere i scenariji."),
+        k(p + "lekcija2-jedno-pokretanje.html", "Lekcija 2 · Jedno pokretanje nije rezultat", "Slučajnost, ponavljanja i izvještavanje."),
+        k(p + "upute-behaviorspace.html", "Upute za BehaviorSpace", "Postavke i pokretanje eksperimenta."),
+        k(p + "mjerenja/v05-mediji.csv", "Mjerenja (CSV)", "Sačuvani rezultati eksperimenta."),
+        k(p + "lista-provjere-model-na-papiru.html", "Lista provjere", "HTML lista za provjeru modela na papiru."),
+        k(p + "lista-provjere-model-na-papiru.pdf", "Lista za štampu (PDF)", "Lista provjere u formatu A4."),
+        k(p + "primjer-model-na-papiru-alat.html", "Primjer modela na papiru", "Pojednostavljen primjer (posuđivanje alata) i nedostaci koje treba riješiti."),
+        k(p + "primjer-model-na-papiru-alat.pdf", "Primjer za štampu (PDF)", "Isti primjer na dvije strane A4."),
+        k(p + "primjer-model-na-papiru-alat-prezentacija.html", "Primjer: prezentacija s ilustracijama", "Isti primjer redom kao dokument, sa simulacijom u web pregledniku."),
+    ]).rstrip())
     return "\n".join(dijelovi) + "\n"
 
 def stranica(naslov, opis, tijelo, oznaka="Modeliranje i simulacije · FIT UNMO 2026/27", dodatni_css=""):

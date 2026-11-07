@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="bs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Primjer modela na papiru</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:wght@500;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Raspored: mini-prezentacija od 10 slajdova; jedan slajd na ekranu (strelice), ili svi jedan ispod
+   drugog (način „Čitanje“). Papir je svijetao, svijet i putanje su na tamnoj podlozi kao u NetLogu. */
+:root {
+  --papir: #eef1f4; --list: #ffffff; --tinta: #17212b; --siva: #56636f; --linija: #d3dae1;
+  --narandza: #b9531a; --narandza-meko: #f6dfd0; --margina: #e5a3a3; --svijet: #0b0d10;
+  --za: #345da9; --protiv: #d73229; --neodlucni: #8d8d8d;
+  --f-naslov: "Bitter", "Georgia", "Cambria", serif;
+  --f-tekst: "IBM Plex Sans", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "IBM Plex Mono", "Cascadia Mono", Consolas, "Courier New", monospace;
+  --t-0: 0.83rem; --t-1: 1rem; --t-2: 1.17rem; --t-3: 1.5rem; --t-4: 2.2rem; --t-5: 3.1rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --papir: #10161c; --list: #18212a; --tinta: #e3e9ee; --siva: #9ba8b4; --linija: #2a3540;
+    --narandza: #f0894a; --narandza-meko: #3a2416; --margina: #6b3535; --za: #5b86d6; --protiv: #e5574e; --neodlucni: #9a9a9a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --papir: #10161c; --list: #18212a; --tinta: #e3e9ee; --siva: #9ba8b4; --linija: #2a3540;
+  --narandza: #f0894a; --narandza-meko: #3a2416; --margina: #6b3535; --za: #5b86d6; --protiv: #e5574e; --neodlucni: #9a9a9a;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { font-size: 18px; }
+@media (max-width: 600px) { html { font-size: 16px; } }
+body { margin: 0; background: var(--papir); color: var(--tinta); font-family: var(--f-tekst); line-height: 1.55; }
+[hidden] { display: none !important; }
+a { color: var(--narandza); text-underline-offset: 0.15em; }
+:focus-visible { outline: 3px solid var(--narandza); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--f-naslov); text-wrap: balance; line-height: 1.18; margin: 0; }
+p { margin: 0; }
+code { font-family: var(--f-mono); font-size: 0.9em; }
+p code, li code, td code { background: var(--narandza-meko); padding: 0.05em 0.3em; border-radius: 3px; }
+.okvir { max-width: 1200px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.oznaka { font-family: var(--f-mono); font-size: var(--t-0); letter-spacing: 0.08em; text-transform: uppercase; color: var(--narandza); font-weight: 500; }
+.siva { color: var(--siva); }
+.mala { font-size: var(--t-0); }
+
+/* traka na vrhu */
+.vrh { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--papir); border-bottom: 1px solid var(--linija); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--papir); }
+.vrh .okvir { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem 1rem; padding-block: 0.55rem; flex-wrap: wrap; }
+.vrh b { font-family: var(--f-naslov); font-weight: 700; }
+.nacin { display: flex; gap: 0.3rem; }
+button { font: 500 var(--t-0) var(--f-mono); border-radius: 4px; padding: 0.4rem 0.8rem; cursor: pointer;
+  border: 1px solid var(--narandza); background: transparent; color: var(--narandza); }
+button[aria-pressed="true"], button.glavno { background: var(--narandza); color: var(--list); }
+button:disabled { opacity: 0.45; cursor: default; }
+
+/* slajdovi */
+.slajd { padding-block: 2rem 6rem; scroll-margin-top: 3.4rem; }
+main.prezentacija .slajd { display: none; min-height: calc(100svh - 3.2rem); }
+main.prezentacija .slajd.aktivan { display: block; }
+main.citanje .slajd { border-bottom: 1px solid var(--linija); padding-block: 2.5rem; }
+.glava { display: grid; gap: 0.35rem; margin-bottom: 1.4rem; }
+.glava h2 { font-size: var(--t-4); max-width: 30ch; }
+.glava .podnaslov { font-size: var(--t-2); color: var(--siva); max-width: 52rem; }
+.dvije { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2rem; align-items: start; }
+.dvije > * { min-width: 0; }
+@media (max-width: 900px) { .dvije { grid-template-columns: minmax(0, 1fr); } }
+.tekst { display: grid; gap: 1rem; }
+.tekst ul { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.35rem; }
+.panel { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 1rem; }
+.pitanje { background: var(--narandza-meko); border-radius: 4px; padding: 0.9rem 1rem; }
+.pitanje h3 { font-size: var(--t-1); margin-bottom: 0.25rem; }
+
+/* naslovni slajd */
+.naslovni { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 2.4rem; align-items: center; padding-top: 1rem; }
+.naslovni > * { min-width: 0; }
+.naslovni h1 { font-size: var(--t-5); letter-spacing: -0.01em; margin: 0.4rem 0 0.9rem; }
+.naslovni .teza { font-size: var(--t-3); font-family: var(--f-naslov); line-height: 1.3; }
+.naslovni .uvod { margin-top: 1rem; color: var(--siva); }
+@media (max-width: 900px) { .naslovni { grid-template-columns: minmax(0, 1fr); } }
+
+/* list papira: pravilo za model na papiru */
+.papir {
+  margin: 0; background-color: var(--list); border: 1px solid var(--linija); border-radius: 4px;
+  padding: 1rem 1.2rem 1.2rem 2.4rem; position: relative; line-height: 1.75rem;
+  background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(1.75rem - 1px), var(--linija) calc(1.75rem - 1px), var(--linija) 1.75rem);
+  background-position: 0 2.55rem;
+}
+.papir::before { content: ""; position: absolute; left: 1.5rem; top: 0; bottom: 0; width: 2px; background: var(--margina); }
+.papir figcaption { font-family: var(--f-mono); font-size: var(--t-0); color: var(--siva); letter-spacing: 0.04em; text-transform: uppercase; line-height: 1.75rem; }
+.papir p, .papir li { font-family: var(--f-naslov); font-size: 1.08rem; }
+.papir ul { list-style: none; margin: 0; padding: 0 0 0 1.2rem; }
+.papir li::before { content: "→ "; color: var(--narandza); font-family: var(--f-tekst); }
+.papir b { color: var(--narandza); }
+
+/* kartice (pojava, sastavni dijelovi, koraci) */
+.kartice { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); }
+.kartica { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 1rem; display: grid; gap: 0.6rem; align-content: start; }
+.kartica h3 { font-size: var(--t-2); }
+.kartica svg { width: 100%; height: auto; display: block; }
+.kartica ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.25rem; }
+.kartica .kod-cip { font-family: var(--f-mono); font-size: 0.78rem; color: var(--siva); border-top: 1px dashed var(--linija); padding-top: 0.5rem; }
+.korak-broj { font-family: var(--f-mono); font-weight: 500; color: var(--narandza); }
+
+/* SVG ilustracije: boje iz tokena */
+.il-osa { stroke: var(--siva); stroke-width: 1.5; }
+.il-tekst { fill: var(--siva); font: 13px var(--f-mono); }
+.il-tekst-veci { fill: var(--tinta); font: 600 15px var(--f-tekst); }
+.il-za { fill: var(--za); } .il-protiv { fill: var(--protiv); } .il-neo { fill: var(--neodlucni); }
+.il-prozor { fill: var(--narandza-meko); stroke: var(--narandza); stroke-dasharray: 4 3; }
+.il-strelica { stroke: var(--narandza); stroke-width: 2.5; fill: none; }
+.il-vrh { fill: var(--narandza); }
+.il-domet { fill: none; stroke: var(--narandza); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.il-svijet { fill: var(--svijet); }
+.il-kuca { fill: #eded2f; }
+.il-precrtano { stroke: var(--protiv); stroke-width: 3; }
+.il-oblak { fill: var(--list); stroke: var(--siva); stroke-width: 1.2; }
+
+/* kalkulator jednog susreta */
+.kalk { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 1.5rem; }
+.kalk > * { min-width: 0; }
+@media (max-width: 900px) { .kalk { grid-template-columns: minmax(0, 1fr); } }
+.klizaci { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem 1.2rem; }
+@media (max-width: 520px) { .klizaci { grid-template-columns: minmax(0, 1fr); } }
+.klizac { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+.klizac label { font-family: var(--f-mono); font-size: var(--t-0); }
+.klizac output { font-family: var(--f-mono); font-size: var(--t-0); font-variant-numeric: tabular-nums; }
+.klizac input { grid-column: 1 / -1; width: 100%; accent-color: var(--narandza); }
+.racun { font-family: var(--f-mono); font-size: 0.86rem; line-height: 1.7; background: var(--papir); border-radius: 4px; padding: 0.7rem 0.9rem; overflow-x: auto; white-space: pre; }
+.racun .da { color: var(--za); font-weight: 600; } .racun .ne { color: var(--protiv); font-weight: 600; }
+.dugmad { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+
+/* putanje stava */
+.putanje-okvir { background: var(--svijet); border-radius: 6px; padding: 0.6rem; }
+canvas.putanje { width: 100%; aspect-ratio: 2 / 1; display: block; }
+.izbor { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.6rem; }
+.izbor button { border-color: var(--linija); color: var(--siva); }
+.izbor button[aria-pressed="true"] { border-color: var(--narandza); color: var(--list); background: var(--narandza); }
+.legenda { display: flex; gap: 1rem; flex-wrap: wrap; font-size: var(--t-0); color: var(--siva); margin-top: 0.4rem; }
+.legenda i { display: inline-block; width: 0.8em; height: 0.8em; border-radius: 50%; margin-right: 0.35em; vertical-align: -0.05em; }
+.potpis { font-size: var(--t-0); color: var(--siva); margin-top: 0.4rem; }
+.potpis b { color: var(--tinta); font-weight: 600; }
+
+/* grafikoni iz mjerenja */
+svg.grafik { width: 100%; height: auto; display: block; overflow: visible; }
+.g-mreza { stroke: var(--linija); stroke-width: 1; } .g-os { stroke: var(--siva); stroke-width: 1; }
+.g-oznaka { fill: var(--siva); font: 12px var(--f-mono); } .g-naslov-x { fill: var(--siva); font: 12px var(--f-tekst); }
+.g-vrijednost { fill: var(--tinta); font: 500 12px var(--f-mono); }
+.g-raspon { stroke: var(--narandza); stroke-width: 3; stroke-linecap: round; opacity: 0.35; }
+.g-tacka { fill: var(--narandza); }
+.g-ref { stroke: var(--siva); stroke-width: 1.2; stroke-dasharray: 4 4; }
+.g-ref-tekst { fill: var(--siva); font: italic 12px var(--f-tekst); }
+
+/* kod */
+.kodovi { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; }
+.kodovi > * { min-width: 0; }
+@media (max-width: 900px) { .kodovi { grid-template-columns: minmax(0, 1fr); } }
+.kod { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; overflow: hidden; }
+.kod .jezik { font-family: var(--f-mono); font-size: var(--t-0); padding: 0.4rem 0.8rem; border-bottom: 1px solid var(--linija); color: var(--siva); }
+.kod pre { margin: 0; padding: 0.8rem; overflow-x: auto; }
+.kod code { font-size: 14px; line-height: 1.55; white-space: pre; }
+.kod .kom { color: var(--siva); font-style: italic; }
+.kod mark { background: var(--narandza-meko); color: inherit; border-radius: 2px; padding: 0 0.15em; }
+.kod mark b { color: var(--narandza); font-family: var(--f-tekst); }
+.oblacici { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: 1rem; margin-top: 1rem; }
+.oblacici div { border-left: 3px solid var(--narandza); padding-left: 0.8rem; }
+.oblacici b.br { font-family: var(--f-mono); color: var(--narandza); margin-right: 0.3rem; }
+
+/* probaj */
+.veze { display: grid; gap: 0.7rem; }
+.veze a { display: block; text-decoration: none; background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 0.8rem 1rem; color: var(--tinta); }
+.veze a:hover { border-color: var(--narandza); }
+.veze a b { color: var(--narandza); }
+.veze a span { display: block; color: var(--siva); font-size: var(--t-0); }
+.literatura { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.35rem; font-size: 0.92rem; }
+
+/* donja navigacija */
+.navigacija { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--papir); border-top: 1px solid var(--linija);
+  padding-bottom: env(safe-area-inset-bottom, 0px); }
+.navigacija .okvir { display: flex; align-items: center; gap: 0.8rem; padding-block: 0.5rem; }
+.navigacija .naslov-slajda { flex: 1; min-width: 0; font-size: var(--t-0); color: var(--siva); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.navigacija .broj { font-family: var(--f-mono); font-size: var(--t-0); font-variant-numeric: tabular-nums; }
+.napredak { position: absolute; top: -1px; left: 0; height: 2px; background: var(--narandza); transition: width 0.25s; }
+main.citanje ~ .navigacija { display: none; }
+@media (prefers-reduced-motion: reduce) { .napredak { transition: none; } }
+
+</style>
+<style>
+/* primjer modela na papiru: A4, dvije kolone pri štampi */
+.stranica { max-width: 980px; margin: 0 auto; padding: 1.6rem max(16px, env(safe-area-inset-left, 0px)) 3rem; }
+.zaglavlje { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.8rem; }
+.zaglavlje h1 { font-size: var(--t-4); margin: 0.3rem 0 0.4rem; }
+.uvod { color: var(--siva); max-width: 52rem; margin: 0; }
+.model { columns: 2 22rem; column-gap: 1.6rem; }
+.dio { break-inside: avoid; margin: 0 0 0.75rem; }
+.dio h2 { font-size: var(--t-1); display: flex; gap: 0.45rem; align-items: baseline; border-bottom: 1px solid var(--linija); padding-bottom: 0.15rem; margin-bottom: 0.3rem; }
+.dio h2 span { font-family: var(--f-mono); font-size: var(--t-0); color: var(--narandza); font-weight: 500; }
+.dio p, .dio ul, .dio ol { margin: 0.2rem 0; }
+.dio ul, .dio ol { padding-left: 1.1rem; }
+.dio li { margin: 0.12rem 0; }
+.precrtano { text-decoration: line-through; color: var(--siva); }
+.formula { font-family: var(--f-mono); font-size: 0.86em; background: var(--narandza-meko); padding: 0.25rem 0.45rem; border-radius: 3px; margin: 0.25rem 0; }
+.izvor { color: var(--siva); font-size: 0.9em; }
+.ocjena { margin-top: 0.6rem; border: 2px solid var(--narandza); border-radius: 6px; padding: 0.7rem 0.9rem; break-inside: avoid; }
+.ocjena h2 { font-size: var(--t-2); margin-bottom: 0.3rem; }
+.ocjena .kolone { display: grid; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); gap: 0.4rem 1.4rem; }
+.ocjena h3 { font-size: var(--t-1); margin: 0.2rem 0; }
+.ocjena ul { margin: 0.15rem 0; padding-left: 1.1rem; }
+.napomena { margin-top: 0.8rem; font-size: var(--t-0); color: var(--siva); border-top: 1px solid var(--linija); padding-top: 0.5rem; }
+@media print {
+  @page { size: A4; margin: 9mm 11mm; }
+  html { font-size: 9.7px; }
+  body { background: #fff; color: #000; line-height: 1.38; }
+  .bez-stampe { display: none !important; }
+  .stranica { padding: 0; max-width: none; }
+  .zaglavlje { margin-bottom: 0.4rem; }
+  .zaglavlje h1 { font-size: 1.85rem; margin: 0.15rem 0 0.2rem; }
+  .model { columns: 2; column-gap: 1.3rem; }
+  .dio { margin-bottom: 0.45rem; }
+  .dio ul { padding-left: 1.45rem; }
+  .formula, p code, li code { background: #f3f3f3; }
+  .ocjena { border-color: #000; padding: 0.6rem 0.8rem; break-before: page; font-size: 1.25rem; }
+  .ocjena .kolone { grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr); }
+  a { color: #000; text-decoration: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="stranica">
+  <div class="zaglavlje">
+    <div>
+      <span class="oznaka">Modeliranje i simulacije · Vježbe 5 · Primjer</span>
+      <h1>Model na papiru – zajedničko posuđivanje alata</h1>
+      <p class="uvod">Pojednostavljen primjer sa slajdova 5–8 vježbi 5, na nivou razrade potrebnom prije kodiranja. Redoslijed prati obrazac s predavanja i obuhvata naziv, cilj, vrijeme, okruženje, aktere i atribute, interakcije, mjere, scenarije, podatke, otvorena pitanja i literaturu. <b>P</b> označava pretpostavku koju model ispituje. Na kraju su nedostaci koje treba otkloniti prije razmatranja teme (pri štampi na drugoj strani).</p>
+    </div>
+    <div class="dugmad bez-stampe"><button type="button" class="glavno" onclick="window.print()">Odštampaj</button></div>
+  </div>
+
+  <div class="model">
+    <section class="dio"><h2><span>1</span>Naziv i cilj</h2>
+      <p><b>Zajedničko posuđivanje alata u naselju – kada potražnja premaši zalihu alata.</b></p>
+      <p><b>Problem.</b> Centar mjesne zajednice posuđuje alat domaćinstvima uz malu naknadu. Kada se sazna da sistem radi, zahtjeva je više nego alata, a odbijena domaćinstva loše iskustvo prenose poznanicima.</p>
+      <p><b>Pitanje (interakcija).</b> Kako se iskustvo s posudbom prenosi razgovorom među poznanicima i kako to, uz ograničenu zalihu, mijenja korištenje centra?</p>
+      <p><b>Kome koristi.</b> Upravi centra pri izboru zalihe i pravila posudbe te procjeni koliko alata treba da korištenje ne opadne zbog razočaranja.</p>
+    </section>
+
+    <section class="dio"><h2><span>2</span>Vrijeme</h2>
+      <p><b>1 tick = 1 sedmica</b>, ukupno <b>52 ticka</b> (jedna godina) [P]. Posudba traje jednu sedmicu, kao u stvarnim bibliotekama alata [1]. Tokom godine prate se ponovljena iskustva i rast ili pad korištenja. Rađanje, umiranje i selidbe izostaju jer u ovom periodu nisu potrebni.</p>
+    </section>
+
+    <section class="dio"><h2><span>3</span>Okruženje i akteri</h2>
+      <ul>
+        <li><b>Svijet.</b> Naselje dimenzija 21 × 21 patch, bez spajanja rubova [P]. Patch je lokacija u naselju.</li>
+        <li><b>Domaćinstva (turtles).</b> 100, <b>jedan turtle = jedno domaćinstvo</b>, na stalnim, slučajno izabranim položajima [P]. Domaćinstvo izdvaja zajednički budžet za alat i odlučuje o posudbi.</li>
+        <li><b>Centar (nepokretni agent).</b> Jedan, usred naselja. Prima zahtjeve, dodjeljuje alat, naplaćuje naknadu i prima vraćeni alat. Zaliha je 10 zamjenjivih komada. Jedna posudba zauzima jedan komad.</li>
+        <li><b>Poznanstva (links).</b> Svaki par domaćinstava udaljenih najviše 4 patcha povezan je s vjerovatnoćom 0,3 [P]. Veze su uzajamne i stalne.</li>
+      </ul>
+    </section>
+
+    <section class="dio"><h2><span>4</span>Atributi</h2>
+      <ul>
+        <li><b>stav</b> (0–1) – vjerovatnoća da domaćinstvo zatraži posudbu kada mu zatreba alat. 0 = nikad ne traži, 1 = traži pri svakoj potrebi. Početno ravnomjerna raspodjela 0–1 [P].</li>
+        <li><b>integritet</b> (0–1) – otpornost stava na razgovor. <b>0 = stav se mijenja najviše, 1 = razgovor ne mijenja stav.</b> Početno ravnomjerna raspodjela 0–1 [P]. Vrijednost je stalna.</li>
+        <li><b>budžet za alat</b> (≥ 0 KM) – dio kućnog budžeta izdvojen za alat i popravke. Početno ravnomjerna raspodjela 0–8 KM. Svake 4. sedmice izdvaja se još 4 KM [P], koji se akumuliraju do trošenja.</li>
+        <li><b>posudba</b> (0/1) – drži li domaćinstvo trenutno alat. Početno 0.</li>
+        <li><b>iskustvo</b> (nema / 0 / 1) – ishod posljednjeg zahtjeva. 1 = uspješna posudba, 0 = zahtjev odbijen zbog nestašice. Početno „nema“.</li>
+        <li><b>Centar.</b> <code>zaliha</code> (ukupno, 10) i <code>raspolozivo</code> (0 do zalihe).</li>
+        <li><b>Parametri.</b> <code>p-potrebe</code> 0,20 sedmično [P], <code>naknada</code> 2 KM [P], <code>snaga-uticaja</code> 0–1, osnovno 0,30 [P] (0 = razgovor isključen), <code>zaliha</code> 5, 10 ili 20. U NetLogu svaki mehanizam ima vlastiti prekidač (uključeno/isključeno), za razgovor <code>razgovor?</code>. Slajder postoji samo za parametar koji mijenja scenarij ili analiza osjetljivosti, ovdje za navedena četiri parametra i parametre početnog stava. Ostale vrijednosti fiksiraju se u kodu uz izvor ili [P].</li>
+      </ul>
+      <p><span class="precrtano">starost, broj članova, vrsta alata, ekološka svijest</span> <span class="izvor">— nijedno pravilo ih ne koristi. Vrsta alata ostaje za proširenje, a ekološku svijest zasad obuhvata stav.</span></p>
+    </section>
+
+    <section class="dio"><h2><span>5</span>Interakcije (redoslijed u jednom ticku)</h2>
+      <ol>
+        <li><b>Povrat.</b> Domaćinstvo vraća posuđeni alat, <code>posudba</code> = 0, <code>raspolozivo</code> + 1. Svake 4. sedmice domaćinstvo iz kućnog budžeta izdvaja 4 KM za alat i popravke [P]. Novac se akumulira do trošenja.</li>
+        <li><b>Razgovor.</b> Svako domaćinstvo slučajno bira poznanika s iskustvom. Nema li ga, stav se ne mijenja. Inače vrijedi [2, prilagođeno].
+          <div class="formula">novi stav = stav + (iskustvo sagovornika − stav) × (1 − integritet) × snaga-uticaja</div>
+          Stavovi se računaju iz početnog stanja koraka i primjenjuju istovremeno.</li>
+        <li><b>Potreba i zahtjev.</b> S vjerovatnoćom <code>p-potrebe</code> domaćinstvu zatreba alat. Tada traži posudbu s vjerovatnoćom jednakom stavu. Ako je budžet manji od naknade, zahtjev se ne šalje i bilježi se kao „ograničen budžetom“.</li>
+        <li><b>Dodjela.</b> Centar obrađuje zahtjeve slučajnim redom. Dok ima alata, dodjeljuje komad, <code>raspolozivo</code> − 1, budžet − naknada, <code>iskustvo</code> = 1. Kada alata nema, odbija zahtjev, <code>iskustvo</code> = 0. Nezadovoljena potreba prestaje krajem sedmice.</li>
+      </ol>
+      <p class="izvor">Ovo nije simetrično približavanje stavova (lekcija 1). Sagovornik prenosi iskustvo 0 ili 1, pa prosječan stav može rasti i padati.</p>
+    </section>
+
+    <section class="dio"><h2><span>6</span>Mjere (na kraju perioda)</h2>
+      <ul>
+        <li><b>Doseg.</b> Udio domaćinstava s barem jednom uspješnom posudbom.</li>
+        <li><b>Zadovoljene potrebe.</b> Omjer uspješnih posudbi i nastalih potreba.</li>
+        <li><b>Prepreke.</b> Odvojeno se broje zahtjevi odbijeni zbog nestašice i ograničeni budžetom.</li>
+        <li><b>Stav.</b> Prosjek i rasipanje.</li>
+        <li>Sedmični graf uspješnih posudbi i odbijanja pokazuje raste li korištenje pa opada.</li>
+      </ul>
+    </section>
+
+    <section class="dio"><h2><span>7</span>Scenariji i ponavljanja</h2>
+      <ul>
+        <li><b>Kontrolni.</b> <code>snaga-uticaja</code> = 0 (razgovor isključen), zaliha 10.</li>
+        <li><b>Učinak razgovora.</b> <code>snaga-uticaja</code> = 0,30, zaliha 10. Mijenja se samo jedna postavka.</li>
+        <li><b>Učinak zalihe (posebno poređenje).</b> Zaliha 5, 10 i 20, uz <code>snaga-uticaja</code> = 0,30. Time slajder zalihe ima svrhu.</li>
+        <li>U svim scenarijima fiksiraju se početne raspodjele, mreža, potrebe, naknada, budžet, trajanje i mjere.</li>
+        <li><b>BehaviorSpace – 100 pokretanja po scenariju.</b> Unutar para (s razgovorom i bez njega) koristi se isti seed, a između parova različit. Navode se medijan i raspon (min–maks).</li>
+      </ul>
+    </section>
+
+    <section class="dio"><h2><span>8</span>Podaci i pretpostavke</h2>
+      <ul>
+        <li><b>Izvori.</b> Sedmična posudba [1], motivi za zajedničko korištenje dobara [3], postepena promjena stava pri razgovoru [2].</li>
+        <li><b>Potrebni podaci.</b> Učestalost potreba, odbijanja i trajanje posudbi (evidencija centra), stavovi i budžet domaćinstava (kratak upitnik).</li>
+        <li><b>Bez podataka – analiza osjetljivosti.</b> <code>snaga-uticaja</code> 0; 0,1; 0,3; 0,6 · <code>p-potrebe</code> 0,1; 0,2; 0,3 · <code>naknada</code> 0, 2, 4 KM · početni stav. Mijenja se jedan parametar odjednom.</li>
+      </ul>
+    </section>
+
+    <section class="dio"><h2><span>9</span>Otvorena pitanja, izvedivost, originalnost</h2>
+      <ul>
+        <li>Mijenja li odbijanje zahtjeva i stav samog domaćinstva, uz stav poznanika? (U ovoj verziji ne.)</li>
+        <li>U osnovnom modelu stav i iskustvo ostaju isti bez interakcije (nema zaboravljanja). Otvoreno je opada li stav s vremenom i zastarijeva li iskustvo.</li>
+        <li><b>Jezgro.</b> Povrat, razgovor, zahtjev, dodjela. Više vrsta alata ostaje za kasnije.</li>
+        <li><b>Originalnost.</b> Pretražite NetLogo Models Library, CoMSES Net i literaturu. Mogući doprinos – veza iskustva poznanika i ograničene zalihe.</li>
+      </ul>
+    </section>
+
+    <section class="dio"><h2><span>10</span>Literatura</h2>
+      <ol class="izvor">
+        <li>Berkeley Public Library, <i>Tool Lending Library: Tools FAQ</i> (web stranica): posudba 7 dana, odgovornost za oštećenje.</li>
+        <li>Deffuant, G., Neau, D., Amblard, F., Weisbuch, G. (2000). Mixing beliefs among interacting agents. <i>Advances in Complex Systems</i>, 3, 87–98.</li>
+        <li>Hamari, J., Sjöklint, M., Ukkonen, A. (2016). The sharing economy: Why people participate in collaborative consumption. <i>JASIST</i>, 67(9), 2047–2059.</li>
+        <li>Smart Buildings Center (2024). <i>Tool Lending Library Policy</i>: suspenzija prava posudbe zbog kašnjenja.</li>
+        <li>Anderson, E. W. (1998). Customer satisfaction and word of mouth. <i>Journal of Service Research</i>, 1(1), 5–17.</li>
+      </ol>
+    </section>
+  </div>
+
+  <section class="ocjena">
+    <h2>Šta treba riješiti prije razmatranja teme</h2>
+    <p>Prije razmatranja teme treba otkloniti sljedeće nedostatke.</p>
+    <div class="kolone">
+      <div>
+        <h3>Nedostaci</h3>
+        <ul>
+          <li><b>Složenost (p04).</b> Jezgro je širenje iskustva među poznanicima, a širenje nečega među ljudima je poznat model. Složenost daju različite vrste agenata i uticaja.</li>
+          <li><b>Originalnost (p03, p04).</b> Već odobrena tema o lokalnoj mreži za dijeljenje viška hrane ima istu logiku dijeljenja resursa u zajednici. Treba pokazati po čemu se model razlikuje.</li>
+          <li><b>Podaci (p01–p03).</b> Za potrebe, odbijanja i snagu uticaja nema izvora. Svaki atribut i pravilo treba potkrijepiti istraživanjima ili podacima.</li>
+          <li><b>Cilj (p01, p02).</b> Pitanje „da li razgovor utiče“ samo po sebi ništa ne poboljšava. Cilj mora navesti šta se poboljšava i za koga.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Moguće proširenje</h3>
+        <ul>
+          <li><b>Tim od dvoje, alternativa 1 – zaboravljanje i mediji.</b> Bez razgovora s poznanikom koji ima iskustvo i bez ishoda vlastitog zahtjeva u prethodnoj sedmici vrijedi <code>stav ← stav − 0,05 × stav</code> [P]. Čuva se sedmica posljednjeg ishoda. Iskustvo starije od 8 sedmica postaje „nema“ [P]. Svake 4. sedmice svako domaćinstvo s vjerovatnoćom 0,2 čuje poruku centra i primjenjuje <code>stav ← stav + 0,2 × (1 − stav)</code> [P]. Redoslijed je povrat → razgovor → mediji → zaboravljanje → potreba i zahtjev → dodjela. Porediti bez zaboravljanja, sa zaboravljanjem i sa zaboravljanjem i medijima, uz ostalo fiksirano. Pri zalihi 10 presudna je nestašica, a pri zalihi 20, kada zaliha premašuje potražnju, vidi se pad korištenja centra uz zaboravljanje. Cilj je odrediti koliko često centar mora podsjećati domaćinstva da ne prestanu koristiti centar. Prekidači su <code>zaboravljanje?</code> i <code>mediji?</code>, a slajderi za osjetljivost <code>zaborav</code>, <code>doseg-medija</code> i <code>period-medija</code>. Vanjski izvor uticaja povezuje proširenje s lekcijom 1.</li>
+          <li><b>Tim od dvoje, alternativa 2 – kupovina vlastitog alata.</b> Posudba od komšija ili poznanika i prednost vlasništvu u BiH, uz malo iznajmljivača i teško naplative štete ili krađe, obrazloženje su koje treba provjeriti upitnikom [P]. Izvor još nije prikupljen. Početno 30 % domaćinstava ima alat [P]. Pri potrebi slijedi odluka <b>vlastiti alat → poznanik vlasnik → centar → kupovina → nezadovoljena potreba</b>. Ako postoji poznanik vlasnik, besplatna posudba uspijeva s <code>povjerenje-poznanicima</code> = 0,8 [P] i ne mijenja iskustvo s centrom. Inače se centru šalje zahtjev s vjerovatnoćom jednakom stavu ako budžet pokriva naknadu. Bez posudbe, uključujući odbijanje, uz budžet ≥ <code>cijena-alata</code> = 40 KM [P], kupuje se s vjerovatnoćom <code>sklonost-vlasnistvu</code>, uz oduzimanje cijene. Raspon je 0–1, gdje 0 znači nikad, a 1 kupovinu čim se može platiti. Početno ravnomjerno 0,3–1 [P]. Vlasnik dalje koristi vlastiti alat i napušta centar. Kupovina zadovoljava tekuću potrebu i od sljedeće sedmice stvara besplatnog zajmodavca poznanicima, čime dodatno smanjuje potražnju. Broj istovremenih neformalnih posudbi nije ograničen [P]. Mjeriti broj i udio novih kupaca (izgubljenih korisnika centra) te udjele potreba zadovoljenih vlastitim alatom, kod poznanika, u centru i nezadovoljenih potreba. Upitnik može pitati „Biste li radije kupili ili posudili alat koji vam treba dva puta godišnje?“ Provjeriti početno vlasništvo, povjerenje i sklonost upitnikom ili analizom osjetljivosti. Prekidač je <code>kupovina?</code>, a slajderi <code>cijena-alata</code> i <code>povjerenje-poznanicima</code>. Pri variranju početnog vlasništva i raspodjele sklonosti dodaju se <code>pocetno-vlasnistvo</code>, <code>sklonost-min</code> i <code>sklonost-max</code>. Cilj je naći kombinaciju zalihe i naknade koja zadržava domaćinstva u centru umjesto kupovine.</li>
+          <li><b>Tim od troje – kašnjenje i kaucija.</b> <code>sklonost-kasnjenju</code> 0–1 (0 = uvijek na vrijeme) zadržava alat još sedmicu. Zabrana posudbe traje 4 sedmice [4], uz poređenje uključene i isključene zabrane. Mjeriti zauzete alat-sedmice, kašnjenja i zahtjeve ograničene zabranom. Zbog teško naplativih šteta ili krađe centar dodaje <code>kaucija</code> = 20 KM [P], uz pravila odgovornosti i suspenzije [1, 4]. Posudba traži budžet ≥ naknada + kaucija. Kaucija se izdvaja pri posudbi i vraća kada se alat vrati na vrijeme i neoštećen. Veći početni izdatak podstiče kupovinu. Porediti kauciju uključenu i isključenu uz ostalo fiksirano. Cilj je naći kombinaciju zalihe, naknade i kaucije koja zadržava korisnike. Prekidači su <code>kasnjenje?</code>, <code>zabrana?</code> i <code>kaucija?</code>, a slajderi za osjetljivost <code>sklonost-kasnjenju</code> i <code>kaucija</code>. Ovo je razrada na papiru.</li>
+          <li><b>I dalje su potrebni</b> podatak barem za jednu veličinu (npr. evidencija stvarnog centra ili mali upitnik) i provjera originalnosti.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <p class="napomena">Primjer prate lista provjere „Model na papiru“ i lekcije 1 i 2. Model se razrađuje približno do 08.12.2026. i izlaže na predavanju dijeljenjem ekrana. Modeliranje i simulacije, FIT UNMO, 2026/27.</p>
+</div>
+</body>
+</html>
