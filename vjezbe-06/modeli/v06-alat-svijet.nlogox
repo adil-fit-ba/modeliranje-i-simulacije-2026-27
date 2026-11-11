@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0.4" snapToGrid="false">
+  <code><![CDATA[breed [domacinstva domacinstvo]
+undirected-link-breed [poznanstva poznanstvo]
+
+globals [centar]
+patches-own [raspolozivo]
+domacinstva-own [stav integritet budzet posudba iskustvo posudio-ikad?]
+
+to setup
+  clear-all
+  random-seed sjeme
+  if pocetni-stav-min > pocetni-stav-max [
+    error "Početni minimum stava treba biti manji ili jednak maksimumu."
+  ]
+  postavi-svijet
+  postavi-centar
+  postavi-domacinstva
+  postavi-poznanstva
+  ;; korak E — ponoviti setup i uporediti sortirane zapise.
+  reset-ticks
+end
+
+to postavi-svijet
+  ;; korak A — prostor bez spajanja rubova.
+  resize-world -10 10 -10 10
+  set-topology false false
+  ask patches [set pcolor 9]
+end
+
+to postavi-centar
+  ;; korak A — centar na sredini naselja.
+  set centar patch 0 0
+  ask centar [
+    set pcolor orange
+    ;; korak C — početno su svi komadi raspoloživi.
+    set raspolozivo zaliha
+  ]
+end
+
+to postavi-domacinstva
+  ;; korak B — različiti patchevi, tačno u njihovim središtima.
+  ask n-of 100 patches with [self != centar] [
+    sprout-domacinstva 1 [
+      set shape "house"
+      set size 0.8
+      set color sky
+      ;; korak C — početni atributi domaćinstva.
+      set stav pocetni-stav-min + random-float (pocetni-stav-max - pocetni-stav-min)
+      set integritet random-float 1
+      set budzet random-float 8
+      set posudba 0
+      set iskustvo "nema"
+      set posudio-ikad? false
+    ]
+  ]
+end
+
+to postavi-poznanstva
+  ;; korak D — jedan pokušaj po dopuštenom neuređenom paru.
+  ask domacinstva [
+    let kandidati (other domacinstva in-radius 4) with [who > [who] of myself]
+    ask kandidati [
+      if random-float 1 < 0.3 [
+        create-poznanstvo-with myself [
+          set color gray
+          set thickness 0.08
+        ]
+      ]
+    ]
+  ]
+end
+
+;; Sortiranje omogućava provjeru E bez slučajnog redoslijeda ispisa.
+to-report zapis-domacinstava
+  report map [d -> [(list who xcor ycor stav integritet budzet posudba iskustvo posudio-ikad?)] of d] sort domacinstva
+end
+
+to-report zapis-poznanstava
+  report map [v -> [(list [who] of end1 [who] of end2)] of v] sort poznanstva
+end
+]]></code>
+  <widgets>
+    <view x="250" y="10" width="445" height="445" wrappingAllowedX="false" wrappingAllowedY="false" minPxcor="-10" maxPxcor="10" minPycor="-10" maxPycor="10" patchSize="21.0" fontSize="11" frameRate="30.0" showTickCounter="true" tickCounterLabel="sedmica" updateMode="1" />
+    <button x="10" y="10" width="100" height="40" disableUntilTicks="false" forever="false" kind="Observer" display="setup">setup</button>
+    <input x="120" y="10" width="120" height="60" multiline="false" variable="sjeme" type="number">1</input>
+    <slider x="10" y="80" width="230" height="50" display="p-potrebe" variable="p-potrebe" min="0" max="1" step="0.01" default="0.2" direction="Horizontal" units="" />
+    <slider x="10" y="135" width="230" height="50" display="naknada" variable="naknada" min="0" max="4" step="1" default="2" direction="Horizontal" units="KM" />
+    <slider x="10" y="190" width="230" height="50" display="snaga-uticaja" variable="snaga-uticaja" min="0" max="1" step="0.05" default="0.3" direction="Horizontal" units="" />
+    <slider x="10" y="245" width="230" height="50" display="zaliha" variable="zaliha" min="5" max="20" step="5" default="10" direction="Horizontal" units="" />
+    <slider x="10" y="300" width="230" height="50" display="pocetni-stav-min" variable="pocetni-stav-min" min="0" max="1" step="0.05" default="0" direction="Horizontal" units="" />
+    <slider x="10" y="355" width="230" height="50" display="pocetni-stav-max" variable="pocetni-stav-max" min="0" max="1" step="0.05" default="1" direction="Horizontal" units="" />
+    <switch x="10" y="415" width="230" height="40" display="razgovor?" variable="razgovor?" on="true" />
+    <monitor x="250" y="465" width="145" height="60" precision="0" fontSize="11" display="Domaćinstva">count domacinstva</monitor>
+    <monitor x="400" y="465" width="145" height="60" precision="0" fontSize="11" display="Poznanstva">count poznanstva</monitor>
+    <monitor x="550" y="465" width="145" height="60" precision="0" fontSize="11" display="Raspoloživi komadi">ifelse-value (is-patch? centar) [[raspolozivo] of centar] [0]</monitor>
+  </widgets>
+  <info>Završena inicijalizacija naselja za prvu sedmicu serije.
+
+Modeliranje i simulacije, V06, 13.11.2026.
+Pravila su u A4 primjeru iz V05.
+Osnovne postavke su sjeme 1, zaliha 10 i početni stav 0–1.
+Za provjeru E služe zapis-domacinstava i zapis-poznanstava.
+Parametri potrebe, naknade, snage uticaja i razgovora koriste se u nastavku serije.</info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5" />
+        <point x="40" y="250" />
+        <point x="150" y="205" />
+        <point x="260" y="250" />
+      </polygon>
+    </shape>
+    <shape name="house" rotatable="false" editableColorIndex="0">
+      <rectangle endX="255" startY="120" marked="true" color="-1920102913" endY="285" startX="45" filled="true" />
+      <rectangle endX="180" startY="210" marked="false" color="255" endY="285" startX="120" filled="true" />
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120" />
+        <point x="150" y="15" />
+        <point x="285" y="120" />
+      </polygon>
+      <line endX="270" startY="120" marked="false" color="255" endY="120" startX="30" />
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0" />
+          <dash value="1.0" />
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0" />
+          <dash value="0.0" />
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0" />
+          <dash value="1.0" />
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150" />
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150" />
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <previewCommands>setup</previewCommands>
+  <experiments />
+</model>

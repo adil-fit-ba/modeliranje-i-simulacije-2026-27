@@ -1,4 +1,4 @@
-"""Pravi početnu stranicu i indekse vježbi 3 i 5 u istom izgledu kao vjezbe-02/index.html."""
+"""Pravi početnu stranicu i indekse vježbi 3, 5 i 6 u istom izgledu kao vjezbe-02/index.html."""
 import io, sys
 REPO = sys.argv[1] if len(sys.argv) > 1 else __import__("os").path.dirname(__import__("os").path.abspath(__file__))
 CSS = """<style>
@@ -134,6 +134,16 @@ def v05(p):
     ]).rstrip())
     return "\n".join(dijelovi) + "\n"
 
+def v06(p):
+    gore = "../" if p == "" else ""
+    return grupa("NetLogo modeli", [
+        k(p + "modeli/v06-alat-pocetak.nlogox", "Početna datoteka", "Sučelje i procedure za dopunjavanje kroz korake A–E na času. Otvara se u NetLogu 7.0.4."),
+        k(p + "modeli/v06-alat-svijet.nlogox", "Završena prva sedmica", "Svijet, centar, 100 domaćinstava, atributi i poznanstva. Za provjeru vlastite radne kopije."),
+    ]) + grupa("Za pripremu", [
+        k(gore + "vjezbe-05/primjer-model-na-papiru-alat.html", "Primjer modela na papiru (vježbe 5)", "A4 opis primjera „Iznajmljivanje alata u naselju“ koji se kodira od vježbi 6."),
+        k(gore + "vjezbe-05/primjer-model-na-papiru-alat-prezentacija.html", "Primjer: prezentacija s ilustracijama", "Prostor, akteri, tick i poređenja, sa simulacijom u web pregledniku."),
+    ]) + '  <p class="siva">Pitanja o temama, prijavama, varijantama, sastavu timova i rokovima za teme šaljite Adilu Joldiću na adil@edu.fit.ba.</p>\n'
+
 def stranica(naslov, opis, tijelo, oznaka="Modeliranje i simulacije · FIT UNMO 2026/27", dodatni_css=""):
     return f"""<!doctype html>
 <html lang="bs">
@@ -159,7 +169,8 @@ root = ('  <h1>Modeliranje i simulacije: materijali s vježbi</h1>\n' + uvod
         + '  <h2>Vježbe 2 (17.10.2026.): ponavljanje i prvi model</h2>\n' + v02("vjezbe-02/")
         + '  <h2>Vježbe 3 (24.10.2026.): interakcije</h2>\n' + v03("vjezbe-03/")
         + '  <h2>Vježbe 4 (31.10.2026.): tema „Društvo s više naroda“</h2>\n' + v04("vjezbe-04/")
-        + '  <h2 id="vjezbe-05">Vježbe 5 (07.11.2026.) · Model na papiru i scenariji</h2>\n' + v05("vjezbe-05/"))
+        + '  <h2 id="vjezbe-05">Vježbe 5 (07.11.2026.) · Model na papiru i scenariji</h2>\n' + v05("vjezbe-05/")
+        + '  <h2 id="vjezbe-06">Vježbe 6 (13.11.2026.) · Kodiranje primjera: svijet i domaćinstva</h2>\n' + v06("vjezbe-06/"))
 io.open(REPO + "/index.html", "w", encoding="utf-8", newline="\n").write(
     stranica("Modeliranje i simulacije 2026/27 — materijali s vježbi", "Materijali s vježbi: prezentacije, mini-prezentacije i NetLogo modeli.", root, "FIT UNMO · 2026/27", dodatni_css=V05_CSS))
 io.open(REPO + "/vjezbe-03/index.html", "w", encoding="utf-8", newline="\n").write(
@@ -169,4 +180,8 @@ io.open(REPO + "/vjezbe-05/index.html", "w", encoding="utf-8", newline="\n").wri
     stranica("Vježbe 5 — materijali", "Modeliranje i simulacije, FIT UNMO 2026/27. Model na papiru i scenariji.",
              '  <h1>Vježbe 5 · Model na papiru i scenariji</h1>\n  <p class="siva">Subota, 07.11.2026. u 14:00.</p>\n'
              + uvod + v05(""), dodatni_css=V05_CSS))
+io.open(REPO + "/vjezbe-06/index.html", "w", encoding="utf-8", newline="\n").write(
+    stranica("Vježbe 6 — materijali", "Modeliranje i simulacije, FIT UNMO 2026/27. Kodiranje primjera: svijet i domaćinstva.",
+             '  <h1>Vježbe 6 · Kodiranje primjera: svijet i domaćinstva</h1>\n  <p class="siva">Petak, 13.11.2026. u 16:00. Vježbe drži asistent Adil Eminagić.</p>\n'
+             + uvod + v06("")))
 print("ok")
