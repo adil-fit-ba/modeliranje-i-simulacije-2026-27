@@ -1,8 +1,31 @@
-<!doctype html><html lang="bs"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>V06 · blokovi za lijepljenje</title><style>
-    :root{color-scheme:light dark}body{max-width:1050px;margin:auto;padding:20px;font:18px/1.45 "Segoe UI",sans-serif}h1,h2,h3{color:#b9531a}h2{border-top:2px solid;padding-top:20px}pre{padding:16px;border:1px solid #888;white-space:pre-wrap;overflow-wrap:anywhere}code{font:16px/1.4 Consolas,monospace}nav a{margin-right:20px}a{color:inherit}p{max-width:80ch}</style>
-    <h1>V06 · blokovi za lijepljenje</h1><p>U vlastitoj kopiji <code>v06-alat-pocetak.nlogox</code> zamijenite cijelo tijelo navedene procedure, između postojećih <code>to naziv</code> i <code>end</code>. Kopirajte samo sadržaj okvira. Idite redom A–E; za dolazak do koraka k trebaju svi blokovi A..k. Nakon svakog: Check, setup, provjera.</p>
-    <p>A i B odgađaju redove koraka C; C donosi cijela završena tijela centra i domaćinstava. E pokazuje tijelo setup koje početna datoteka već ima. Deklaracije i reportere zadržite. Osnovne postavke: sjeme 1, zaliha 10, granice početnog stava 0 i 1.</p>
-    <p><a href="v06-blokovi-za-lijepljenje.txt">Tekstualna verzija</a> · <a href="../prezentacije/v06-od-papira-do-koda.html">Prezentacija</a></p><nav><a href="#A">A</a><a href="#B">B</a><a href="#C">C</a><a href="#D">D</a><a href="#E">E</a></nav><section id="A"><h2>Korak A</h2><h3>postavi-svijet</h3><p>Zamijenite tijelo između <code>to postavi-svijet</code> i <code>end</code>.</p><pre><code data-korak="A" data-procedura="postavi-svijet">  ;; korak A — prostor bez spajanja rubova.
+<!doctype html>
+<html lang="bs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>V06 · Kod za copy-paste</title>
+<style>
+:root { color-scheme:light dark; }
+body { max-width:1050px; margin:auto; padding:20px; font:18px/1.45 "Segoe UI",sans-serif; }
+h1,h2,h3 { color:#b9531a; }
+h2 { border-top:2px solid; padding-top:20px; }
+pre { padding:16px; border:1px solid #888; white-space:pre-wrap; overflow-wrap:anywhere; }
+code { font:16px/1.4 Consolas,monospace; }
+nav { display:flex; flex-wrap:wrap; gap:8px 20px; }
+a { color:inherit; }
+p { max-width:80ch; }
+</style>
+</head>
+<body>
+<nav aria-label="Meni vježbi"><a href="../index.html">← Vježbe 6</a><a href="../../index.html">Sve vježbe</a></nav>
+<h1>V06 · Kod za copy-paste</h1>
+<p>U vlastitoj kopiji <code>v06-alat-pocetak.nlogox</code> zamijenite cijelo tijelo navedene procedure između postojećih redova <code>to naziv</code> i <code>end</code>. Kopirajte samo sadržaj okvira. Pratite korake A–E. Za dostizanje koraka k u početnoj datoteci primijenite sve blokove A..k. Nakon svakog koraka odaberite Check, pokrenite setup i izvršite provjeru.</p>
+<p>U koracima A i B odgođeni su redovi koraka C. C sadrži cijela završena tijela procedura za centar i domaćinstva. D dodaje poznanstva. E prikazuje postojeće tijelo procedure setup radi poređenja. Deklaracije i reportere zadržite. Osnovne postavke su sjeme 1, zaliha 10 i granice početnog stava 0 i 1.</p>
+<p><a href="v06-alat-pocetak.nlogox">Početni model</a> · <a href="https://www.netlogoweb.org/launch#https://adil-fit-ba.github.io/modeliranje-i-simulacije-2026-27/vjezbe-06/modeli/v06-alat-pocetak.nlogox" target="_blank" rel="noopener">Otvori u NetLogo Webu</a></p>
+<p><a href="v06-alat-svijet.nlogox">Završeni model</a> · <a href="https://www.netlogoweb.org/launch#https://adil-fit-ba.github.io/modeliranje-i-simulacije-2026-27/vjezbe-06/modeli/v06-alat-svijet.nlogox" target="_blank" rel="noopener">Otvori u NetLogo Webu</a></p>
+<p>Model se može pokrenuti u web pregledniku bez instalacije. Za rad na času i za BehaviorSpace koristi se NetLogo 7.0.4 na računaru.</p>
+<p><a href="v06-blokovi-za-lijepljenje.txt">Kod za copy-paste · tekstualna verzija</a> · <a href="../prezentacije/v06-od-papira-do-koda.html">Prezentacija</a></p>
+<nav aria-label="Koraci A–E"><a href="#A">A</a><a href="#B">B</a><a href="#C">C</a><a href="#D">D</a><a href="#E">E</a></nav><section id="A"><h2>Korak A</h2><h3>postavi-svijet</h3><p>Zamijenite tijelo između <code>to postavi-svijet</code> i <code>end</code>.</p><pre><code data-korak="A" data-procedura="postavi-svijet">  ;; korak A — prostor bez spajanja rubova.
   resize-world -10 10 -10 10
   set-topology false false
   ask patches [set pcolor 9]
@@ -11,7 +34,7 @@
   ask centar [
     set pcolor orange
   ]
-</code></pre><p><strong>Kontrolna tačka (60 s)</strong> · <code>A | radi</code> ili <code>A | poruka greške</code>. Brži: osmislite dodatnu provjeru.</p></section><section id="B"><h2>Korak B</h2><h3>postavi-domacinstva</h3><p>Zamijenite tijelo između <code>to postavi-domacinstva</code> i <code>end</code>.</p><pre><code data-korak="B" data-procedura="postavi-domacinstva">  ;; korak B — različiti patchevi, tačno u njihovim središtima.
+</code></pre><p><strong>Kontrolna tačka (60 s)</strong> · U chat upišite <code>A | radi</code> ili <code>A | poruka greške</code>. Ako ste završili ranije, osmislite dodatnu provjeru.</p></section><section id="B"><h2>Korak B</h2><h3>postavi-domacinstva</h3><p>Zamijenite tijelo između <code>to postavi-domacinstva</code> i <code>end</code>.</p><pre><code data-korak="B" data-procedura="postavi-domacinstva">  ;; korak B — različiti patchevi, tačno u njihovim središtima.
   ask n-of 100 patches with [self != centar] [
     sprout-domacinstva 1 [
       set shape &quot;house&quot;
@@ -19,7 +42,7 @@
       set color sky
     ]
   ]
-</code></pre><p><strong>Kontrolna tačka (60 s)</strong> · <code>B | radi</code> ili <code>B | poruka greške</code>. Brži: osmislite dodatnu provjeru.</p></section><section id="C"><h2>Korak C</h2><h3>postavi-centar</h3><p>Zamijenite tijelo između <code>to postavi-centar</code> i <code>end</code>.</p><pre><code data-korak="C" data-procedura="postavi-centar">  ;; korak A — centar na sredini naselja.
+</code></pre><p><strong>Kontrolna tačka (60 s)</strong> · U chat upišite <code>B | radi</code> ili <code>B | poruka greške</code>. Ako ste završili ranije, osmislite dodatnu provjeru.</p></section><section id="C"><h2>Korak C</h2><h3>postavi-centar</h3><p>Zamijenite tijelo između <code>to postavi-centar</code> i <code>end</code>.</p><pre><code data-korak="C" data-procedura="postavi-centar">  ;; korak A — centar na sredini naselja.
   set centar patch 0 0
   ask centar [
     set pcolor orange
@@ -41,7 +64,7 @@
       set posudio-ikad? false
     ]
   ]
-</code></pre><p><strong>Kontrolna tačka (60 s)</strong> · <code>C | radi</code> ili <code>C | poruka greške</code>. Brži: osmislite dodatnu provjeru.</p></section><section id="D"><h2>Korak D</h2><h3>postavi-poznanstva</h3><p>Zamijenite tijelo između <code>to postavi-poznanstva</code> i <code>end</code>.</p><pre><code data-korak="D" data-procedura="postavi-poznanstva">  ;; korak D — jedan pokušaj po dopuštenom neuređenom paru.
+</code></pre><p><strong>Kontrolna tačka (60 s)</strong> · U chat upišite <code>C | radi</code> ili <code>C | poruka greške</code>. Ako ste završili ranije, osmislite dodatnu provjeru.</p></section><section id="D"><h2>Korak D</h2><h3>postavi-poznanstva</h3><p>Zamijenite tijelo između <code>to postavi-poznanstva</code> i <code>end</code>.</p><pre><code data-korak="D" data-procedura="postavi-poznanstva">  ;; korak D — jedan pokušaj po dopuštenom neuređenom paru.
   ask domacinstva [
     let kandidati (other domacinstva in-radius 4) with [who &gt; [who] of myself]
     ask kandidati [
@@ -53,7 +76,7 @@
       ]
     ]
   ]
-</code></pre><p><strong>Kontrolna tačka (60 s)</strong> · <code>D | radi</code> ili <code>D | poruka greške</code>. Brži: osmislite dodatnu provjeru.</p></section><section id="E"><h2>Korak E</h2><h3>setup</h3><p>Zamijenite tijelo između <code>to setup</code> i <code>end</code>.</p><pre><code data-korak="E" data-procedura="setup">  clear-all
+</code></pre><p><strong>Kontrolna tačka (60 s)</strong> · U chat upišite <code>D | radi</code> ili <code>D | poruka greške</code>. Ako ste završili ranije, osmislite dodatnu provjeru.</p></section><section id="E"><h2>Korak E</h2><h3>setup</h3><p>Zamijenite tijelo između <code>to setup</code> i <code>end</code>.</p><pre><code data-korak="E" data-procedura="setup">  clear-all
   random-seed sjeme
   if pocetni-stav-min &gt; pocetni-stav-max [
     error &quot;Početni minimum stava treba biti manji ili jednak maksimumu.&quot;
@@ -64,4 +87,5 @@
   postavi-poznanstva
   ;; korak E — ponoviti setup i uporediti sortirane zapise.
   reset-ticks
-</code></pre><p><strong>Kontrolna tačka (60 s)</strong> · <code>E | radi</code> ili <code>E | poruka greške</code>. Brži: osmislite dodatnu provjeru.</p></section></html>
+</code></pre><p><strong>Kontrolna tačka (60 s)</strong> · U chat upišite <code>E | radi</code> ili <code>E | poruka greške</code>. Ako ste završili ranije, osmislite dodatnu provjeru.</p></section></body>
+</html>

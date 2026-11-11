@@ -140,8 +140,10 @@ def v06(p):
         k(p + "prezentacije/v06-od-papira-do-koda.html", "Od modela na papiru do koda", "Rečenica iz modela na papiru, kod i zašto baš tako, korak po korak A–E."),
     ]) + grupa("NetLogo modeli", [
         k(p + "modeli/v06-alat-pocetak.nlogox", "Početna datoteka", "Sučelje i procedure za dopunjavanje kroz korake A–E na času. Otvara se u NetLogu 7.0.4."),
-        k(p + "modeli/v06-alat-svijet.nlogox", "Završena prva sedmica", "Svijet, centar, 100 domaćinstava, atributi i poznanstva. Za provjeru vlastite radne kopije."),
-        k(p + "modeli/v06-blokovi-za-lijepljenje.html", "Blokovi za lijepljenje", "Tijela procedura za korake A–E, za nastavak ako zaostanete."),
+        web("https://www.netlogoweb.org/launch#https://adil-fit-ba.github.io/modeliranje-i-simulacije-2026-27/vjezbe-06/modeli/v06-alat-pocetak.nlogox", "Početna datoteka u web pregledniku, bez instalacije. Za rad na času koristi se NetLogo 7.0.4 na računaru."),
+        k(p + "modeli/v06-alat-svijet.nlogox", "Završena prva sedmica", "Svijet, centar, 100 domaćinstava, atributi i poznanstva. Služi za provjeru vlastite radne kopije."),
+        web("https://www.netlogoweb.org/launch#https://adil-fit-ba.github.io/modeliranje-i-simulacije-2026-27/vjezbe-06/modeli/v06-alat-svijet.nlogox", "Završena prva sedmica u web pregledniku, bez instalacije. BehaviorSpace je dostupan samo u NetLogu 7.0.4 na računaru."),
+        k(p + "modeli/v06-blokovi-za-lijepljenje.html", "Kod za copy-paste", "Tijela procedura za korake A–E, za nastavak rada u slučaju zaostajanja."),
     ]) + grupa("Za pripremu", [
         k(gore + "vjezbe-05/primjer-model-na-papiru-alat.html", "Primjer modela na papiru (vježbe 5)", "A4 opis primjera „Iznajmljivanje alata u naselju“ koji se kodira od vježbi 6."),
         k(gore + "vjezbe-05/primjer-model-na-papiru-alat-prezentacija.html", "Primjer: prezentacija s ilustracijama", "Prostor, akteri, tick i poređenja, sa simulacijom u web pregledniku."),

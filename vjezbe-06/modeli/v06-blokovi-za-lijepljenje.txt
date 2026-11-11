@@ -1,20 +1,24 @@
-V06 — blokovi za lijepljenje A–E
+V06 — Kod za copy-paste A–E
 
-Otvorite vlastitu kopiju v06-alat-pocetak.nlogox. Idite redom A, B, C, D, E.
-Za svaki naziv zamijenite CIJELO TIJELO između postojećih redova to NAZIV i end.
-Ne lijepite oznake BEGIN/END BODY, niti dodajte novu proceduru istog imena.
-Poslije svakog koraka: Check, setup i provjera iz kartice. Osnovno: sjeme 1,
-zaliha 10, pocetni-stav-min 0, pocetni-stav-max 1.
+Otvorite vlastitu kopiju v06-alat-pocetak.nlogox. Pratite korake A, B, C, D, E.
+Za svaku proceduru zamijenite cijelo tijelo između postojećih redova
+to NAZIV i end. Kopirajte samo kod unutar oznaka BEGIN/END BODY.
+Svaka procedura treba imati jednu definiciju.
+Nakon svakog koraka odaberite Check, pokrenite setup i izvršite provjeru
+iz kartice. Osnovne postavke su sjeme 1, zaliha 10, pocetni-stav-min 0
+i pocetni-stav-max 1.
 
-Kod dolazi iz v06-alat-svijet.nlogox. A i B su međukoraci: odgođeni su samo
-redovi označeni kao C, a njihove zagrade ostaju zatvorene. C zamjenjuje cijela
-tijela centra i domaćinstava doslovnim završenim tijelima iz modela. D dodaje
-poznanstva. E donosi doslovno tijelo setup, koje početna datoteka već ima;
-ne uvodi novo ponašanje. Deklaracije i oba reportera su već u početnoj datoteci.
-Za dolazak do k iz čiste početne datoteke zalijepite sve blokove A..k.
+Kod je preuzet iz v06-alat-svijet.nlogox. A i B su međukoraci u kojima su
+odgođeni samo redovi označeni kao C. Svi parovi zagrada su zatvoreni.
+U koraku C zamijenite cijela tijela procedura za centar i domaćinstva
+završenim tijelima iz modela. D dodaje poznanstva. E prikazuje postojeće
+tijelo procedure setup radi poređenja. Deklaracije i oba reportera već su
+u početnoj datoteci. Za dostizanje koraka k u početnoj datoteci primijenite
+sve blokove A..k.
 
-Poslije svakog koraka: Kontrolna tačka (60 s). Chat, npr. B | radi ili
-B | poruka greške. Ako ste završili ranije, osmislite dodatnu provjeru.
+Nakon svakog koraka slijedi kontrolna tačka (60 s). U chat upišite,
+naprimjer, B | radi ili B | poruka greške. Ako ste završili ranije,
+osmislite dodatnu provjeru.
 
 =================================================================
 KORAK A
