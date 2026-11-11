@@ -1,0 +1,115 @@
+V06 — blokovi za lijepljenje A–E
+
+Otvorite vlastitu kopiju v06-alat-pocetak.nlogox. Idite redom A, B, C, D, E.
+Za svaki naziv zamijenite CIJELO TIJELO između postojećih redova to NAZIV i end.
+Ne lijepite oznake BEGIN/END BODY, niti dodajte novu proceduru istog imena.
+Poslije svakog koraka: Check, setup i provjera iz kartice. Osnovno: sjeme 1,
+zaliha 10, pocetni-stav-min 0, pocetni-stav-max 1.
+
+Kod dolazi iz v06-alat-svijet.nlogox. A i B su međukoraci: odgođeni su samo
+redovi označeni kao C, a njihove zagrade ostaju zatvorene. C zamjenjuje cijela
+tijela centra i domaćinstava doslovnim završenim tijelima iz modela. D dodaje
+poznanstva. E donosi doslovno tijelo setup, koje početna datoteka već ima;
+ne uvodi novo ponašanje. Deklaracije i oba reportera su već u početnoj datoteci.
+Za dolazak do k iz čiste početne datoteke zalijepite sve blokove A..k.
+
+Poslije svakog koraka: Kontrolna tačka (60 s). Chat, npr. B | radi ili
+B | poruka greške. Ako ste završili ranije, osmislite dodatnu provjeru.
+
+=================================================================
+KORAK A
+
+BEGIN BODY A postavi-svijet
+  ;; korak A — prostor bez spajanja rubova.
+  resize-world -10 10 -10 10
+  set-topology false false
+  ask patches [set pcolor 9]
+END BODY A postavi-svijet
+
+BEGIN BODY A postavi-centar
+  ;; korak A — centar na sredini naselja.
+  set centar patch 0 0
+  ask centar [
+    set pcolor orange
+  ]
+END BODY A postavi-centar
+
+=================================================================
+KORAK B
+
+BEGIN BODY B postavi-domacinstva
+  ;; korak B — različiti patchevi, tačno u njihovim središtima.
+  ask n-of 100 patches with [self != centar] [
+    sprout-domacinstva 1 [
+      set shape "house"
+      set size 0.8
+      set color sky
+    ]
+  ]
+END BODY B postavi-domacinstva
+
+=================================================================
+KORAK C
+
+BEGIN BODY C postavi-centar
+  ;; korak A — centar na sredini naselja.
+  set centar patch 0 0
+  ask centar [
+    set pcolor orange
+    ;; korak C — početno su svi komadi raspoloživi.
+    set raspolozivo zaliha
+  ]
+END BODY C postavi-centar
+
+BEGIN BODY C postavi-domacinstva
+  ;; korak B — različiti patchevi, tačno u njihovim središtima.
+  ask n-of 100 patches with [self != centar] [
+    sprout-domacinstva 1 [
+      set shape "house"
+      set size 0.8
+      set color sky
+      ;; korak C — početni atributi domaćinstva.
+      set stav pocetni-stav-min + random-float (pocetni-stav-max - pocetni-stav-min)
+      set integritet random-float 1
+      set budzet random-float 8
+      set posudba 0
+      set iskustvo "nema"
+      set posudio-ikad? false
+    ]
+  ]
+END BODY C postavi-domacinstva
+
+=================================================================
+KORAK D
+
+BEGIN BODY D postavi-poznanstva
+  ;; korak D — jedan pokušaj po dopuštenom neuređenom paru.
+  ask domacinstva [
+    let kandidati (other domacinstva in-radius 4) with [who > [who] of myself]
+    ask kandidati [
+      if random-float 1 < 0.3 [
+        create-poznanstvo-with myself [
+          set color gray
+          set thickness 0.08
+        ]
+      ]
+    ]
+  ]
+END BODY D postavi-poznanstva
+
+=================================================================
+KORAK E
+
+BEGIN BODY E setup
+  clear-all
+  random-seed sjeme
+  if pocetni-stav-min > pocetni-stav-max [
+    error "Početni minimum stava treba biti manji ili jednak maksimumu."
+  ]
+  postavi-svijet
+  postavi-centar
+  postavi-domacinstva
+  postavi-poznanstva
+  ;; korak E — ponoviti setup i uporediti sortirane zapise.
+  reset-ticks
+END BODY E setup

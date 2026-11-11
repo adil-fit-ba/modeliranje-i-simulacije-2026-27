@@ -8,7 +8,7 @@ FIT UNMO. Stranice se otvaraju na <https://adil-fit-ba.github.io/modeliranje-i-s
 | `vjezbe-03/` | vježbe 3 (24.10.2026.): blokovi interakcije, mini-prezentacije, NetLogo Web, modeli, mjerenja, C# projekat `netlogo-kroz-csharp`; isto kao `MiS-vjezbe-03-v3.zip` |
 | `vjezbe-04/` | vježbe 4 (31.10.2026.): prezentacija teme „Društvo s više naroda“ (HTML, sa simulacijom u web pregledniku) |
 | `vjezbe-05/` | vježbe 5 (07.11.2026.): model na papiru i scenariji, dvije lekcije, lista provjere (HTML/PDF), BehaviorSpace upute i provjerena mjerenja |
-| `vjezbe-06/` | vježbe 6 (13.11.2026.): kodiranje primjera „Iznajmljivanje alata u naselju“, početna datoteka i završena prva sedmica (NetLogo 7.0.4) |
+| `vjezbe-06/` | vježbe 6 (13.11.2026.): kodiranje primjera „Iznajmljivanje alata u naselju“: prezentacija „Od modela na papiru do koda“, početna datoteka, završena prva sedmica, blokovi za lijepljenje i mjerenja (NetLogo 7.0.4) |
 
 Stranice su samostalni HTML fajlovi (CSS i JavaScript su u njima) i rade i lokalno, dvoklikom.
 

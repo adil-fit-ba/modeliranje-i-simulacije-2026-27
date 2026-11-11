@@ -136,9 +136,12 @@ def v05(p):
 
 def v06(p):
     gore = "../" if p == "" else ""
-    return grupa("NetLogo modeli", [
+    return grupa("Prezentacija", [
+        k(p + "prezentacije/v06-od-papira-do-koda.html", "Od modela na papiru do koda", "Rečenica iz modela na papiru, kod i zašto baš tako, korak po korak A–E."),
+    ]) + grupa("NetLogo modeli", [
         k(p + "modeli/v06-alat-pocetak.nlogox", "Početna datoteka", "Sučelje i procedure za dopunjavanje kroz korake A–E na času. Otvara se u NetLogu 7.0.4."),
         k(p + "modeli/v06-alat-svijet.nlogox", "Završena prva sedmica", "Svijet, centar, 100 domaćinstava, atributi i poznanstva. Za provjeru vlastite radne kopije."),
+        k(p + "modeli/v06-blokovi-za-lijepljenje.html", "Blokovi za lijepljenje", "Tijela procedura za korake A–E, za nastavak ako zaostanete."),
     ]) + grupa("Za pripremu", [
         k(gore + "vjezbe-05/primjer-model-na-papiru-alat.html", "Primjer modela na papiru (vježbe 5)", "A4 opis primjera „Iznajmljivanje alata u naselju“ koji se kodira od vježbi 6."),
         k(gore + "vjezbe-05/primjer-model-na-papiru-alat-prezentacija.html", "Primjer: prezentacija s ilustracijama", "Prostor, akteri, tick i poređenja, sa simulacijom u web pregledniku."),

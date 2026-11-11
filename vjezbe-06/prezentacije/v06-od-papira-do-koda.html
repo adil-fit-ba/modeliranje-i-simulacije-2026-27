@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="bs">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>V06 · Od modela na papiru do koda</title>
+<style>/* Raspored: mini-prezentacija od 10 slajdova; jedan slajd na ekranu (strelice), ili svi jedan ispod
+   drugog (način „Čitanje“). Papir je svijetao, svijet i putanje su na tamnoj podlozi kao u NetLogu. */
+:root {
+  --papir: #eef1f4; --list: #ffffff; --tinta: #17212b; --siva: #56636f; --linija: #d3dae1;
+  --narandza: #b9531a; --narandza-meko: #f6dfd0; --margina: #e5a3a3; --svijet: #0b0d10;
+  --za: #345da9; --protiv: #d73229; --neodlucni: #8d8d8d;
+  --f-naslov: "Bitter", "Georgia", "Cambria", serif;
+  --f-tekst: "IBM Plex Sans", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "IBM Plex Mono", "Cascadia Mono", Consolas, "Courier New", monospace;
+  --t-0: 0.83rem; --t-1: 1rem; --t-2: 1.17rem; --t-3: 1.5rem; --t-4: 2.2rem; --t-5: 3.1rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --papir: #10161c; --list: #18212a; --tinta: #e3e9ee; --siva: #9ba8b4; --linija: #2a3540;
+    --narandza: #f0894a; --narandza-meko: #3a2416; --margina: #6b3535; --za: #5b86d6; --protiv: #e5574e; --neodlucni: #9a9a9a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --papir: #10161c; --list: #18212a; --tinta: #e3e9ee; --siva: #9ba8b4; --linija: #2a3540;
+  --narandza: #f0894a; --narandza-meko: #3a2416; --margina: #6b3535; --za: #5b86d6; --protiv: #e5574e; --neodlucni: #9a9a9a;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { font-size: 18px; }
+@media (max-width: 600px) { html { font-size: 16px; } }
+body { margin: 0; background: var(--papir); color: var(--tinta); font-family: var(--f-tekst); line-height: 1.55; }
+[hidden] { display: none !important; }
+a { color: var(--narandza); text-underline-offset: 0.15em; }
+:focus-visible { outline: 3px solid var(--narandza); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--f-naslov); text-wrap: balance; line-height: 1.18; margin: 0; }
+p { margin: 0; }
+code { font-family: var(--f-mono); font-size: 0.9em; }
+p code, li code, td code { background: var(--narandza-meko); padding: 0.05em 0.3em; border-radius: 3px; }
+.okvir { max-width: 1200px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.oznaka { font-family: var(--f-mono); font-size: var(--t-0); letter-spacing: 0.08em; text-transform: uppercase; color: var(--narandza); font-weight: 500; }
+.siva { color: var(--siva); }
+.mala { font-size: var(--t-0); }
+
+/* traka na vrhu */
+.vrh { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--papir); border-bottom: 1px solid var(--linija); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--papir); }
+.vrh .okvir { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem 1rem; padding-block: 0.55rem; flex-wrap: wrap; }
+.vrh b { font-family: var(--f-naslov); font-weight: 700; }
+.nacin { display: flex; gap: 0.3rem; }
+button { font: 500 var(--t-0) var(--f-mono); border-radius: 4px; padding: 0.4rem 0.8rem; cursor: pointer;
+  border: 1px solid var(--narandza); background: transparent; color: var(--narandza); }
+button[aria-pressed="true"], button.glavno { background: var(--narandza); color: var(--list); }
+button:disabled { opacity: 0.45; cursor: default; }
+
+/* slajdovi */
+.slajd { padding-block: 2rem 6rem; scroll-margin-top: 3.4rem; }
+main.prezentacija .slajd { display: none; min-height: calc(100svh - 3.2rem); }
+main.prezentacija .slajd.aktivan { display: block; }
+main.citanje .slajd { border-bottom: 1px solid var(--linija); padding-block: 2.5rem; }
+.glava { display: grid; gap: 0.35rem; margin-bottom: 1.4rem; }
+.glava h2 { font-size: var(--t-4); max-width: 30ch; }
+.glava .podnaslov { font-size: var(--t-2); color: var(--siva); max-width: 52rem; }
+.dvije { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2rem; align-items: start; }
+.dvije > * { min-width: 0; }
+@media (max-width: 900px) { .dvije { grid-template-columns: minmax(0, 1fr); } }
+.tekst { display: grid; gap: 1rem; }
+.tekst ul { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.35rem; }
+.panel { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 1rem; }
+.pitanje { background: var(--narandza-meko); border-radius: 4px; padding: 0.9rem 1rem; }
+.pitanje h3 { font-size: var(--t-1); margin-bottom: 0.25rem; }
+
+/* naslovni slajd */
+.naslovni { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 2.4rem; align-items: center; padding-top: 1rem; }
+.naslovni > * { min-width: 0; }
+.naslovni h1 { font-size: var(--t-5); letter-spacing: -0.01em; margin: 0.4rem 0 0.9rem; }
+.naslovni .teza { font-size: var(--t-3); font-family: var(--f-naslov); line-height: 1.3; }
+.naslovni .uvod { margin-top: 1rem; color: var(--siva); }
+@media (max-width: 900px) { .naslovni { grid-template-columns: minmax(0, 1fr); } }
+
+/* list papira: pravilo za model na papiru */
+.papir {
+  margin: 0; background-color: var(--list); border: 1px solid var(--linija); border-radius: 4px;
+  padding: 1rem 1.2rem 1.2rem 2.4rem; position: relative; line-height: 1.75rem;
+  background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(1.75rem - 1px), var(--linija) calc(1.75rem - 1px), var(--linija) 1.75rem);
+  background-position: 0 2.55rem;
+}
+.papir::before { content: ""; position: absolute; left: 1.5rem; top: 0; bottom: 0; width: 2px; background: var(--margina); }
+.papir figcaption { font-family: var(--f-mono); font-size: var(--t-0); color: var(--siva); letter-spacing: 0.04em; text-transform: uppercase; line-height: 1.75rem; }
+.papir p, .papir li { font-family: var(--f-naslov); font-size: 1.08rem; }
+.papir ul { list-style: none; margin: 0; padding: 0 0 0 1.2rem; }
+.papir li::before { content: "→ "; color: var(--narandza); font-family: var(--f-tekst); }
+.papir b { color: var(--narandza); }
+
+/* kartice (pojava, sastavni dijelovi, koraci) */
+.kartice { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); }
+.kartica { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 1rem; display: grid; gap: 0.6rem; align-content: start; }
+.kartica h3 { font-size: var(--t-2); }
+.kartica svg { width: 100%; height: auto; display: block; }
+.kartica ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.25rem; }
+.kartica .kod-cip { font-family: var(--f-mono); font-size: 0.78rem; color: var(--siva); border-top: 1px dashed var(--linija); padding-top: 0.5rem; }
+.korak-broj { font-family: var(--f-mono); font-weight: 500; color: var(--narandza); }
+
+/* SVG ilustracije: boje iz tokena */
+.il-osa { stroke: var(--siva); stroke-width: 1.5; }
+.il-tekst { fill: var(--siva); font: 13px var(--f-mono); }
+.il-tekst-veci { fill: var(--tinta); font: 600 15px var(--f-tekst); }
+.il-za { fill: var(--za); } .il-protiv { fill: var(--protiv); } .il-neo { fill: var(--neodlucni); }
+.il-prozor { fill: var(--narandza-meko); stroke: var(--narandza); stroke-dasharray: 4 3; }
+.il-strelica { stroke: var(--narandza); stroke-width: 2.5; fill: none; }
+.il-vrh { fill: var(--narandza); }
+.il-domet { fill: none; stroke: var(--narandza); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.il-svijet { fill: var(--svijet); }
+.il-kuca { fill: #eded2f; }
+.il-precrtano { stroke: var(--protiv); stroke-width: 3; }
+.il-oblak { fill: var(--list); stroke: var(--siva); stroke-width: 1.2; }
+
+/* kalkulator jednog susreta */
+.kalk { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 1.5rem; }
+.kalk > * { min-width: 0; }
+@media (max-width: 900px) { .kalk { grid-template-columns: minmax(0, 1fr); } }
+.klizaci { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem 1.2rem; }
+@media (max-width: 520px) { .klizaci { grid-template-columns: minmax(0, 1fr); } }
+.klizac { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+.klizac label { font-family: var(--f-mono); font-size: var(--t-0); }
+.klizac output { font-family: var(--f-mono); font-size: var(--t-0); font-variant-numeric: tabular-nums; }
+.klizac input { grid-column: 1 / -1; width: 100%; accent-color: var(--narandza); }
+.racun { font-family: var(--f-mono); font-size: 0.86rem; line-height: 1.7; background: var(--papir); border-radius: 4px; padding: 0.7rem 0.9rem; overflow-x: auto; white-space: pre; }
+.racun .da { color: var(--za); font-weight: 600; } .racun .ne { color: var(--protiv); font-weight: 600; }
+.dugmad { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+
+/* putanje stava */
+.putanje-okvir { background: var(--svijet); border-radius: 6px; padding: 0.6rem; }
+canvas.putanje { width: 100%; aspect-ratio: 2 / 1; display: block; }
+.izbor { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.6rem; }
+.izbor button { border-color: var(--linija); color: var(--siva); }
+.izbor button[aria-pressed="true"] { border-color: var(--narandza); color: var(--list); background: var(--narandza); }
+.legenda { display: flex; gap: 1rem; flex-wrap: wrap; font-size: var(--t-0); color: var(--siva); margin-top: 0.4rem; }
+.legenda i { display: inline-block; width: 0.8em; height: 0.8em; border-radius: 50%; margin-right: 0.35em; vertical-align: -0.05em; }
+.potpis { font-size: var(--t-0); color: var(--siva); margin-top: 0.4rem; }
+.potpis b { color: var(--tinta); font-weight: 600; }
+
+/* grafikoni iz mjerenja */
+svg.grafik { width: 100%; height: auto; display: block; overflow: visible; }
+.g-mreza { stroke: var(--linija); stroke-width: 1; } .g-os { stroke: var(--siva); stroke-width: 1; }
+.g-oznaka { fill: var(--siva); font: 12px var(--f-mono); } .g-naslov-x { fill: var(--siva); font: 12px var(--f-tekst); }
+.g-vrijednost { fill: var(--tinta); font: 500 12px var(--f-mono); }
+.g-raspon { stroke: var(--narandza); stroke-width: 3; stroke-linecap: round; opacity: 0.35; }
+.g-tacka { fill: var(--narandza); }
+.g-ref { stroke: var(--siva); stroke-width: 1.2; stroke-dasharray: 4 4; }
+.g-ref-tekst { fill: var(--siva); font: italic 12px var(--f-tekst); }
+
+/* kod */
+.kodovi { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; }
+.kodovi > * { min-width: 0; }
+@media (max-width: 900px) { .kodovi { grid-template-columns: minmax(0, 1fr); } }
+.kod { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; overflow: hidden; }
+.kod .jezik { font-family: var(--f-mono); font-size: var(--t-0); padding: 0.4rem 0.8rem; border-bottom: 1px solid var(--linija); color: var(--siva); }
+.kod pre { margin: 0; padding: 0.8rem; overflow-x: auto; }
+.kod code { font-size: 14px; line-height: 1.55; white-space: pre; }
+.kod .kom { color: var(--siva); font-style: italic; }
+.kod mark { background: var(--narandza-meko); color: inherit; border-radius: 2px; padding: 0 0.15em; }
+.kod mark b { color: var(--narandza); font-family: var(--f-tekst); }
+.oblacici { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: 1rem; margin-top: 1rem; }
+.oblacici div { border-left: 3px solid var(--narandza); padding-left: 0.8rem; }
+.oblacici b.br { font-family: var(--f-mono); color: var(--narandza); margin-right: 0.3rem; }
+
+/* probaj */
+.veze { display: grid; gap: 0.7rem; }
+.veze a { display: block; text-decoration: none; background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 0.8rem 1rem; color: var(--tinta); }
+.veze a:hover { border-color: var(--narandza); }
+.veze a b { color: var(--narandza); }
+.veze a span { display: block; color: var(--siva); font-size: var(--t-0); }
+.literatura { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.35rem; font-size: 0.92rem; }
+
+/* donja navigacija */
+.navigacija { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--papir); border-top: 1px solid var(--linija);
+  padding-bottom: env(safe-area-inset-bottom, 0px); }
+.navigacija .okvir { display: flex; align-items: center; gap: 0.8rem; padding-block: 0.5rem; }
+.navigacija .naslov-slajda { flex: 1; min-width: 0; font-size: var(--t-0); color: var(--siva); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.navigacija .broj { font-family: var(--f-mono); font-size: var(--t-0); font-variant-numeric: tabular-nums; }
+.napredak { position: absolute; top: -1px; left: 0; height: 2px; background: var(--narandza); transition: width 0.25s; }
+main.citanje ~ .navigacija { display: none; }
+@media (prefers-reduced-motion: reduce) { .napredak { transition: none; } }
+</style>
+<style>
+/* Isti okvir kao V04/V05, lokalni fontovi i čitljiv kod bez mrežnih zavisnosti. */
+:root { --f-tekst:"Segoe UI",Arial,sans-serif; --f-mono:Consolas,"Courier New",monospace; --f-naslov:Georgia,Cambria,serif; }
+body { line-height:1.3; }
+.okvir { max-width:1400px; padding-inline:24px; }
+.slajd { padding-block:1.1rem 4.5rem; }
+.glava { margin-bottom:.85rem; gap:.25rem; }
+.glava h2 { font-size:2rem; max-width:none; }
+.glava .podnaslov { font-size:1.05rem; }
+.prevod { display:grid; grid-template-columns:minmax(0, 1.05fr) minmax(0, 1.55fr); gap:1rem; align-items:start; }
+.prevod > * { min-width:0; }
+blockquote { margin:0; padding:.6rem .8rem; background:var(--list); border-left:4px solid var(--narandza); font:1rem/1.35 var(--f-naslov); }
+blockquote cite { display:block; margin-bottom:.25rem; font:16px/1.3 var(--f-tekst); color:var(--siva); }
+.analogija { margin-top:.7rem; }
+.analogija p { margin-top:.3rem; color:var(--siva); font:16px/1.25 var(--f-tekst); }
+.kod code, pre code, code { font-size:16px; }
+.kod code { line-height:1.28; white-space:pre-wrap; overflow-wrap:anywhere; }
+.kod pre { padding:.5rem .7rem; overflow:visible; font:16px/1.28 var(--f-mono); }
+.kod .jezik { font-size:16px; padding:.3rem .8rem; }
+.analogija pre { margin:.2rem 0; padding:.4rem; font:16px/1.25 var(--f-mono); border-left:2px solid var(--linija); background:var(--list); white-space:pre-wrap; overflow-wrap:anywhere; }
+.obrazlozenja { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:.65rem; }
+.obrazlozenja h3, .provjera h3 { font:600 1rem/1.3 var(--f-tekst); color:var(--narandza); margin-bottom:.25rem; }
+.provjera { margin-top:.5rem; border-top:1px solid var(--linija); padding-top:.4rem; }
+.provjera pre { margin:.3rem 0; font:16px/1.3 var(--f-mono); white-space:pre-wrap; overflow-wrap:anywhere; }
+.provjera p { font-size:17px; }
+.kw { color:var(--narandza); font-weight:bold; }
+.str { color:var(--za); }
+.num { color:var(--narandza); }
+.kom { color:var(--siva); font-style:italic; }
+.naslov { max-width:1050px; padding-top:2rem; }
+.naslov h1 { font-size:3.3rem; margin:.5rem 0 1rem; }
+.naslov .teza { font:1.65rem/1.4 var(--f-naslov); margin-bottom:1.5rem; }
+.put { display:flex; gap:.65rem; flex-wrap:wrap; margin:1.2rem 0; }
+.put span { border-bottom:3px solid var(--narandza); padding:.4rem .6rem; }
+table { border-collapse:collapse; width:100%; background:var(--list); font-size:18px; }
+th, td { text-align:left; padding:.6rem .8rem; border-bottom:1px solid var(--linija); vertical-align:top; }
+th { color:var(--narandza); }
+.mjerena { font:600 2.3rem/1.1 var(--f-mono); color:var(--narandza); }
+.predvidjanje { margin:1rem 0; padding:1rem; border-left:4px solid var(--narandza); background:var(--list); }
+.chat { margin-top:1.3rem; font-size:1.5rem; line-height:1.7; }
+.chat code { font-size:1.5rem; }
+details.odgovor { margin-top:1rem; }
+details.odgovor summary { cursor:pointer; color:var(--narandza); font-size:1.2rem; padding:.5rem 0; }
+.izvori { margin-top:.7rem; color:var(--siva); font-size:16px; }
+.spisak { display:grid; gap:.85rem; padding-left:1.2rem; }
+.veze a span { font-size:16px; }
+@media (max-width:900px) {
+ .prevod, .obrazlozenja { grid-template-columns:minmax(0,1fr); }
+ .okvir { padding-inline:16px; }
+ .naslov h1 { font-size:2.4rem; }
+ .naslov { padding-top:.5rem; }
+ table { font-size:16px; }
+ th,td { padding:.45rem .3rem; overflow-wrap:anywhere; }
+ .vrh .okvir { gap:.4rem; }
+ .vrh b { font-size:16px; }
+}
+@media print {
+ @page { size:A4 landscape; margin:10mm; }
+ html { font-size:16px; }
+ .vrh,.navigacija { display:none; }
+ main.prezentacija .slajd, main.citanje .slajd { display:block; min-height:0; padding:0; break-after:page; border:0; }
+ .okvir { max-width:none; padding:0; }
+ details.odgovor > * { display:block; }
+}
+</style>
+</head>
+<body>
+
+<header class="vrh"><div class="okvir">
+ <b>V06 · Od modela na papiru do koda</b>
+ <div class="nacin" role="group" aria-label="Način prikaza">
+  <button id="nacin-prezentacija" type="button" aria-pressed="true">Prezentacija</button>
+  <button id="nacin-citanje" type="button" aria-pressed="false">Čitanje</button>
+ </div>
+</div></header>
+<main id="slajdovi" class="prezentacija"><section class="slajd" id="s1" data-naslov="Od modela na papiru do koda"><div class="okvir"><div class="glava"><span class="oznaka">13.11.2026. · 16:00–16:05</span><h2>Od modela na papiru do koda</h2></div><div class="naslov">
+<p class="teza">Na kraju imamo naselje koje možemo pregledati i ponoviti istim seedom.</p>
+<p>Primjer „Iznajmljivanje alata u naselju“ · NetLogo 7.0.4<br>Modeliranje i simulacije · FIT UNMO · Adil Eminagić</p>
+<div class="put"><span>A · svijet i centar</span><span>B · domaćinstva</span><span>C · atributi</span><span>D · poznanstva</span><span>E · ponovljivost</span></div>
+<p>Svaki korak počinje rečenicom iz A4, zatim prelazi u kod i završava provjerom.</p>
+<p style="margin-top:.8rem">Slajderi <code>p-potrebe</code>, <code>naknada</code>, <code>snaga-uticaja</code> i prekidač <code>razgovor?</code> danas se ne koriste; trebaju od vježbi 7 i 8.</p>
+<p class="izvori">Strelice ← → mijenjaju slajd. „Čitanje“ prikazuje sve slajdove. Kod je tekst koji možete kopirati.</p></div></div></section>
+<section class="slajd" id="s2" data-naslov="Rječnik prevođenja"><div class="okvir"><div class="glava"><span class="oznaka">16:00–16:05</span><h2>Rječnik prevođenja</h2></div><table><thead><tr><th>A4 pojam</th><th>NetLogo</th><th>C# analogija</th></tr></thead><tbody>
+<tr><td>Lokacija u naselju</td><td><code>patch</code></td><td>Objekt <code>Patch</code> u mreži lokacija</td></tr>
+<tr><td>Domaćinstva</td><td><code>breed [domacinstva domacinstvo]</code></td><td>Klasa <code>Domacinstvo : Turtle</code> i kolekcija objekata</td></tr>
+<tr><td>Vlastiti atributi</td><td><code>domacinstva-own</code>, <code>patches-own</code></td><td>Polja klase domaćinstva ili patcha</td></tr>
+<tr><td>Uzajamna poznanstva</td><td><code>undirected-link-breed</code></td><td>Veza s referencama na dva objekta, bez smjera</td></tr>
+<tr><td>Centar dostupan svim procedurama</td><td><code>globals [centar]</code></td><td>Zajednička referenca na jedan <code>Patch</code></td></tr>
+<tr><td>Parametri i ponavljanje</td><td>Slajder <code>zaliha</code>, prekidač <code>razgovor?</code>, ulaz <code>sjeme</code></td><td>Brojčana postavka, <code>bool</code>, broj za generator</td></tr>
+<tr><td>Agenti izvršavaju pravilo</td><td><code>ask</code>, <code>self</code>, <code>myself</code></td><td><code>foreach</code> nad promiješanom kopijom, tekući objekt, objekt iz vanjske lambde</td></tr>
+</tbody></table><p class="izvori">A4 §3–4. C# analogije slijede materijal „NetLogo kroz C#“ iz V02. Kraći C# isječci prikazuju smisao operacija, ne zaseban izvršiv model. Generator u C# ne daje isti niz kao NetLogo.</p></div></section>
+<section class="slajd" id="s3" data-naslov="Setup povezuje četiri provjerljiva dijela"><div class="okvir"><div class="glava"><span class="oznaka">16:05–16:17 · A, pregled A–E</span><h2>Setup povezuje četiri provjerljiva dijela</h2></div><div class="prevod"><div><blockquote><cite>A4 §3</cite>„Naselje dimenzija 21 × 21 patch, bez spajanja rubova [P].“</blockquote><div class="analogija"><strong>C# · analogija</strong><pre><code>ClearAll();
+RandomSeed(sjeme);
+PostaviSvijet();
+PostaviCentar();
+PostaviDomacinstva();
+PostaviPoznanstva();
+ResetTicks();</code></pre><p>Pozivi metoda imaju isti redoslijed. Provjera granica stava odgovara uslovu koji baca izuzetak.</p></div></div><div class="kod"><div class="jezik">NetLogo · isječak iz v06-alat-svijet.nlogox</div><pre><code data-model="svijet"><span class="kw">to</span> setup
+  <span class="kw">clear-all</span>
+  <span class="kw">random-seed</span> sjeme
+  <span class="kw">if</span> pocetni-stav-min &gt; pocetni-stav-max [
+    <span class="kw">error</span> <span class="str">&quot;Početni minimum stava treba biti manji ili jednak maksimumu.&quot;</span>
+  ]
+  postavi-svijet
+  postavi-centar
+  postavi-domacinstva
+  postavi-poznanstva
+  <span class="kom">;; korak E — ponoviti setup i uporediti sortirane zapise.</span>
+  <span class="kw">reset-ticks</span>
+<span class="kw">end</span></code></pre></div></div><div class="obrazlozenja"><div><h3>Zašto ovako</h3><p>Svijet prethodi centru, centar izboru položaja, a domaćinstva vezama. Tijela dopunjavamo redom A–D, pa provjeravamo E.</p></div><div><h3>Zašto ne sve u jednoj dugoj proceduri?</h3><p>Teže je izdvojiti uzrok kada provjera padne. Nakon svakog koraka ponovo pokrećemo <code>setup</code>.</p></div></div><div class="provjera"><h3>Provjera · Command Center, posmatrač</h3><pre>setup
+show count patches
+show ticks</pre><p>A: 441 patch. E: ticks je 0. U početnoj datoteci tijela podprocedura već su pripremljena za dopunjavanje.</p></div></div></section>
+<section class="slajd" id="s4" data-naslov="A · naselje ima rubove"><div class="okvir"><div class="glava"><span class="oznaka">16:05–16:17</span><h2>A · naselje ima rubove</h2></div><div class="prevod"><div><blockquote><cite>A4 §3</cite>„Naselje dimenzija 21 × 21 patch, bez spajanja rubova [P].“</blockquote><div class="analogija"><strong>C# · analogija</strong><pre><code>World.ClearAll(-10, 10, -10, 10, wrap: false);</code></pre><p>Analogija iz pomoćnog C# svijeta: mreža s rubovima. Koordinate su centrirane oko ishodišta.</p></div></div><div class="kod"><div class="jezik">NetLogo · isječak iz v06-alat-svijet.nlogox</div><pre><code data-model="svijet"><span class="kw">to</span> postavi-svijet
+  <span class="kom">;; korak A — prostor bez spajanja rubova.</span>
+  <span class="kw">resize-world</span> <span class="num">-10</span> <span class="num">10</span> <span class="num">-10</span> <span class="num">10</span>
+  <span class="kw">set-topology</span> false false
+  <span class="kw">ask</span> patches [<span class="kw">set</span> pcolor <span class="num">9</span>]
+<span class="kw">end</span></code></pre></div></div><div class="obrazlozenja"><div><h3>Zašto ovako</h3><p>Raspon −10..10 uključuje oba kraja i daje 21 lokaciju po osi. Centar ima prirodnu adresu (0, 0).</p></div><div><h3>Zašto ne spajanje rubova?</h3><p>Domaćinstvo na suprotnoj strani postalo bi bliski susjed preko ruba. To mijenja dopuštene parove poznanstava.</p></div></div><div class="provjera"><h3>Provjera · Command Center, posmatrač</h3><pre>show count patches
+show [distancexy 10 0] of patch -10 0
+show [distancexy 0 10] of patch 0 -10</pre><p>441, 20, 20. U postavkama: obje ose −10..10, oba spajanja isključena.</p></div></div></section>
+<section class="slajd" id="s5" data-naslov="A i C · centar je patch s vlastitim stanjem"><div class="okvir"><div class="glava"><span class="oznaka">16:05–16:17 · raspoloživo dopuniti 16:31–16:44</span><h2>A i C · centar je patch s vlastitim stanjem</h2></div><div class="prevod"><div><blockquote><cite>A4 §3</cite>„Jedan, usred naselja. Prima zahtjeve, dodjeljuje alat, naplaćuje naknadu i prima vraćeni alat.“</blockquote><div class="analogija"><strong>C# · analogija</strong><pre><code>Patch centar = World.PatchAt(0, 0);
+centar.Raspolozivo = zaliha;</code></pre><p><code>globals [centar]</code> je zajednička referenca. <code>patches-own [raspolozivo]</code> daje polje patchevima. Koristi ga centar.</p></div></div><div class="kod"><div class="jezik">NetLogo · isječak iz v06-alat-svijet.nlogox</div><pre><code data-model="svijet"><span class="kw">to</span> postavi-centar
+  <span class="kom">;; korak A — centar na sredini naselja.</span>
+  <span class="kw">set</span> centar patch <span class="num">0</span> <span class="num">0</span>
+  <span class="kw">ask</span> centar [
+    <span class="kw">set</span> pcolor orange
+    <span class="kom">;; korak C — početno su svi komadi raspoloživi.</span>
+    <span class="kw">set</span> raspolozivo zaliha
+  ]
+<span class="kw">end</span></code></pre></div></div><div class="obrazlozenja"><div><h3>Zašto ovako</h3><p>Centar ostaje na jednoj lokaciji. Patch može imati stanje i izvršavati pravila dodjele, iako se ne kreće.</p></div><div><h3>Zašto ne poseban turtle ili breed?</h3><p>Za ovaj model dodatni pokretni objekt ne donosi potrebno ponašanje, a traži usklađivanje objekta centra s njegovom lokacijom.</p></div></div><div class="provjera"><h3>Provjera · Command Center, posmatrač</h3><pre>show centar
+show count patches with [pcolor = orange]
+show [raspolozivo] of centar</pre><p>A: (patch 0 0), jedan narandžasti patch. C: raspoloživo je 10 uz zalihu 10. U koraku A dovoljno je prvo odrediti centar.</p></div></div></section>
+<section class="slajd" id="s6" data-naslov="A · Kontrolna tačka (60 s)"><div class="okvir"><div class="glava"><span class="oznaka">16:16–16:17 · unutar koraka A</span><h2>A · Kontrolna tačka (60 s)</h2></div><div class="predvidjanje"><p>Pokrenite <code>setup</code> i provjeru A.</p><p class="chat"><code>A | radi</code><br>ili<br><code>A | poruka greške</code></p></div><p>Ako zaostajete: <a href="../modeli/v06-blokovi-za-lijepljenje.html#A">blokovi za lijepljenje · A</a>. Za dolazak iz početne datoteke primijenite sve blokove A do ovog koraka.</p><p style="margin-top:1rem">Ako ste završili: osmislite dodatnu provjeru i recite koju grešku otkriva.</p><p class="izvori">Za snimak: izgovoriti oznaku koraka; poslije provjere ostaviti oko 10 s mirnog prikaza koda.</p></div></section>
+<section class="slajd" id="s7" data-naslov="B · prvo biramo lokacije, pa stvaramo domaćinstva"><div class="okvir"><div class="glava"><span class="oznaka">16:17–16:31</span><h2>B · prvo biramo lokacije, pa stvaramo domaćinstva</h2></div><div class="prevod"><div><blockquote><cite>A4 §3</cite>„100, jedan turtle = jedno domaćinstvo, na stalnim, slučajno izabranim položajima [P].“</blockquote><div class="analogija"><strong>C# · analogija</strong><pre><code>foreach (var p in patches
+    .Where(p =&gt; p != centar).NOf(100))
+    p.Sprout&lt;Domacinstvo&gt;(1, d =&gt; { });</code></pre><p><code>NOf</code> bira bez ponavljanja. <code>Sprout</code> postavlja turtle u središte izabranog patcha. NetLogo <code>ask</code> obrađuje izabrane patcheve slučajnim redom.</p></div></div><div class="kod"><div class="jezik">NetLogo · isječak iz v06-alat-svijet.nlogox</div><pre><code data-model="svijet">  <span class="kw">ask</span> <span class="kw">n-of</span> <span class="num">100</span> patches <span class="kw">with</span> [self != centar] [
+    <span class="kw">sprout-domacinstva</span> <span class="num">1</span> [
+      <span class="kw">set</span> shape <span class="str">&quot;house&quot;</span>
+      <span class="kw">set</span> size <span class="num">0.8</span>
+      <span class="kw">set</span> color sky</code></pre></div></div><div class="obrazlozenja"><div><h3>Zašto ovako</h3><p>Zaseban patch i prazan centar su <strong>odluke implementacije</strong>; A4 ih ne zahtijeva izričito. Različiti patchevi olakšavaju inspekciju, a prazan centar čuva njegov prikaz. Isječak: atributi i zatvaranje slijede u C; blok B već ima zatvorene zagrade.</p></div><div><h3>Zašto ne <code>create-domacinstva 100 [setxy random-xcor random-ycor]</code>?</h3><p>Položaji mogu dijeliti patch i biti izvan njegovog središta. Izmjereno: barem jedan duplikat u 100 od 100 pokretanja. Kontinuirane koordinate mijenjaju geometriju dometa 4 u odnosu na ovu mrežu.</p></div></div><div class="provjera"><h3>Provjera · Command Center, posmatrač</h3><pre>show count domacinstva
+show length remove-duplicates [patch-here] of domacinstva
+show count domacinstva with [patch-here = centar]
+show count domacinstva with [xcor != pxcor or ycor != pycor]</pre><p>Redom 100, 100, 0, 0. U pogrešnoj setxy verziji ostalo je 84–94 različitih patcheva. NetLogo i dalje precizno računa udaljenost, ali raspored više ne prati ovu implementaciju.</p></div></div></section>
+<section class="slajd" id="s8" data-naslov="B · Kontrolna tačka (60 s)"><div class="okvir"><div class="glava"><span class="oznaka">16:30–16:31 · unutar koraka B</span><h2>B · Kontrolna tačka (60 s)</h2></div><div class="predvidjanje"><p>Pokrenite <code>setup</code> i provjeru B.</p><p class="chat"><code>B | radi</code><br>ili<br><code>B | poruka greške</code></p></div><p>Ako zaostajete: <a href="../modeli/v06-blokovi-za-lijepljenje.html#B">blokovi za lijepljenje · B</a>. Za dolazak iz početne datoteke primijenite sve blokove A do ovog koraka.</p><p style="margin-top:1rem">Ako ste završili: osmislite dodatnu provjeru i recite koju grešku otkriva.</p><p class="izvori">Za snimak: izgovoriti oznaku koraka; poslije provjere ostaviti oko 10 s mirnog prikaza koda.</p></div></section>
+<section class="slajd" id="s9" data-naslov="C · početne raspodjele su pretpostavke"><div class="okvir"><div class="glava"><span class="oznaka">16:31–16:44</span><h2>C · početne raspodjele su pretpostavke</h2></div><div class="prevod"><div><blockquote><cite>A4 §4</cite>„Početno ravnomjerna raspodjela 0–1 [P].“</blockquote><div class="analogija"><strong>C# · analogija</strong><pre><code>d.Stav = min + rng.NextDouble()
+    * (max - min);
+d.Integritet = rng.NextDouble();
+d.Budzet = rng.NextDouble() * 8;</code></pre><p><code>NextDouble()</code> je analogija za <code>random-float 1</code>. Za ovu osnovnu verziju granice stava su 0 i 1.</p></div></div><div class="kod"><div class="jezik">NetLogo · isječak iz v06-alat-svijet.nlogox</div><pre><code data-model="svijet">      <span class="kw">set</span> stav pocetni-stav-min + <span class="kw">random-float</span> (pocetni-stav-max - pocetni-stav-min)
+      <span class="kw">set</span> integritet <span class="kw">random-float</span> <span class="num">1</span>
+      <span class="kw">set</span> budzet <span class="kw">random-float</span> <span class="num">8</span></code></pre></div></div><div class="obrazlozenja"><div><h3>Zašto ovako</h3><p><code>random-float</code> daje realne vrijednosti. Ravnomjernost dolazi iz A4, a nije zaključak iz podataka. Kasnije ispitujemo osjetljivost na početni stav.</p></div><div><h3>Zašto ne <code>random 1</code>?</h3><p>Cjelobrojni rezultat bio bi uvijek 0. <code>random 8</code> daje cijele iznose, a ne traženu kontinuiranu raspodjelu budžeta.</p></div></div><div class="provjera"><h3>Provjera · Command Center, posmatrač</h3><pre>show count domacinstva with [stav &lt; 0 or stav &gt; 1 or integritet &lt; 0 or integritet &gt; 1 or budzet &lt; 0 or budzet &gt; 8]</pre><p>0 vrijednosti izvan raspona. Gornja granica izvlačenja je isključena: stav i integritet su manji od 1, budžet je manji od 8. Sama provjera raspona ne dokazuje ravnomjernost.</p></div></div></section>
+<section class="slajd" id="s10" data-naslov="C · „nema“ čuva razliku između odsustva i neuspjeha"><div class="okvir"><div class="glava"><span class="oznaka">16:31–16:44</span><h2>C · „nema“ čuva razliku između odsustva i neuspjeha</h2></div><div class="prevod"><div><blockquote><cite>A4 §4</cite>„1 = uspješna posudba, 0 = zahtjev odbijen zbog nestašice. Početno „nema“.“</blockquote><div class="analogija"><strong>C# · analogija</strong><pre><code>d.Posudba = 0;
+int? iskustvo = null;
+d.PosudioIkad = false;</code></pre><p>C# može izraziti tri stanja pomoću <code>int?</code>: null, 0 i 1. U ovom NetLogo kodu čuvamo tekst „nema“, zatim broj 0 ili 1.</p></div></div><div class="kod"><div class="jezik">NetLogo · isječak iz v06-alat-svijet.nlogox</div><pre><code data-model="svijet">      <span class="kw">set</span> posudba <span class="num">0</span>
+      <span class="kw">set</span> iskustvo <span class="str">&quot;nema&quot;</span>
+      <span class="kw">set</span> posudio-ikad? false</code></pre></div></div><div class="obrazlozenja"><div><h3>Zašto ovako</h3><p><code>posudba</code> opisuje sadašnje držanje alata, <code>iskustvo</code> posljednji ishod, a <code>posudio-ikad?</code> služi budućoj mjeri dosega iz A4 §6.</p></div><div><h3>Zašto ne <code>set iskustvo 0</code>?</h3><p>Svi bi počeli s lošim iskustvom koje se nije dogodilo. Kasniji razgovor prenosio bi izmišljeno odbijanje.</p></div></div><div class="provjera"><h3>Provjera · Command Center, posmatrač</h3><pre>show [raspolozivo] of centar
+show count domacinstva with [stav &lt; 0 or stav &gt; 1 or integritet &lt; 0 or integritet &gt; 1 or budzet &lt; 0 or budzet &gt; 8 or posudba != 0 or iskustvo != &quot;nema&quot; or posudio-ikad?]</pre><p>Uz osnovne postavke C daje 10 i 0. <code>domacinstva-own [stav integritet budzet posudba iskustvo posudio-ikad?]</code> deklarira ova polja za svako domaćinstvo.</p></div></div></section>
+<section class="slajd" id="s11" data-naslov="C · ispravan raspon ne dokazuje ispravnu raspodjelu"><div class="okvir"><div class="glava"><span class="oznaka">16:31–16:44 · namjerna greška</span><h2>C · ispravan raspon ne dokazuje ispravnu raspodjelu</h2></div><blockquote><cite>A4 §4</cite>„Početno ravnomjerna raspodjela 0–1 [P].“</blockquote>
+<p style="margin-top:.6rem">Predvidite koja provjera otkriva grešku. U inicijalizaciji privremeno zamijenite samo red za stav, zatim Check i <code>setup</code>. Granice početnog stava ostaju 0 i 1.</p>
+<div class="obrazlozenja"><div><h3>Namjerna greška</h3><pre><code>set stav random 1</code></pre><p>C# analogija: <code>d.Stav = rng.Next(1);</code></p></div>
+<div><h3>Ispravka za granice 0 i 1</h3><pre><code>set stav random-float 1</code></pre><p>C# analogija: <code>d.Stav = rng.NextDouble();</code></p></div></div>
+<div class="provjera"><h3>Provjera · poslije setup</h3><pre>show count domacinstva with [stav &lt; 0 or stav &gt; 1]
+show length remove-duplicates [stav] of domacinstva
+show mean [stav] of domacinstva</pre></div>
+<table><thead><tr><th>Izmjereno · seedovi 1–100</th><th>Izvan raspona</th><th>Različitih stavova</th><th>Sredina · seed 1</th></tr></thead><tbody>
+<tr><td><code>random 1</code></td><td>0</td><td>1</td><td>0</td></tr>
+<tr><td><code>random-float 1</code></td><td>0</td><td>100</td><td>0,5161</td></tr></tbody></table>
+<p style="margin-top:.5rem">Raspon prolazi u svih 100 pokretanja. Broj različitih vrijednosti otkriva kolaps na nulu; sam ne dokazuje ravnomjernost. Vratite izvorni parametarski red iz bloka C.</p>
+<p class="izvori">NetLogo 7.0.4 headless · mjerenje: <a href="../mjerenja/random-1.csv">CSV s greškom</a>, <a href="../mjerenja/random-float-1.csv">CSV s ispravkom</a>. Prve dvije kolone važe za svaki seed; sredina je iz pokretanja sa seedom 1.</p></div></section>
+<section class="slajd" id="s12" data-naslov="C · Kontrolna tačka (60 s)"><div class="okvir"><div class="glava"><span class="oznaka">16:43–16:44 · unutar koraka C</span><h2>C · Kontrolna tačka (60 s)</h2></div><div class="predvidjanje"><p>Pokrenite <code>setup</code> i provjeru C.</p><p class="chat"><code>C | radi</code><br>ili<br><code>C | poruka greške</code></p></div><p>Ako zaostajete: <a href="../modeli/v06-blokovi-za-lijepljenje.html#C">blokovi za lijepljenje · C</a>. Za dolazak iz početne datoteke primijenite sve blokove A do ovog koraka.</p><p style="margin-top:1rem">Ako ste završili: osmislite dodatnu provjeru i recite koju grešku otkriva.</p><p class="izvori">Za snimak: izgovoriti oznaku koraka; poslije provjere ostaviti oko 10 s mirnog prikaza koda.</p></div></section>
+<section class="slajd" id="s13" data-naslov="D · jednom po paru, zatim jedno izvlačenje"><div class="okvir"><div class="glava"><span class="oznaka">16:44–17:00</span><h2>D · jednom po paru, zatim jedno izvlačenje</h2></div><div class="prevod"><div><blockquote><cite>A4 §3</cite>„Svaki par domaćinstava udaljenih najviše 4 patcha povezan je s vjerovatnoćom 0,3 [P]. Veze su uzajamne i stalne.“</blockquote><div class="analogija"><strong>C# · analogija</strong><pre><code>foreach (var a in domacinstva)
+ foreach (var b in domacinstva.Where(
+  b =&gt; b.Who &gt; a.Who &amp;&amp;
+       b.Distance(a) &lt;= 4))
+  if (rng.NextDouble() &lt; 0.3)
+   PoveziUzajamno(a, b);</code></pre><p>C# imena <code>a</code> i <code>b</code> razjašnjavaju kontekst. NetLogo dodatno miješa redoslijed svakog <code>ask</code>.</p></div></div><div class="kod"><div class="jezik">NetLogo · isječak iz v06-alat-svijet.nlogox</div><pre><code data-model="svijet"><span class="kw">to</span> postavi-poznanstva
+  <span class="kom">;; korak D — jedan pokušaj po dopuštenom neuređenom paru.</span>
+  <span class="kw">ask</span> domacinstva [
+    <span class="kw">let</span> kandidati (<span class="kw">other</span> domacinstva <span class="kw">in-radius</span> <span class="num">4</span>) <span class="kw">with</span> [who &gt; [who] of myself]
+    <span class="kw">ask</span> kandidati [
+      <span class="kw">if</span> <span class="kw">random-float</span> <span class="num">1</span> &lt; <span class="num">0.3</span> [
+        <span class="kw">create-poznanstvo-with</span> myself [
+          <span class="kw">set</span> color gray
+          <span class="kw">set</span> thickness <span class="num">0.08</span>
+        ]
+      ]
+    ]
+  ]
+<span class="kw">end</span></code></pre></div></div><div class="obrazlozenja"><div><h3>Zašto ovako</h3><p><code>who &gt; [who] of myself</code> uzima samo drugi kraj s većim ID-em. U <code>with</code> je <code>self</code> kandidat, <code>myself</code> vanjsko domaćinstvo. U unutrašnjem <code>ask</code> veza nastaje prema vanjskom domaćinstvu.</p></div><div><h3>Zašto ne izostaviti uslov s <code>who</code>?</h3><p>Svaki par dobija dva pokušaja. Vjerovatnoća barem jednog uspjeha je <strong>1 − 0,7² = 0,51</strong> (račun iz pravila). Ne nastaju duple neusmjerene veze, ali mreža postaje gušća. <code>undirected-link-breed [poznanstva poznanstvo]</code> izražava uzajamnost.</p></div></div><div class="provjera"><h3>Provjera · Command Center, posmatrač</h3><pre>show count poznanstva with [link-length &gt; 4]</pre><p>0 predugih veza. Ovaj upit prolazi i bez uslova s who, zato treba provjeriti i kod izbora parova.</p></div></div></section>
+<section class="slajd" id="s14" data-naslov="Koliko veza očekujete prije pokretanja?"><div class="okvir"><div class="glava"><span class="oznaka">16:44–17:00 · D</span><h2>Koliko veza očekujete prije pokretanja?</h2></div><div class="predvidjanje"><p>Procijenite broj veza. Šta će se desiti ako izostavimo uslov s <code>who</code>?</p></div>
+<details class="odgovor"><summary>Prikaži mjerenje iz NetLoga</summary><table><thead><tr><th>Verzija</th><th>Medijan veza</th><th>Raspon min–maks</th></tr></thead><tbody>
+<tr><td>Jedan pokušaj po paru</td><td class="mjerena">134</td><td>107–164</td></tr>
+<tr><td>Bez uslova s <code>who</code></td><td class="mjerena">228</td><td>193–271</td></tr>
+</tbody></table><p class="izvori">NetLogo 7.0.4 headless, seedovi 1–100, 100 pokretanja po verziji, iste osnovne postavke. Raspon opisuje pokretanja, nije interval pouzdanosti. Seed 1 u ispravnom modelu daje 154 veze.</p>
+<p style="margin-top:.8rem">Broj 0,3 odnosi se na dopuštene parove u dometu. Mjerenje ne broji sve moguće parove kao kandidate.</p>
+<p class="izvori">Izvor: <a href="../mjerenja/ispravno.csv">ispravni CSV</a>, <a href="../mjerenja/bez-who.csv">CSV bez who</a>. Verzije imaju isti početni raspored i atribute za isti seed. Dodatna izvlačenja u pogrešnoj mreži mijenjaju daljnji slučajni niz.</p></details></div></section>
+<section class="slajd" id="s15" data-naslov="D · Kontrolna tačka (60 s)"><div class="okvir"><div class="glava"><span class="oznaka">16:59–17:00 · unutar koraka D</span><h2>D · Kontrolna tačka (60 s)</h2></div><div class="predvidjanje"><p>Pokrenite <code>setup</code> i provjeru D.</p><p class="chat"><code>D | radi</code><br>ili<br><code>D | poruka greške</code></p></div><p>Ako zaostajete: <a href="../modeli/v06-blokovi-za-lijepljenje.html#D">blokovi za lijepljenje · D</a>. Za dolazak iz početne datoteke primijenite sve blokove A do ovog koraka.</p><p style="margin-top:1rem">Ako ste završili: osmislite dodatnu provjeru i recite koju grešku otkriva.</p><p class="izvori">Za snimak: izgovoriti oznaku koraka; poslije provjere ostaviti oko 10 s mirnog prikaza koda.</p></div></section>
+<section class="slajd" id="s16" data-naslov="E · seed prethodi svim slučajnim izborima"><div class="okvir"><div class="glava"><span class="oznaka">17:00–17:10</span><h2>E · seed prethodi svim slučajnim izborima</h2></div><div class="prevod"><div><blockquote><cite>A4 §7</cite>„Unutar para (s razgovorom i bez njega) koristi se isti seed, a između parova različit.“</blockquote><div class="analogija"><strong>C# · analogija</strong><pre><code>ClearAll();
+rng = new Random(sjeme);
+PostaviSvijet();
+PostaviCentar();
+PostaviDomacinstva();
+PostaviPoznanstva();</code></pre><p>Isti generator i isti slijed poziva ponavljaju stanje unutar te implementacije. Isti broj seeda u C# i NetLogu ne znači identičan niz.</p></div></div><div class="kod"><div class="jezik">NetLogo · isječak iz v06-alat-svijet.nlogox</div><pre><code data-model="svijet">  <span class="kw">clear-all</span>
+  <span class="kw">random-seed</span> sjeme</code></pre></div></div><div class="obrazlozenja"><div><h3>Zašto ovako</h3><p>Odmah nakon brisanja postavljamo početak niza slučajnih brojeva. Seed nije atribut domaćinstva nego postavka generatora.</p></div><div><h3>Zašto ne postaviti seed poslije stvaranja agenata?</h3><p>Raniji položaji i atributi već su izvučeni iz prethodnog stanja generatora. Kasnije postavljanje seeda ih ne vraća.</p></div></div><div class="provjera"><h3>Provjera · Command Center, posmatrač</h3><pre>setup
+show ticks
+show count domacinstva</pre><p>0 i 100. Dva uzastopna setup ne nakupljaju domaćinstva. Za dokaz istog stanja upoređujemo kompletne zapise na sljedećem slajdu.</p></div></div></section>
+<section class="slajd" id="s17" data-naslov="E · isti broj veza još ne dokazuje isti svijet"><div class="okvir"><div class="glava"><span class="oznaka">17:00–17:10</span><h2>E · isti broj veza još ne dokazuje isti svijet</h2></div><div class="prevod"><div><blockquote><cite>A4 §7</cite>„Navode se medijan i raspon (min–maks).“</blockquote><div class="analogija"><strong>C# · analogija</strong><pre><code>bool isti = stariZapis.SequenceEqual(
+    noviZapis);
+Console.WriteLine(isti);</code></pre><p>Poređenje sadržaja sortiranih zapisa odgovara <code>SequenceEqual</code>. Ne poredimo samo reference listi.</p></div></div><div class="kod"><div class="jezik">NetLogo · isječak iz v06-alat-svijet.nlogox</div><pre><code data-model="svijet">  <span class="kom">;; korak E — ponoviti setup i uporediti sortirane zapise.</span>
+  <span class="kw">reset-ticks</span></code></pre></div></div><div class="obrazlozenja"><div><h3>Zašto ovako</h3><p>Reporteri <code>zapis-domacinstava</code> i <code>zapis-poznanstava</code> sortiraju zapis. Poredimo položaje, atribute i krajeve svih veza. A4 §7 traži ponavljanja, a ovaj tehnički test osigurava ponovljiv početak.</p></div><div><h3>Zašto ne porediti samo <code>count poznanstva</code>?</h3><p>Jednak broj veza ne dokazuje jednak svijet: upoređuju se položaji, atributi i parovi. Dvije različite mreže mogu imati jednak broj veza.</p></div></div><div class="provjera"><h3>Provjera · Command Center, posmatrač</h3><pre>setup
+let d zapis-domacinstava let v zapis-poznanstava setup show (list (d = zapis-domacinstava) (v = zapis-poznanstava))
+show zapis-domacinstava
+show zapis-poznanstava</pre><p><code>[true true]</code> za isti seed. Zabilježite ispise, promijenite <code>sjeme</code>, pokrenite <code>setup</code> i uporedite. Mjerenje je provjerilo isti zapis za svaki seed 1–100 i promjenu pri zamjeni seedom većim za 100.</p></div></div></section>
+<section class="slajd" id="s18" data-naslov="E · Kontrolna tačka (60 s)"><div class="okvir"><div class="glava"><span class="oznaka">17:09–17:10 · unutar koraka E</span><h2>E · Kontrolna tačka (60 s)</h2></div><div class="predvidjanje"><p>Pokrenite <code>setup</code> i provjeru E.</p><p class="chat"><code>E | radi</code><br>ili<br><code>E | poruka greške</code></p></div><p>Ako zaostajete: <a href="../modeli/v06-blokovi-za-lijepljenje.html#E">blokovi za lijepljenje · E</a>. Za dolazak iz početne datoteke primijenite sve blokove A do ovog koraka.</p><p style="margin-top:1rem">Ako ste završili: osmislite dodatnu provjeru i recite koju grešku otkriva.</p><p class="izvori">Za snimak: izgovoriti oznaku koraka; poslije provjere ostaviti oko 10 s mirnog prikaza koda.</p></div></section>
+<section class="slajd" id="s19" data-naslov="Česte greške imaju vidljiv trag"><div class="okvir"><div class="glava"><span class="oznaka">17:00–17:10 · pomoć pri provjerama</span><h2>Česte greške imaju vidljiv trag</h2></div><table><thead><tr><th>Greška</th><th>Šta pođe naopako</th><th>Gdje provjeriti</th></tr></thead><tbody>
+<tr><td>Izostavljen <code>clear-all</code></td><td>Stari turtles i veze mogu ostati pri ponovnom setup, pa se stanje nakuplja.</td><td>B: broj domaćinstava poslije ponavljanja</td></tr>
+<tr><td>Seed tek poslije stvaranja</td><td>Položaji i atributi već zavise od ranijeg stanja generatora.</td><td>E: kompletni sortirani zapisi</td></tr>
+<tr><td>Par obrađen iz oba smjera</td><td>Dva pokušaja povećavaju vjerovatnoću povezivanja.</td><td>D: uslov s who i izmjeren broj veza</td></tr>
+<tr><td><code>setxy random-xcor random-ycor</code></td><td>Duplikati i položaji izvan središta patcha.</td><td>B: različiti patchevi i položaji</td></tr>
+<tr><td>Izostavljen <code>reset-ticks</code></td><td>Nakon clear-all brojač nije inicijalizovan. Upit ticks ili naredni tick može prijaviti grešku.</td><td>E: ticks nakon setup</td></tr>
+</tbody></table><p class="izvori">Command Center je konzola za upite. C# analogija je ispis stanja i provjera uslova poslije poziva Setup(). Ispitujemo stanje modela, ne samo uspješnu kompilaciju.</p></div></section>
+<section class="slajd" id="s20" data-naslov="V07 · ručna sedmica s jednim alatom"><div class="okvir"><div class="glava"><span class="oznaka">17:10–17:25 · most prema go</span><h2>V07 · ručna sedmica s jednim alatom</h2></div><blockquote><cite>A4 §5</cite>„Centar obrađuje zahtjeve slučajnim redom.“</blockquote><div class="put"><span>Povrat i budžet</span><span>Razgovor</span><span>Potreba i zahtjev</span><span>Dodjela</span></div>
+<p>Zadani primjer: zaliha 1, naknada 2 KM. Na početku sedmice 3 A vraća alat; budžeti A/B/C su 3/2/1 KM. Svi imaju potrebu i namjeru zahtjeva; centar obrađuje B pa A. U ovoj ručnoj provjeri stavove držimo fiksnim.</p>
+<table style="margin-top:.7rem"><thead><tr><th>Domaćinstvo</th><th>Ishod sedmice 3</th><th>Budžet</th><th>Iskustvo</th></tr></thead><tbody>
+<tr><td>B</td><td>Posuđuje jedini alat</td><td>0 KM</td><td>1</td></tr>
+<tr><td>A</td><td>Odbijanje zbog nestašice</td><td>3 KM</td><td>0</td></tr>
+<tr><td>C</td><td>Zahtjev ograničen budžetom</td><td>1 KM</td><td>Ostaje prethodno</td></tr></tbody></table>
+<p style="margin-top:.7rem">Zadovoljena 1 od 3 potrebe; jedno odbijanje i jedno ograničenje budžetom. Na početku sedmice 4 B vraća alat: raspoloživo je 1. Nakon uplate budžeti A/B/C su 7/4/5 KM.</p>
+<p class="izvori">Ovo je račun iz zadanog stanja, bez slučajnog pokretanja. V07: <code>go</code> (C#: <code>Go()</code>) poziva korake redom, zatim <code>tick</code>. Razgovor dodajemo na V08.</p></div></section>
+<section class="slajd" id="s21" data-naslov="Sačuvajte radnu kopiju i provjere A–E"><div class="okvir"><div class="glava"><span class="oznaka">17:25–17:30</span><h2>Sačuvajte radnu kopiju i provjere A–E</h2></div><div class="veze">
+<a href="../modeli/v06-alat-pocetak.nlogox"><b>Radna kopija početne datoteke</b><span>Sačuvajte vlastitu dopunjenu verziju za nastavak kodiranja.</span></a>
+<a href="../modeli/v06-alat-svijet.nlogox"><b>v06-alat-svijet.nlogox · za poređenje</b><span>Uporedite procedure i stanje nakon setup s pripremljenom inicijalizacijom.</span></a>
+<a href="../../vjezbe-05/primjer-model-na-papiru-alat.html"><b>A4 · pravila ostaju polazište</b><span>Svijet, atributi, poznanstva i redoslijed sedmice.</span></a>
+</div><p style="margin-top:1rem">Završni chat: <strong>jedno A4 pravilo, njegov kod i provjera</strong>.</p><p style="margin-top:1rem;font-size:1.4rem">Pitanja o temama šaljite Adilu Joldiću na <a href="mailto:adil@edu.fit.ba">adil@edu.fit.ba</a>.</p></div></section></main>
+<nav class="navigacija" aria-label="Navigacija slajdova"><div class="napredak" id="napredak"></div><div class="okvir">
+ <button id="nazad" type="button" aria-label="Prethodni slajd">←</button>
+ <span class="broj" id="broj" aria-live="polite"></span><span id="naslov-slajda" class="naslov-slajda"></span>
+ <button id="naprijed" type="button" aria-label="Sljedeći slajd">→</button>
+</div></nav>
+<script>// Zajednički dio lekcija (isti kao u mini-prezentacijama blokova s vježbi 3): jedan slajd na ekranu ili svi jedan
+// ispod drugog (način „Čitanje“), strelice i prevlačenje, adresa #sN, zapamćen način prikaza.
+// Upotreba: Prezentacija("lekcija1", crtajVidljivo), gdje crtajVidljivo iscrta grafike na vidljivim slajdovima.
+window.Prezentacija = function (kljuc, crtajVidljivo) {
+  const $ = s => document.querySelector(s);
+  const main = $("#slajdovi"), slajdovi = [...document.querySelectorAll(".slajd")];
+  let tren = 0;
+  function prikazi(i, izHasha) {
+    tren = Math.max(0, Math.min(slajdovi.length - 1, i));
+    slajdovi.forEach((s, k) => s.classList.toggle("aktivan", k === tren));
+    $("#broj").textContent = `${tren + 1} / ${slajdovi.length}`;
+    $("#naslov-slajda").textContent = slajdovi[tren].dataset.naslov;
+    $("#napredak").style.width = `${((tren + 1) / slajdovi.length) * 100}%`;
+    $("#nazad").disabled = tren === 0; $("#naprijed").disabled = tren === slajdovi.length - 1;
+    if (!izHasha) { try { history.replaceState(null, "", "#" + slajdovi[tren].id); } catch (e) {} }
+    if (main.classList.contains("prezentacija")) window.scrollTo(0, 0);
+    crtajVidljivo();
+  }
+  $("#nazad").addEventListener("click", () => prikazi(tren - 1));
+  $("#naprijed").addEventListener("click", () => prikazi(tren + 1));
+  document.addEventListener("keydown", e => {
+    if (!main.classList.contains("prezentacija") || e.target.closest("input, textarea, select")) return;
+    if (["ArrowRight", "PageDown"].includes(e.key) || (e.key === " " && !e.target.closest("button"))) { e.preventDefault(); prikazi(tren + 1); }
+    if (["ArrowLeft", "PageUp"].includes(e.key)) { e.preventDefault(); prikazi(tren - 1); }
+    if (e.key === "Home") prikazi(0);
+    if (e.key === "End") prikazi(slajdovi.length - 1);
+  });
+  let dodirX = null;
+  main.addEventListener("touchstart", e => { dodirX = e.touches[0].clientX; }, { passive: true });
+  main.addEventListener("touchend", e => {
+    if (dodirX === null || !main.classList.contains("prezentacija")) return;
+    const dx = e.changedTouches[0].clientX - dodirX; dodirX = null;
+    if (e.target.closest("input, select, canvas, .interaktivno")) return;
+    if (Math.abs(dx) > 70) prikazi(tren + (dx < 0 ? 1 : -1));
+  });
+  function nacin(citanje) {
+    main.classList.toggle("citanje", citanje); main.classList.toggle("prezentacija", !citanje);
+    $("#nacin-citanje").setAttribute("aria-pressed", citanje); $("#nacin-prezentacija").setAttribute("aria-pressed", !citanje);
+    try { localStorage.setItem(kljuc + "-nacin", citanje ? "citanje" : "prezentacija"); } catch (e) {}
+    if (citanje) requestAnimationFrame(() => slajdovi[tren].scrollIntoView());
+    crtajVidljivo();
+  }
+  $("#nacin-citanje").addEventListener("click", () => nacin(true));
+  $("#nacin-prezentacija").addEventListener("click", () => nacin(false));
+  addEventListener("resize", () => crtajVidljivo());
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => crtajVidljivo());
+
+  let pocetni = 0;
+  const h = location.hash.replace("#", ""), k = slajdovi.findIndex(s => s.id === h); if (k >= 0) pocetni = k;
+  let sacuvano = null; try { sacuvano = localStorage.getItem(kljuc + "-nacin"); } catch (e) {}
+  if (sacuvano === "citanje") nacin(true);
+  prikazi(pocetni, true);
+  if (main.classList.contains("prezentacija")) setTimeout(() => window.scrollTo(0, 0), 0);
+  addEventListener("hashchange", () => {
+    const i = slajdovi.findIndex(s => s.id === location.hash.replace("#", ""));
+    if (i >= 0 && i !== tren) { prikazi(i, true); if (main.classList.contains("citanje")) slajdovi[i].scrollIntoView(); }
+  });
+  return { prikazi };
+};
+
+// Zajedničke pomoćne funkcije za grafike (SVG) i brojeve.
+window.Pomoc = (() => {
+  const SVG = "http://www.w3.org/2000/svg";
+  const el = (ime, atr = {}, tekst) => { const e = document.createElementNS(SVG, ime); for (const [k, v] of Object.entries(atr)) e.setAttribute(k, v); if (tekst !== undefined) e.textContent = tekst; return e; };
+  const zarez = (x, d = 2) => x.toFixed(d).replace(".", ",").replace("-", "−");
+  const pct = x => `${Math.round(x * 100)}%`;
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  // mulberry32: ponovljivi slučajni brojevi za ilustracije u web pregledniku
+  const rng = seed => () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  return { el, zarez, pct, css, rng };
+})();
+</script>
+<script>Prezentacija('v06-od-papira-do-koda', () => {});</script>
+
+</body>
+</html>
