@@ -1,0 +1,98 @@
+V07 · BLOKOVI F–J
+U početnom modelu ZAMIJENITE cijele procedure istog imena. Check poslije svakog koraka.
+
+
+;; ===== F · Struktura sedmice =====
+
+to go
+  if ticks >= 52 [stop]
+  pripremi-sedmicu
+  povrat-i-uplata
+  razgovor
+  formiraj-zahtjeve
+  dodijeli-alat
+  azuriraj-mjere
+  tick
+end
+
+to pripremi-sedmicu
+  set potrebe-sedmica 0
+  set posudbe-sedmica 0
+  set odbijanja-sedmica 0
+  set ogranicenja-sedmica 0
+  ask domacinstva [
+    set potreba? false
+    set zahtjev? false
+  ]
+end
+
+to razgovor
+  ;; V08 - razgovor i promjena stava.
+end
+
+;; ===== G · Povrat i uplata =====
+
+to povrat-i-uplata
+  ask domacinstva with [posudba = 1] [
+    set posudba 0
+    ask centar [set raspolozivo raspolozivo + 1]
+  ]
+  if (ticks + 1) mod 4 = 0 [
+    ask domacinstva [set budzet budzet + 4]
+  ]
+end
+
+;; ===== H · Potreba i zahtjev =====
+
+to formiraj-zahtjeve
+  ask domacinstva [
+    if random-float 1 < p-potrebe [
+      set potreba? true
+      set potrebe-sedmica potrebe-sedmica + 1
+      if random-float 1 < stav [
+        ifelse budzet >= naknada [
+          set zahtjev? true
+        ] [
+          set ogranicenja-sedmica ogranicenja-sedmica + 1
+        ]
+      ]
+    ]
+  ]
+end
+
+;; ===== I · Dodjela i iskustvo =====
+
+to dodijeli-alat
+  ask domacinstva with [zahtjev?] [
+    ifelse [raspolozivo] of centar > 0 [
+      ask centar [set raspolozivo raspolozivo - 1]
+      set posudba 1
+      set budzet budzet - naknada
+      set iskustvo 1
+      set posudio-ikada? true
+      set posudbe-sedmica posudbe-sedmica + 1
+    ] [
+      set iskustvo 0
+      set odbijanja-sedmica odbijanja-sedmica + 1
+    ]
+  ]
+end
+
+;; ===== J · Brojači i mjere =====
+
+to azuriraj-mjere
+  set potrebe-ukupno potrebe-ukupno + potrebe-sedmica
+  set posudbe-ukupno posudbe-ukupno + posudbe-sedmica
+  set odbijanja-ukupno odbijanja-ukupno + odbijanja-sedmica
+  set ogranicenja-ukupno ogranicenja-ukupno + ogranicenja-sedmica
+end
+
+to-report doseg
+  if not any? domacinstva [report "nedefinisano"]
+  report count domacinstva with [posudio-ikada?] / count domacinstva
+end
+
+to-report zadovoljene-potrebe
+  if potrebe-ukupno = 0 [report "nedefinisano"]
+  report posudbe-ukupno / potrebe-ukupno
+end

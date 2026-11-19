@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="bs"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>V07 · Kod za copy-paste</title><style>body{font:18px/1.45 "Segoe UI",Arial,sans-serif;max-width:1100px;margin:auto;padding:24px;background:#eef1f4;color:#17212b}a{color:#a44b18}h1,h2{font-family:Georgia,Cambria,serif}pre{font:16px/1.35 Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere;background:white;padding:16px;border-left:4px solid #b9531a}code{font-family:Consolas,monospace}section{margin:2rem 0;scroll-margin-top:20px}nav{display:flex;gap:1rem;flex-wrap:wrap}table{border-collapse:collapse;width:100%;font-size:16px}th,td{text-align:left;vertical-align:top;border-bottom:1px solid #c3ccd5;padding:8px}button{font:16px "Segoe UI",sans-serif;padding:8px 14px;cursor:pointer}p{margin:.6rem 0}li{margin:.4rem 0}@media(max-width:600px){body{padding:16px}pre{padding:10px}table{font-size:14px}}</style></head><body><nav><a href="../index.html">← Vježbe 7</a><a href="../prezentacije/v07-od-pravila-do-ticka.html">Prezentacija</a><a href="v07-blokovi-za-lijepljenje.txt" download>Preuzmi TXT</a></nav><h1>Kod za copy-paste · V07</h1><p>Otvorite v07-pocetak.nlogox. Zamijenite cijele postojeće procedure, od reda to ili to-report do pripadajućeg end. Nemojte dodavati drugu proceduru istog imena. Primijenite blokove redom F–J i nakon svakog odaberite Check.</p><p>Deklaracije, setup i postavi-brojace već su pripremljeni u početnom modelu. Koristimo nazive docinstvo, posudio-ikada?, snaga-utjecaja i sjeme iz koda V06.</p><nav><a href="#F">F · Struktura sedmice</a><a href="#G">G · Povrat i uplata</a><a href="#H">H · Potreba i zahtjev</a><a href="#I">I · Dodjela i iskustvo</a><a href="#J">J · Brojači i mjere</a></nav><section id="F"><h2>F · Struktura sedmice</h2><p><a href="../prezentacije/v07-od-pravila-do-ticka.html#s4">Povratak na slajd koraka F</a></p><button type="button" data-copy="kod-F">Kopiraj F</button><span role="status" aria-live="polite"></span><pre><code id="kod-F">to go
+  if ticks &gt;= 52 [stop]
+  pripremi-sedmicu
+  povrat-i-uplata
+  razgovor
+  formiraj-zahtjeve
+  dodijeli-alat
+  azuriraj-mjere
+  tick
+end
+
+to pripremi-sedmicu
+  set potrebe-sedmica 0
+  set posudbe-sedmica 0
+  set odbijanja-sedmica 0
+  set ogranicenja-sedmica 0
+  ask domacinstva [
+    set potreba? false
+    set zahtjev? false
+  ]
+end
+
+to razgovor
+  ;; V08 - razgovor i promjena stava.
+end</code></pre></section><section id="G"><h2>G · Povrat i uplata</h2><p><a href="../prezentacije/v07-od-pravila-do-ticka.html#s7">Povratak na slajd koraka G</a></p><button type="button" data-copy="kod-G">Kopiraj G</button><span role="status" aria-live="polite"></span><pre><code id="kod-G">to povrat-i-uplata
+  ask domacinstva with [posudba = 1] [
+    set posudba 0
+    ask centar [set raspolozivo raspolozivo + 1]
+  ]
+  if (ticks + 1) mod 4 = 0 [
+    ask domacinstva [set budzet budzet + 4]
+  ]
+end</code></pre></section><section id="H"><h2>H · Potreba i zahtjev</h2><p><a href="../prezentacije/v07-od-pravila-do-ticka.html#s10">Povratak na slajd koraka H</a></p><button type="button" data-copy="kod-H">Kopiraj H</button><span role="status" aria-live="polite"></span><pre><code id="kod-H">to formiraj-zahtjeve
+  ask domacinstva [
+    if random-float 1 &lt; p-potrebe [
+      set potreba? true
+      set potrebe-sedmica potrebe-sedmica + 1
+      if random-float 1 &lt; stav [
+        ifelse budzet &gt;= naknada [
+          set zahtjev? true
+        ] [
+          set ogranicenja-sedmica ogranicenja-sedmica + 1
+        ]
+      ]
+    ]
+  ]
+end</code></pre></section><section id="I"><h2>I · Dodjela i iskustvo</h2><p><a href="../prezentacije/v07-od-pravila-do-ticka.html#s12">Povratak na slajd koraka I</a></p><button type="button" data-copy="kod-I">Kopiraj I</button><span role="status" aria-live="polite"></span><pre><code id="kod-I">to dodijeli-alat
+  ask domacinstva with [zahtjev?] [
+    ifelse [raspolozivo] of centar &gt; 0 [
+      ask centar [set raspolozivo raspolozivo - 1]
+      set posudba 1
+      set budzet budzet - naknada
+      set iskustvo 1
+      set posudio-ikada? true
+      set posudbe-sedmica posudbe-sedmica + 1
+    ] [
+      set iskustvo 0
+      set odbijanja-sedmica odbijanja-sedmica + 1
+    ]
+  ]
+end</code></pre></section><section id="J"><h2>J · Brojači i mjere</h2><p><a href="../prezentacije/v07-od-pravila-do-ticka.html#s14">Povratak na slajd koraka J</a></p><button type="button" data-copy="kod-J">Kopiraj J</button><span role="status" aria-live="polite"></span><pre><code id="kod-J">to azuriraj-mjere
+  set potrebe-ukupno potrebe-ukupno + potrebe-sedmica
+  set posudbe-ukupno posudbe-ukupno + posudbe-sedmica
+  set odbijanja-ukupno odbijanja-ukupno + odbijanja-sedmica
+  set ogranicenja-ukupno ogranicenja-ukupno + ogranicenja-sedmica
+end
+
+to-report doseg
+  if not any? domacinstva [report &quot;nedefinisano&quot;]
+  report count domacinstva with [posudio-ikada?] / count domacinstva
+end
+
+to-report zadovoljene-potrebe
+  if potrebe-ukupno = 0 [report &quot;nedefinisano&quot;]
+  report posudbe-ukupno / potrebe-ukupno
+end</code></pre></section><script>document.querySelectorAll('[data-copy]').forEach(b=>b.addEventListener('click',async()=>{const c=document.getElementById(b.dataset.copy);const s=b.nextElementSibling;try{await navigator.clipboard.writeText(c.textContent);s.textContent=' Kopirano.'}catch(e){const r=document.createRange();r.selectNodeContents(c);const sel=window.getSelection();sel.removeAllRanges();sel.addRange(r);s.textContent=' Kod je označen. Kopirajte ga pomoću Ctrl+C.'}}));</script></body></html>

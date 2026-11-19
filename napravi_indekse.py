@@ -1,4 +1,4 @@
-"""Pravi početnu stranicu i indekse vježbi 3, 5 i 6 u istom izgledu kao vjezbe-02/index.html."""
+"""Pravi početnu stranicu i indekse vježbi 3, 5, 6 i 7 u istom izgledu kao vjezbe-02/index.html."""
 import io, sys
 REPO = sys.argv[1] if len(sys.argv) > 1 else __import__("os").path.dirname(__import__("os").path.abspath(__file__))
 CSS = """<style>
@@ -149,6 +149,22 @@ def v06(p):
         k(gore + "vjezbe-05/primjer-model-na-papiru-alat-prezentacija.html", "Primjer: prezentacija s ilustracijama", "Prostor, akteri, tick i poređenja, sa simulacijom u web pregledniku."),
     ]) + '  <p class="siva">Pitanja o temama, prijavama, varijantama, sastavu timova i rokovima za teme šaljite Adilu Joldiću na adil@edu.fit.ba.</p>\n'
 
+def v07(p):
+    gore = "../" if p == "" else ""
+    nlw = "https://www.netlogoweb.org/launch#https://adil-fit-ba.github.io/modeliranje-i-simulacije-2026-27/vjezbe-07/modeli/"
+    return grupa("Prezentacija", [
+        k(p + "prezentacije/v07-od-pravila-do-ticka.html", "Od pravila do ticka", "Pravila jedne sedmice iz modela na papiru, kod i provjera, korak po korak F–J."),
+    ]) + grupa("NetLogo modeli", [
+        k(p + "modeli/v07-pocetak.nlogox", "Početna datoteka", "Kod s vježbi 6 i prazne procedure sedmice za dopunjavanje kroz korake F–J. Otvara se u NetLogu 7.0.4."),
+        web(nlw + "v07-pocetak.nlogox", "Početna datoteka u web pregledniku, bez instalacije. Za rad na času koristi se NetLogo 7.0.4 na računaru."),
+        k(p + "modeli/v07-tick.nlogox", "Završena sedmica", "Povrat i uplata, potreba i zahtjev, dodjela, iskustvo i brojači. Služi za provjeru vlastite radne kopije."),
+        web(nlw + "v07-tick.nlogox", "Završena sedmica u web pregledniku, bez instalacije. BehaviorSpace je dostupan samo u NetLogu 7.0.4 na računaru."),
+        k(p + "modeli/v07-blokovi-za-lijepljenje.html", "Kod za copy-paste", "Cijele procedure za korake F–J, za nastavak rada u slučaju zaostajanja."),
+    ]) + grupa("Za pripremu", [
+        k(gore + "vjezbe-05/primjer-model-na-papiru-alat.html", "Primjer modela na papiru (vježbe 5)", "A4 opis primjera „Iznajmljivanje alata u naselju“; pravila jedne sedmice su u §5."),
+        k(gore + "vjezbe-06/prezentacije/v06-od-papira-do-koda.html", "Vježbe 6: Od modela na papiru do koda", "Svijet, centar, domaćinstva, poznanstva i seed, na koje se nastavlja ovaj čas."),
+    ]) + '  <p class="siva">Pitanja o temama, prijavama, varijantama, sastavu timova i rokovima za teme šaljite Adilu Joldiću na adil@edu.fit.ba.</p>\n'
+
 def stranica(naslov, opis, tijelo, oznaka="Modeliranje i simulacije · FIT UNMO 2026/27", dodatni_css=""):
     return f"""<!doctype html>
 <html lang="bs">
@@ -175,7 +191,8 @@ root = ('  <h1>Modeliranje i simulacije: materijali s vježbi</h1>\n' + uvod
         + '  <h2>Vježbe 3 (24.10.2026.): interakcije</h2>\n' + v03("vjezbe-03/")
         + '  <h2>Vježbe 4 (31.10.2026.): tema „Društvo s više naroda“</h2>\n' + v04("vjezbe-04/")
         + '  <h2 id="vjezbe-05">Vježbe 5 (07.11.2026.) · Model na papiru i scenariji</h2>\n' + v05("vjezbe-05/")
-        + '  <h2 id="vjezbe-06">Vježbe 6 (13.11.2026.) · Kodiranje primjera: svijet i domaćinstva</h2>\n' + v06("vjezbe-06/"))
+        + '  <h2 id="vjezbe-06">Vježbe 6 (13.11.2026.) · Kodiranje primjera: svijet i domaćinstva</h2>\n' + v06("vjezbe-06/")
+        + '  <h2 id="vjezbe-07">Vježbe 7 (20.11.2026.) · Kodiranje primjera: jedna sedmica</h2>\n' + v07("vjezbe-07/"))
 io.open(REPO + "/index.html", "w", encoding="utf-8", newline="\n").write(
     stranica("Modeliranje i simulacije 2026/27 — materijali s vježbi", "Materijali s vježbi: prezentacije, mini-prezentacije i NetLogo modeli.", root, "FIT UNMO · 2026/27", dodatni_css=V05_CSS))
 io.open(REPO + "/vjezbe-03/index.html", "w", encoding="utf-8", newline="\n").write(
@@ -189,4 +206,8 @@ io.open(REPO + "/vjezbe-06/index.html", "w", encoding="utf-8", newline="\n").wri
     stranica("Vježbe 6 — materijali", "Modeliranje i simulacije, FIT UNMO 2026/27. Kodiranje primjera: svijet i domaćinstva.",
              '  <h1>Vježbe 6 · Kodiranje primjera: svijet i domaćinstva</h1>\n  <p class="siva">Petak, 13.11.2026. u 16:00. Vježbe drži asistent Adil Eminagić.</p>\n'
              + uvod + v06("")))
+io.open(REPO + "/vjezbe-07/index.html", "w", encoding="utf-8", newline="\n").write(
+    stranica("Vježbe 7 — materijali", "Modeliranje i simulacije, FIT UNMO 2026/27. Kodiranje primjera: jedna sedmica.",
+             '  <h1>Vježbe 7 · Kodiranje primjera: jedna sedmica</h1>\n  <p class="siva">Petak, 20.11.2026. u 16:00. Vježbe drži asistent Adil Eminagić.</p>\n'
+             + uvod + v07("")))
 print("ok")
