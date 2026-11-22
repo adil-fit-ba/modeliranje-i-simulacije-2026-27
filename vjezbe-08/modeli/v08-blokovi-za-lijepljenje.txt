@@ -1,0 +1,54 @@
+V08 · BLOKOVI
+Zamijenite cijele procedure istog imena. Check poslije svakog bloka.
+
+
+;; ===== Deklaracija =====
+;; U postojećem redu domacinstva-own dodati novi-stav na kraj liste.
+
+domacinstva-own [stav integritet budzet posudba iskustvo posudio-ikada? potreba? zahtjev? novi-stav]
+
+;; ===== Razgovor =====
+;; Zamijeniti cijelu proceduru razgovor (od to razgovor do end).
+
+to razgovor
+  if not razgovor? [stop]
+  ;; 1. korak: svi racunaju novi stav iz stanja na pocetku koraka
+  ask domacinstva [
+    set novi-stav stav
+    let sagovornici link-neighbors with [iskustvo != "nema"]
+    if any? sagovornici [
+      let sagovornik one-of sagovornici
+      set novi-stav stav + ([iskustvo] of sagovornik - stav)
+                         * (1 - integritet) * snaga-utjecaja
+    ]
+  ]
+  ;; 2. korak: svi primjenjuju novi stav istovremeno
+  ask domacinstva [set stav novi-stav]
+end
+
+;; ===== Reporteri za monitore i graf =====
+;; Upisati u monitore i olovke grafa, ne u Code.
+
+mean [stav] of domacinstva
+standard-deviation [stav] of domacinstva
+doseg
+zadovoljene-potrebe
+
+;; ===== BehaviorSpace · par scenarija =====
+;; Tools → BehaviorSpace → New. Polje „Vary variables as follows“:
+
+["sjeme" [1 1 100]]
+["snaga-utjecaja" 0 0.3]
+["razgovor?" true]
+["zaliha" 10]
+["p-potrebe" 0.2]
+["naknada" 2]
+["pocetni-stav-min" 0]
+["pocetni-stav-max" 1]
+
+;; Repetitions: 1 · Setup: setup · Go: go · Time limit: 52
+;; Measure runs: samo na kraju; mjere:
+doseg
+zadovoljene-potrebe
+mean [stav] of domacinstva
+standard-deviation [stav] of domacinstva

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="bs"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>V08 · Kod za copy-paste</title><style>body{font:18px/1.45 "Segoe UI",Arial,sans-serif;max-width:1100px;margin:auto;padding:24px;background:#eef1f4;color:#17212b}a{color:#a44b18}h1,h2{font-family:Georgia,Cambria,serif}pre{font:16px/1.35 Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere;background:white;padding:16px;border-left:4px solid #b9531a}code{font-family:Consolas,monospace}section{margin:2rem 0;scroll-margin-top:20px}nav{display:flex;gap:1rem;flex-wrap:wrap}table{border-collapse:collapse;width:100%;font-size:16px}th,td{text-align:left;vertical-align:top;border-bottom:1px solid #c3ccd5;padding:8px}button{font:16px "Segoe UI",sans-serif;padding:8px 14px;cursor:pointer}p{margin:.6rem 0}li{margin:.4rem 0}.akcent{border-left:4px solid #b9531a;padding:.4rem .8rem;background:white}@media(max-width:600px){body{padding:16px}pre{padding:10px}table{font-size:14px}}</style></head><body><nav><a href="../index.html">← Vježbe 8</a><a href="../prezentacije/v08-razgovor-i-stav.html">Prezentacija</a><a href="v08-blokovi-za-lijepljenje.txt" download>Preuzmi TXT</a></nav><h1>Kod za copy-paste · V08</h1><p>Polazište je vaša datoteka s V07 ili <a href="v08-pocetak.nlogox">v08-pocetak.nlogox</a>. Zamijenite cijelu proceduru istog imena, ne dodajte drugu. Poslije svakog bloka Check.</p><nav><a href="#deklaracija">Deklaracija</a><a href="#razgovor">Razgovor</a><a href="#reporteri">Reporteri za monitore i graf</a><a href="#behaviorspace">BehaviorSpace · par scenarija</a></nav><section id="deklaracija"><h2>Deklaracija</h2><p>U postojećem redu domacinstva-own dodati novi-stav na kraj liste.</p><button type="button" data-copy="kod-deklaracija">Kopiraj</button><span role="status" aria-live="polite"></span><pre><code id="kod-deklaracija">domacinstva-own [stav integritet budzet posudba iskustvo posudio-ikada? potreba? zahtjev? novi-stav]</code></pre></section><section id="razgovor"><h2>Razgovor</h2><p>Zamijeniti cijelu proceduru razgovor (od to razgovor do end).</p><button type="button" data-copy="kod-razgovor">Kopiraj</button><span role="status" aria-live="polite"></span><pre><code id="kod-razgovor">to razgovor
+  if not razgovor? [stop]
+  ;; 1. korak: svi racunaju novi stav iz stanja na pocetku koraka
+  ask domacinstva [
+    set novi-stav stav
+    let sagovornici link-neighbors with [iskustvo != &quot;nema&quot;]
+    if any? sagovornici [
+      let sagovornik one-of sagovornici
+      set novi-stav stav + ([iskustvo] of sagovornik - stav)
+                         * (1 - integritet) * snaga-utjecaja
+    ]
+  ]
+  ;; 2. korak: svi primjenjuju novi stav istovremeno
+  ask domacinstva [set stav novi-stav]
+end</code></pre></section><section id="reporteri"><h2>Reporteri za monitore i graf</h2><p>Upisati u monitore i olovke grafa, ne u Code.</p><button type="button" data-copy="kod-reporteri">Kopiraj</button><span role="status" aria-live="polite"></span><pre><code id="kod-reporteri">mean [stav] of domacinstva
+standard-deviation [stav] of domacinstva
+doseg
+zadovoljene-potrebe</code></pre></section><section id="behaviorspace"><h2>BehaviorSpace · par scenarija</h2><p>Tools → BehaviorSpace → New. Polje „Vary variables as follows“:</p><button type="button" data-copy="kod-behaviorspace">Kopiraj</button><span role="status" aria-live="polite"></span><pre><code id="kod-behaviorspace">[&quot;sjeme&quot; [1 1 100]]
+[&quot;snaga-utjecaja&quot; 0 0.3]
+[&quot;razgovor?&quot; true]
+[&quot;zaliha&quot; 10]
+[&quot;p-potrebe&quot; 0.2]
+[&quot;naknada&quot; 2]
+[&quot;pocetni-stav-min&quot; 0]
+[&quot;pocetni-stav-max&quot; 1]
+
+;; Repetitions: 1 · Setup: setup · Go: go · Time limit: 52
+;; Measure runs: samo na kraju; mjere:
+doseg
+zadovoljene-potrebe
+mean [stav] of domacinstva
+standard-deviation [stav] of domacinstva</code></pre></section><script>document.querySelectorAll('[data-copy]').forEach(b=>b.addEventListener('click',async()=>{const c=document.getElementById(b.dataset.copy);const s=b.nextElementSibling;try{await navigator.clipboard.writeText(c.textContent);s.textContent=' Kopirano.'}catch(e){const r=document.createRange();r.selectNodeContents(c);const sel=window.getSelection();sel.removeAllRanges();sel.addRange(r);s.textContent=' Kod je označen. Kopirajte ga pomoću Ctrl+C.'}}));</script></body></html>

@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="bs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>V08 · Razgovor i promjena stava</title>
+<style>/* Raspored: mini-prezentacija od 10 slajdova; jedan slajd na ekranu (strelice), ili svi jedan ispod
+   drugog (način „Čitanje“). Papir je svijetao, svijet i putanje su na tamnoj podlozi kao u NetLogu. */
+:root {
+  --papir: #eef1f4; --list: #ffffff; --tinta: #17212b; --siva: #56636f; --linija: #d3dae1;
+  --narandza: #b9531a; --narandza-meko: #f6dfd0; --margina: #e5a3a3; --svijet: #0b0d10;
+  --za: #345da9; --protiv: #d73229; --neodlucni: #8d8d8d;
+  --f-naslov: "Bitter", "Georgia", "Cambria", serif;
+  --f-tekst: "IBM Plex Sans", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "IBM Plex Mono", "Cascadia Mono", Consolas, "Courier New", monospace;
+  --t-0: 0.83rem; --t-1: 1rem; --t-2: 1.17rem; --t-3: 1.5rem; --t-4: 2.2rem; --t-5: 3.1rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --papir: #10161c; --list: #18212a; --tinta: #e3e9ee; --siva: #9ba8b4; --linija: #2a3540;
+    --narandza: #f0894a; --narandza-meko: #3a2416; --margina: #6b3535; --za: #5b86d6; --protiv: #e5574e; --neodlucni: #9a9a9a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --papir: #10161c; --list: #18212a; --tinta: #e3e9ee; --siva: #9ba8b4; --linija: #2a3540;
+  --narandza: #f0894a; --narandza-meko: #3a2416; --margina: #6b3535; --za: #5b86d6; --protiv: #e5574e; --neodlucni: #9a9a9a;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { font-size: 18px; }
+@media (max-width: 600px) { html { font-size: 16px; } }
+body { margin: 0; background: var(--papir); color: var(--tinta); font-family: var(--f-tekst); line-height: 1.55; }
+[hidden] { display: none !important; }
+a { color: var(--narandza); text-underline-offset: 0.15em; }
+:focus-visible { outline: 3px solid var(--narandza); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--f-naslov); text-wrap: balance; line-height: 1.18; margin: 0; }
+p { margin: 0; }
+code { font-family: var(--f-mono); font-size: 0.9em; }
+p code, li code, td code { background: var(--narandza-meko); padding: 0.05em 0.3em; border-radius: 3px; }
+.okvir { max-width: 1200px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.oznaka { font-family: var(--f-mono); font-size: var(--t-0); letter-spacing: 0.08em; text-transform: uppercase; color: var(--narandza); font-weight: 500; }
+.siva { color: var(--siva); }
+.mala { font-size: var(--t-0); }
+
+/* traka na vrhu */
+.vrh { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--papir); border-bottom: 1px solid var(--linija); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--papir); }
+.vrh .okvir { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem 1rem; padding-block: 0.55rem; flex-wrap: wrap; }
+.vrh b { font-family: var(--f-naslov); font-weight: 700; }
+.nacin { display: flex; gap: 0.3rem; }
+button { font: 500 var(--t-0) var(--f-mono); border-radius: 4px; padding: 0.4rem 0.8rem; cursor: pointer;
+  border: 1px solid var(--narandza); background: transparent; color: var(--narandza); }
+button[aria-pressed="true"], button.glavno { background: var(--narandza); color: var(--list); }
+button:disabled { opacity: 0.45; cursor: default; }
+
+/* slajdovi */
+.slajd { padding-block: 2rem 6rem; scroll-margin-top: 3.4rem; }
+main.prezentacija .slajd { display: none; min-height: calc(100svh - 3.2rem); }
+main.prezentacija .slajd.aktivan { display: block; }
+main.citanje .slajd { border-bottom: 1px solid var(--linija); padding-block: 2.5rem; }
+.glava { display: grid; gap: 0.35rem; margin-bottom: 1.4rem; }
+.glava h2 { font-size: var(--t-4); max-width: 30ch; }
+.glava .podnaslov { font-size: var(--t-2); color: var(--siva); max-width: 52rem; }
+.dvije { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2rem; align-items: start; }
+.dvije > * { min-width: 0; }
+@media (max-width: 900px) { .dvije { grid-template-columns: minmax(0, 1fr); } }
+.tekst { display: grid; gap: 1rem; }
+.tekst ul { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.35rem; }
+.panel { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 1rem; }
+.pitanje { background: var(--narandza-meko); border-radius: 4px; padding: 0.9rem 1rem; }
+.pitanje h3 { font-size: var(--t-1); margin-bottom: 0.25rem; }
+
+/* naslovni slajd */
+.naslovni { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 2.4rem; align-items: center; padding-top: 1rem; }
+.naslovni > * { min-width: 0; }
+.naslovni h1 { font-size: var(--t-5); letter-spacing: -0.01em; margin: 0.4rem 0 0.9rem; }
+.naslovni .teza { font-size: var(--t-3); font-family: var(--f-naslov); line-height: 1.3; }
+.naslovni .uvod { margin-top: 1rem; color: var(--siva); }
+@media (max-width: 900px) { .naslovni { grid-template-columns: minmax(0, 1fr); } }
+
+/* list papira: pravilo za model na papiru */
+.papir {
+  margin: 0; background-color: var(--list); border: 1px solid var(--linija); border-radius: 4px;
+  padding: 1rem 1.2rem 1.2rem 2.4rem; position: relative; line-height: 1.75rem;
+  background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(1.75rem - 1px), var(--linija) calc(1.75rem - 1px), var(--linija) 1.75rem);
+  background-position: 0 2.55rem;
+}
+.papir::before { content: ""; position: absolute; left: 1.5rem; top: 0; bottom: 0; width: 2px; background: var(--margina); }
+.papir figcaption { font-family: var(--f-mono); font-size: var(--t-0); color: var(--siva); letter-spacing: 0.04em; text-transform: uppercase; line-height: 1.75rem; }
+.papir p, .papir li { font-family: var(--f-naslov); font-size: 1.08rem; }
+.papir ul { list-style: none; margin: 0; padding: 0 0 0 1.2rem; }
+.papir li::before { content: "→ "; color: var(--narandza); font-family: var(--f-tekst); }
+.papir b { color: var(--narandza); }
+
+/* kartice (pojava, sastavni dijelovi, koraci) */
+.kartice { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); }
+.kartica { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 1rem; display: grid; gap: 0.6rem; align-content: start; }
+.kartica h3 { font-size: var(--t-2); }
+.kartica svg { width: 100%; height: auto; display: block; }
+.kartica ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.25rem; }
+.kartica .kod-cip { font-family: var(--f-mono); font-size: 0.78rem; color: var(--siva); border-top: 1px dashed var(--linija); padding-top: 0.5rem; }
+.korak-broj { font-family: var(--f-mono); font-weight: 500; color: var(--narandza); }
+
+/* SVG ilustracije: boje iz tokena */
+.il-osa { stroke: var(--siva); stroke-width: 1.5; }
+.il-tekst { fill: var(--siva); font: 13px var(--f-mono); }
+.il-tekst-veci { fill: var(--tinta); font: 600 15px var(--f-tekst); }
+.il-za { fill: var(--za); } .il-protiv { fill: var(--protiv); } .il-neo { fill: var(--neodlucni); }
+.il-prozor { fill: var(--narandza-meko); stroke: var(--narandza); stroke-dasharray: 4 3; }
+.il-strelica { stroke: var(--narandza); stroke-width: 2.5; fill: none; }
+.il-vrh { fill: var(--narandza); }
+.il-domet { fill: none; stroke: var(--narandza); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.il-svijet { fill: var(--svijet); }
+.il-kuca { fill: #eded2f; }
+.il-precrtano { stroke: var(--protiv); stroke-width: 3; }
+.il-oblak { fill: var(--list); stroke: var(--siva); stroke-width: 1.2; }
+
+/* kalkulator jednog susreta */
+.kalk { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 1.5rem; }
+.kalk > * { min-width: 0; }
+@media (max-width: 900px) { .kalk { grid-template-columns: minmax(0, 1fr); } }
+.klizaci { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem 1.2rem; }
+@media (max-width: 520px) { .klizaci { grid-template-columns: minmax(0, 1fr); } }
+.klizac { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+.klizac label { font-family: var(--f-mono); font-size: var(--t-0); }
+.klizac output { font-family: var(--f-mono); font-size: var(--t-0); font-variant-numeric: tabular-nums; }
+.klizac input { grid-column: 1 / -1; width: 100%; accent-color: var(--narandza); }
+.racun { font-family: var(--f-mono); font-size: 0.86rem; line-height: 1.7; background: var(--papir); border-radius: 4px; padding: 0.7rem 0.9rem; overflow-x: auto; white-space: pre; }
+.racun .da { color: var(--za); font-weight: 600; } .racun .ne { color: var(--protiv); font-weight: 600; }
+.dugmad { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+
+/* putanje stava */
+.putanje-okvir { background: var(--svijet); border-radius: 6px; padding: 0.6rem; }
+canvas.putanje { width: 100%; aspect-ratio: 2 / 1; display: block; }
+.izbor { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.6rem; }
+.izbor button { border-color: var(--linija); color: var(--siva); }
+.izbor button[aria-pressed="true"] { border-color: var(--narandza); color: var(--list); background: var(--narandza); }
+.legenda { display: flex; gap: 1rem; flex-wrap: wrap; font-size: var(--t-0); color: var(--siva); margin-top: 0.4rem; }
+.legenda i { display: inline-block; width: 0.8em; height: 0.8em; border-radius: 50%; margin-right: 0.35em; vertical-align: -0.05em; }
+.potpis { font-size: var(--t-0); color: var(--siva); margin-top: 0.4rem; }
+.potpis b { color: var(--tinta); font-weight: 600; }
+
+/* grafikoni iz mjerenja */
+svg.grafik { width: 100%; height: auto; display: block; overflow: visible; }
+.g-mreza { stroke: var(--linija); stroke-width: 1; } .g-os { stroke: var(--siva); stroke-width: 1; }
+.g-oznaka { fill: var(--siva); font: 12px var(--f-mono); } .g-naslov-x { fill: var(--siva); font: 12px var(--f-tekst); }
+.g-vrijednost { fill: var(--tinta); font: 500 12px var(--f-mono); }
+.g-raspon { stroke: var(--narandza); stroke-width: 3; stroke-linecap: round; opacity: 0.35; }
+.g-tacka { fill: var(--narandza); }
+.g-ref { stroke: var(--siva); stroke-width: 1.2; stroke-dasharray: 4 4; }
+.g-ref-tekst { fill: var(--siva); font: italic 12px var(--f-tekst); }
+
+/* kod */
+.kodovi { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; }
+.kodovi > * { min-width: 0; }
+@media (max-width: 900px) { .kodovi { grid-template-columns: minmax(0, 1fr); } }
+.kod { background: var(--list); border: 1px solid var(--linija); border-radius: 6px; overflow: hidden; }
+.kod .jezik { font-family: var(--f-mono); font-size: var(--t-0); padding: 0.4rem 0.8rem; border-bottom: 1px solid var(--linija); color: var(--siva); }
+.kod pre { margin: 0; padding: 0.8rem; overflow-x: auto; }
+.kod code { font-size: 14px; line-height: 1.55; white-space: pre; }
+.kod .kom { color: var(--siva); font-style: italic; }
+.kod mark { background: var(--narandza-meko); color: inherit; border-radius: 2px; padding: 0 0.15em; }
+.kod mark b { color: var(--narandza); font-family: var(--f-tekst); }
+.oblacici { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: 1rem; margin-top: 1rem; }
+.oblacici div { border-left: 3px solid var(--narandza); padding-left: 0.8rem; }
+.oblacici b.br { font-family: var(--f-mono); color: var(--narandza); margin-right: 0.3rem; }
+
+/* probaj */
+.veze { display: grid; gap: 0.7rem; }
+.veze a { display: block; text-decoration: none; background: var(--list); border: 1px solid var(--linija); border-radius: 6px; padding: 0.8rem 1rem; color: var(--tinta); }
+.veze a:hover { border-color: var(--narandza); }
+.veze a b { color: var(--narandza); }
+.veze a span { display: block; color: var(--siva); font-size: var(--t-0); }
+.literatura { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.35rem; font-size: 0.92rem; }
+
+/* donja navigacija */
+.navigacija { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--papir); border-top: 1px solid var(--linija);
+  padding-bottom: env(safe-area-inset-bottom, 0px); }
+.navigacija .okvir { display: flex; align-items: center; gap: 0.8rem; padding-block: 0.5rem; }
+.navigacija .naslov-slajda { flex: 1; min-width: 0; font-size: var(--t-0); color: var(--siva); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.navigacija .broj { font-family: var(--f-mono); font-size: var(--t-0); font-variant-numeric: tabular-nums; }
+.napredak { position: absolute; top: -1px; left: 0; height: 2px; background: var(--narandza); transition: width 0.25s; }
+main.citanje ~ .navigacija { display: none; }
+@media (prefers-reduced-motion: reduce) { .napredak { transition: none; } }
+</style>
+<style>
+:root {--f-tekst:"Segoe UI",Arial,sans-serif;--f-mono:Consolas,"Courier New",monospace;--f-naslov:Georgia,Cambria,serif}
+body {line-height:1.3}
+.okvir {max-width:1400px;padding-inline:24px}
+.slajd {padding-block:.65rem 4rem}
+.glava {margin-bottom:.55rem;gap:.2rem}
+.glava h2 {font-size:2rem;max-width:none}
+.meni {display:flex;gap:1rem;flex-wrap:wrap;font-size:16px}
+.prevod {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:1rem;align-items:start}
+.prevod>* {min-width:0}
+blockquote {margin:0;padding:.55rem .7rem;background:var(--list);border-left:4px solid var(--narandza);font:18px/1.35 var(--f-naslov)}
+blockquote cite {display:block;color:var(--siva);font:16px/1.3 var(--f-tekst);margin-bottom:.25rem}
+.analogija {margin-top:.5rem}
+pre {white-space:pre-wrap;overflow-wrap:anywhere;font:16px/1.25 var(--f-mono)}
+code,.kod code {font-size:16px}
+.kod code {white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.2}
+.kod pre {padding:.45rem .65rem;font:16px/1.2 var(--f-mono);overflow:visible}
+.kod .jezik {font-size:14px;padding:.25rem .65rem}
+.analogija pre {background:var(--list);padding:.4rem;margin:.2rem 0;border-left:2px solid var(--linija)}
+.analogija p,.izvori {font-size:16px;color:var(--siva)}
+.predvidi {margin:.55rem 0;font-size:18px}
+.predvidi b,.obrazlozenja h3,.provjera h3 {color:var(--narandza)}
+.obrazlozenja {display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:.5rem;font-size:17px}
+.obrazlozenja h3,.provjera h3 {font:600 17px/1.25 var(--f-tekst);margin-bottom:.2rem}
+.provjera {border-top:1px solid var(--linija);padding-top:.35rem;margin-top:.4rem}
+.provjera pre {margin:.2rem 0}
+.provjera p {font-size:17px}
+.kw {color:var(--narandza);font-weight:600}.kom {color:var(--siva);font-style:italic}.str {color:var(--za)}
+.teza {font:1.65rem/1.4 var(--f-naslov);max-width:1000px;margin:1rem 0}
+.tekst p+p {margin-top:.5rem}
+.put {display:flex;gap:1.4rem;flex-wrap:wrap;margin:1.1rem 0}
+.put a {border-bottom:3px solid var(--narandza);padding-bottom:.3rem;text-decoration:none}
+table {width:100%;border-collapse:collapse;background:var(--list);font-size:18px}
+th,td {text-align:left;padding:.5rem .7rem;border-bottom:1px solid var(--linija);vertical-align:top}
+th {color:var(--narandza)}
+.chat {font:1.4rem/1.8 var(--f-mono);margin:1rem 0}.chat code {font-size:inherit}
+.akcent {border-left:4px solid var(--narandza);padding:.7rem 1rem;margin:.7rem 0;background:var(--list)}
+.izvori {margin-top:.6rem}
+.interaktivno {margin-top:.6rem}.interaktivno label {margin-right:1rem}.interaktivno fieldset {border:1px solid var(--linija);padding:.5rem .7rem;margin:.5rem 0}.interaktivno legend {font-size:16px}
+.interaktivno button {margin:.5rem .5rem .5rem 0}
+.interaktivno output {display:block;margin-top:.5rem}
+.kalk {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.6rem;margin:.6rem 0}.kalk label {display:flex;flex-direction:column;font-size:16px}.kalk input,.kalk select {font:18px var(--f-mono);padding:.25rem}
+.broj-veliki {font:2rem/1.2 var(--f-mono);color:var(--narandza)}
+@media(max-width:900px){.kalk{grid-template-columns:1fr 1fr}.prevod,.obrazlozenja{grid-template-columns:minmax(0,1fr)}.okvir{padding-inline:16px}.vrh b{font-size:16px}.glava h2{font-size:1.8rem}.slajd{scroll-margin-top:9rem}th,td{padding:.4rem .3rem;overflow-wrap:anywhere}table{font-size:16px}.interaktivno label{display:block;margin:.3rem 0}}
+@media print{@page{size:A4 landscape;margin:10mm}.vrh,.navigacija{display:none}main.prezentacija .slajd,main.citanje .slajd{display:block;min-height:0;padding:0;break-after:page;border:0}.okvir{padding:0;max-width:none}.interaktivno button{display:none}}
+</style>
+</head>
+<body>
+<header class="vrh"><div class="okvir">
+<nav class="meni" aria-label="Meni vježbi"><a href="../index.html">← Vježbe 8</a><a href="../modeli/v08-blokovi-za-lijepljenje.html">Kod za copy-paste</a></nav>
+<b>V08 · Razgovor i promjena stava</b>
+<div class="nacin" role="group" aria-label="Način prikaza"><button id="nacin-prezentacija" type="button" aria-pressed="true">Prezentacija</button><button id="nacin-citanje" type="button" aria-pressed="false">Čitanje</button></div>
+</div></header>
+<main id="slajdovi" class="prezentacija"><section class="slajd" id="s1" data-naslov="Razgovor i promjena stava"><div class="okvir"><div class="glava"><span class="oznaka">27.11.2026. · 16:00–17:30</span><h2>Razgovor i promjena stava</h2></div>
+<p class="teza">Iskustvo poznanika mijenja stav, a stav mijenja broj zahtjeva.</p>
+<div class="tekst"><p>Modeliranje i simulacije · FIT UNMO · Adil Eminagić<br>V08 · NetLogo 7.0.4</p>
+<p><a href="../../vjezbe-05/primjer-model-na-papiru-alat.html">A4 · model na papiru</a> · <a href="../../vjezbe-07/prezentacije/v07-od-pravila-do-ticka.html">V07 · jedna sedmica</a></p>
+<p>Nastavljamo vašu datoteku s V07. Ko je nema: <a href="../modeli/v08-pocetak.nlogox">početni model</a>. Za poređenje: <a href="../modeli/v08-razgovor.nlogox">model s razgovorom</a> · <a href="../modeli/v08-kraj.nlogox">model s BehaviorSpaceom</a></p></div>
+<nav class="put" aria-label="Dijelovi časa"><a href="#s3">Nadoknada</a><a href="#s7">Razgovor</a><a href="#s10">Provjera</a><a href="#s11">Stav · tačka 1</a><a href="#s12">Par · ako stigne</a><a href="#s14">BehaviorSpace · tačka 2</a></nav>
+<p class="izvori">Strelice ← → mijenjaju slajd. „Čitanje“ prikazuje cijeli materijal. Dijelovi označeni „ako stigne“ nastavljaju se na V09.</p></div></section>
+<section class="slajd" id="s2" data-naslov="Polazište: kod s V07"><div class="okvir"><div class="glava"><span class="oznaka">16:00–16:05</span><h2>Polazište: kod s V07</h2></div><div class="prevod"><div><p>Sedmica ima šest koraka. Razgovor je za sada prazan. Jedina izmjena u odnosu na V07 je naziv reportera: <code>zadovoljene-potrebe</code> (bez slovne greške). Ko ima monitor s tim reporterom, ispravi i njega.</p><p class="predvidi"><b>Predviđanje u chatu</b><br>Da li je stav nekog domaćinstva sada drugačiji poslije 52 sedmice nego poslije Setup?</p><p class="izvori">Ne. Iskustvo se mijenja pri dodjeli, a stav samo kroz razgovor, koji još nije napisan.</p></div><div class="kod"><div class="jezik">NetLogo · isječak iz v08-razgovor.nlogox</div><pre><code><span class="kw">to</span> go
+  <span class="kw">if</span> ticks &gt;= 52 [<span class="kw">stop</span>]
+  pripremi-sedmicu
+  povrat-i-uplata
+  razgovor
+  formiranje-zahtjeva
+  dodijeli-alat
+  azuriraj-mjere
+  
+  <span class="kw">tick</span>
+<span class="kw">end</span></code></pre></div></div></div></section>
+<section class="slajd" id="s3" data-naslov="Ručna sedmica: tri različita događaja"><div class="okvir"><div class="glava"><span class="oznaka">16:05–16:12</span><h2>Ručna sedmica: tri različita događaja</h2></div>
+<p>Zaliha je 1 alat, naknada 2 KM. A vraća alat na početku sedmice 3. Budžeti A/B/C su 3/2/1 KM. Svi imaju potrebu i odluče tražiti. Centar obrađuje B pa A.</p><table><thead><tr><th>Događaj</th><th>Kada</th><th>Šta se mijenja</th><th>Šta se ne mijenja</th></tr></thead><tbody><tr><td>Povrat</td><td>početak svake sedmice</td><td>alat se vraća u zalihu</td><td>budžet</td></tr><tr><td>Uplata</td><td>početak sedmica 4, 8, …, 52</td><td>budžet + 4 KM svima</td><td>zaliha</td></tr><tr><td>Naplata</td><td>pri uspješnoj dodjeli</td><td>budžet − naknada</td><td>budžet pri odbijanju</td></tr></tbody></table><blockquote><cite>A4 §5</cite>„Dok ima alata, dodjeljuje komad, raspolozivo − 1, budžet − naknada, iskustvo = 1.“</blockquote><div class="interaktivno"><fieldset><legend>Namjerno zadani red dodjele</legend><label><input type="radio" name="red" id="red-ba" value="BA" checked> B pa A · osnovni primjer</label><label><input type="radio" name="red" value="AB"> A pa B</label></fieldset><button type="button" id="rucni-prikazi">Prikaži ishod</button><button type="button" id="rucni-reset">Ispočetka</button><output id="rucni-rezultat" aria-live="polite"></output></div>
+<p class="izvori">Prvo predviđanje u chatu, pa „Prikaži ishod“. Račun iz pravila A4. U modelu ask bira slučajan red.</p></div></section>
+<section class="slajd" id="s4" data-naslov="Provjera G · povrat i uplata"><div class="okvir"><div class="glava"><span class="oznaka">16:12–16:16</span><h2>Provjera G · povrat i uplata</h2></div><blockquote><cite>A4 §5</cite>„Svake 4. sedmice domaćinstvo iz kućnog budžeta izdvaja 4 KM za alat i popravke [P]. Novac se akumulira do trošenja.“</blockquote><p class="predvidi"><b>Predviđanje u chatu</b><br>Koliki je budžet poslije 3, a koliki poslije 4 sedmice, ako svi počnu s 0 KM i nema potreba?</p><div class="provjera"><h3>Provjera · Command Center, posmatrač</h3><pre>setup
+set p-potrebe 0
+ask domacinstva [set budzet 0]
+repeat 3 [go]
+show remove-duplicates [budzet] of domacinstva
+go
+show remove-duplicates [budzet] of domacinstva</pre><p>[0], zatim [4]. Bez potreba nema naplate, pa se vidi samo uplata na početku 4. sedmice. Poslije testa vratiti p-potrebe na 0,2.</p></div><p class="chat"><code>G | radi</code> · <code>G | poruka greške</code></p></div></section>
+<section class="slajd" id="s5" data-naslov="Provjera I · naplata pri dodjeli"><div class="okvir"><div class="glava"><span class="oznaka">16:16–16:20</span><h2>Provjera I · naplata pri dodjeli</h2></div><p class="predvidi"><b>Predviđanje u chatu</b><br>Svih 100 domaćinstava traži alat, zaliha je 10. Koliki je budžet onih koji su dobili alat odmah poslije dodjele, a koliki poslije vraćanja?</p><div class="provjera"><h3>Provjera · Command Center, posmatrač</h3><pre>setup
+set p-potrebe 1
+ask domacinstva [set stav 1 set budzet 8]
+go
+show (list posudbe-sedmica odbijanja-sedmica)
+show remove-duplicates [budzet] of domacinstva with [posudba = 1]
+set p-potrebe 0
+go
+show remove-duplicates [budzet] of domacinstva with [iskustvo = 1]</pre><p>[10 90], zatim [6], zatim opet [6]. Naknada je skinuta pri dodjeli. Povrat u sljedećoj sedmici ne mijenja budžet. Poslije testa vratiti p-potrebe na 0,2.</p></div><p class="izvori">Kod iz V07 već naplaćuje pri dodjeli. Povrat samo vraća alat u zalihu. Za jedno pokretanje razlika bi se vidjela tek u zadnjoj sedmici, ali je bitna za proširenja s kašnjenjem ili kaucijom.</p><p class="chat"><code>I | radi</code> · <code>I | poruka greške</code></p></div></section>
+<section class="slajd" id="s6" data-naslov="Stav nije iskustvo"><div class="okvir"><div class="glava"><span class="oznaka">16:20–16:25</span><h2>Stav nije iskustvo</h2></div><div class="prevod"><div><blockquote><cite>A4 §4</cite>„stav (0–1) – vjerovatnoća da domaćinstvo zatraži posudbu kada mu zatreba alat.“</blockquote><blockquote><cite>A4 §4</cite>„integritet (0–1) – otpornost stava na razgovor.“</blockquote></div><div><table><thead><tr><th>Polje</th><th>Vrijednosti</th><th>Ko ga mijenja</th></tr></thead><tbody><tr><td><code>stav</code></td><td>0–1</td><td>razgovor (V08)</td></tr><tr><td><code>integritet</code></td><td>0–1, stalan</td><td>niko</td></tr><tr><td><code>iskustvo</code></td><td><code>"nema"</code>, 1, 0</td><td>dodjela: 1 uspjeh, 0 nestašica</td></tr><tr><td><code>posudio-ikada?</code></td><td>true/false</td><td>dodjela; koristi ga doseg</td></tr></tbody></table><div class="provjera"><h3>Provjera · Command Center</h3><pre>setup repeat 10 [go]
+show [(list stav integritet iskustvo posudio-ikada?)] of one-of domacinstva with [iskustvo != "nema"]</pre><p>Stav je broj između 0 i 1, iskustvo je 0 ili 1. To su dva različita polja.</p></div></div></div></div></section>
+<section class="slajd" id="s7" data-naslov="Pravilo razgovora"><div class="okvir"><div class="glava"><span class="oznaka">16:25–16:33</span><h2>Pravilo razgovora</h2></div><div class="prevod"><div><blockquote><cite>A4 §5</cite>„Svako domaćinstvo slučajno bira poznanika s iskustvom. Nema li ga, stav se ne mijenja.“</blockquote><blockquote><cite>A4 §5</cite>„novi stav = stav + (iskustvo sagovornika − stav) × (1 − integritet) × snaga-uticaja“</blockquote><p class="predvidi"><b>Predviđanje u chatu</b><br>Šta se desi kada je integritet 1? A kada sagovornik ima iskustvo 0?</p></div><div><div class="interaktivno"><div class="kalk"><label>stav<input id="k-stav" type="number" min="0" max="1" step="0.05" value="0.5"></label><label>integritet<input id="k-int" type="number" min="0" max="1" step="0.05" value="0.5"></label><label>snaga-utjecaja<input id="k-snaga" type="number" min="0" max="1" step="0.05" value="0.3"></label><label>iskustvo sagovornika<select id="k-isk"><option>1</option><option>0</option><option value="nema">nema</option></select></label></div><output id="k-rez" class="broj-veliki" aria-live="polite"></output></div><p class="izvori">Novi stav je uvijek između starog stava i iskustva sagovornika, pa ostaje u rasponu 0–1. Sagovornik prenosi iskustvo 0 ili 1, pa prosječan stav može i rasti i padati. U kodu se slajder zove <code>snaga-utjecaja</code>.</p></div></div></div></section>
+<section class="slajd" id="s8" data-naslov="Razgovor u kodu: dva koraka"><div class="okvir"><div class="glava"><span class="oznaka">16:33–16:46</span><h2>Razgovor u kodu: dva koraka</h2></div><div class="prevod"><div><blockquote><cite>A4 §5</cite>„Stavovi se računaju iz početnog stanja koraka i primjenjuju istovremeno.“</blockquote><div class="analogija"><b>C# · analogija</b><pre>if (!razgovor) return;
+foreach (var d in domacinstva) {
+    d.NoviStav = d.Stav;
+    var s = d.Poznanici.Where(p => p.Iskustvo != null).ToList();
+    if (s.Count > 0) {
+        var p = s[rng.Next(s.Count)];
+        d.NoviStav = d.Stav + (p.Iskustvo.Value - d.Stav)
+                   * (1 - d.Integritet) * snaga;
+    }
+}
+foreach (var d in domacinstva) d.Stav = d.NoviStav;</pre><p>Dvije petlje. Prva samo čita stare stavove i puni NoviStav, druga ih prepisuje.</p></div><p>U deklaraciju <code>domacinstva-own</code> dodati <code>novi-stav</code>.</p></div><div class="kod"><div class="jezik">NetLogo · isječak iz v08-razgovor.nlogox</div><pre><code><span class="kw">to</span> razgovor
+  <span class="kw">if</span> <span class="kw">not</span> razgovor? [<span class="kw">stop</span>]
+  <span class="kom">;; 1. korak: svi racunaju novi stav iz stanja na pocetku koraka</span>
+  <span class="kw">ask</span> domacinstva [
+    <span class="kw">set</span> novi-stav stav
+    <span class="kw">let</span> sagovornici <span class="kw">link-neighbors</span> <span class="kw">with</span> [iskustvo != <span class="str">&quot;nema&quot;</span>]
+    <span class="kw">if</span> any? sagovornici [
+      <span class="kw">let</span> sagovornik <span class="kw">one-of</span> sagovornici
+      <span class="kw">set</span> novi-stav stav + ([iskustvo] <span class="kw">of</span> sagovornik - stav)
+                         * (1 - integritet) * snaga-utjecaja
+    ]
+  ]
+  <span class="kom">;; 2. korak: svi primjenjuju novi stav istovremeno</span>
+  <span class="kw">ask</span> domacinstva [<span class="kw">set</span> stav novi-stav]
+<span class="kw">end</span></code></pre></div></div><div class="obrazlozenja"><div><h3>Zašto ovako</h3><p><code>link-neighbors</code> su poznanici. Filtar <code>iskustvo != "nema"</code> izbacuje one koji nikad nisu tražili alat. Prekidač <code>razgovor?</code> isključuje cijeli korak.</p></div><div><h3>Zašto ne drugačije</h3><p>Uprosječavanje svih poznanika nije pravilo iz A4 (jedan slučajni sagovornik). Bez filtra bi tekst „nema“ ušao u računanje i dao grešku.</p></div></div></div></section>
+<section class="slajd" id="s9" data-naslov="Zašto istovremeno · misaoni primjer"><div class="okvir"><div class="glava"><span class="oznaka">16:46–16:48</span><h2>Zašto istovremeno · misaoni primjer</h2></div>
+<p>Lanac A – B – C. Kad bi sagovornik prenosio svoj <b>stav</b>, a ne iskustvo, redoslijed bi bio bitan: ako B promijeni stav prije nego što ga C pita, C bi čuo „novi“ B iz iste sedmice. Ishod bi zavisio od slučajnog reda ask-a.</p>
+<p class="akcent">U našem A4 sagovornik prenosi <b>iskustvo</b>, a iskustvo se u razgovoru ne mijenja. Zato ovdje istovremenost ne mijenja rezultat. Provjerili smo to za seedove 1–20: verzija s jednim ask-om daje isto stanje. Pravilo ipak pišemo u dva koraka, jer je to obrazac za sve modele u kojima se prenosi stav.</p></div></section>
+<section class="slajd" id="s10" data-naslov="Provjera razgovora na zadanom stanju"><div class="okvir"><div class="glava"><span class="oznaka">16:48–16:58</span><h2>Provjera razgovora na zadanom stanju</h2></div><table><thead><tr><th></th><th>stav</th><th>integritet</th><th>iskustvo</th><th>poznanici</th></tr></thead><tbody><tr><td>turtle 0</td><td>0,5</td><td>0,5</td><td>nema</td><td>turtle 1</td></tr><tr><td>turtle 1</td><td>0,8</td><td>0</td><td>1</td><td>turtle 0, turtle 2</td></tr><tr><td>turtle 2</td><td>0,4</td><td>0</td><td>0</td><td>turtle 1</td></tr></tbody></table><p class="predvidi"><b>Predviđanje u chatu</b><br>Izračunajte novi stav sva tri domaćinstva uz snagu 0,3. Koga turtle 1 može izabrati za sagovornika?</p><div class="provjera"><h3>Provjera · Command Center, posmatrač</h3><pre>setup
+clear-turtles
+create-domacinstva 3 [set budzet 0 set posudba 0 set posudio-ikada? false]
+ask turtle 0 [set stav 0.5 set integritet 0.5 set iskustvo &quot;nema&quot;]
+ask turtle 1 [set stav 0.8 set integritet 0 set iskustvo 1]
+ask turtle 2 [set stav 0.4 set integritet 0 set iskustvo 0]
+ask turtle 1 [create-poznanstva-with (turtle-set turtle 0 turtle 2)]
+razgovor
+show map [d -&gt; [precision stav 3] of d] sort domacinstva</pre><p>[0.575 0.56 0.58] uz snaga-utjecaja 0,3 i uključen razgovor?. Isti upit uz isključen razgovor? ili snagu 0 daje [0.5 0.8 0.4]. Na kraju Setup.</p></div><p class="chat"><code>R | radi</code> · <code>R | poruka greške</code></p></div></section>
+<section class="slajd" id="s11" data-naslov="Stav kroz 52 sedmice"><div class="okvir"><div class="glava"><span class="oznaka">16:58–17:10</span><h2>Stav kroz 52 sedmice</h2></div>
+<p>Dodati na sučelje (desni klik → Monitor, Plot):</p><table><thead><tr><th>Element</th><th>Reporter ili olovka</th><th>Mjera A4 §6</th></tr></thead><tbody><tr><td>Monitor „Prosječan stav“</td><td><code>mean [stav] of domacinstva</code></td><td>Stav · prosjek</td></tr><tr><td>Monitor „Rasipanje stava“</td><td><code>standard-deviation [stav] of domacinstva</code></td><td>Stav · rasipanje</td></tr><tr><td>Monitori „Doseg“, „Zadovoljene potrebe“</td><td><code>doseg</code>, <code>zadovoljene-potrebe</code></td><td>Doseg, zadovoljene potrebe</td></tr><tr><td>Plot „Stav domaćinstava“, dvije olovke</td><td><code>plot mean [stav] of domacinstva</code> · <code>plot standard-deviation [stav] of domacinstva</code></td><td>kroz sedmice</td></tr></tbody></table><p class="predvidi"><b>Predviđanje u chatu</b><br>Raste li ili pada prosječan stav uz seed 114 i snagu 0,3?</p><p>Uz seed 114, zalihu 10 i snagu 0,3 poslije 52 sedmice: prosječan stav <b>0,661</b>, rasipanje <b>0,263</b>. Na početku je prosjek oko 0,5 (ravnomjerno 0–1).</p><p class="akcent">Tačka prekida 1 · ako je vrijeme isteklo ovdje, sačuvajte model. V09 počinje od <a href="../modeli/v08-razgovor.nlogox">v08-razgovor.nlogox</a>.</p></div></section>
+<section class="slajd" id="s12" data-naslov="Ako stigne · jedan par scenarija"><div class="okvir"><div class="glava"><span class="oznaka">17:10–17:18</span><h2>Ako stigne · jedan par scenarija</h2></div><blockquote><cite>A4 §7</cite>„Kontrolni. snaga-uticaja = 0 (razgovor isključen), zaliha 10.“</blockquote><blockquote><cite>A4 §7</cite>„Učinak razgovora. snaga-uticaja = 0,30, zaliha 10. Mijenja se samo jedna postavka.“</blockquote><p>Seed 114, Setup, Go 52, zapisati monitore. Zatim isti seed, snaga 0,3.</p><table><thead><tr><th>Mjera (52 sedmice, seed 114)</th><th>snaga 0</th><th>snaga 0,3</th></tr></thead><tbody><tr><td>Doseg</td><td>0,82</td><td>0,99</td></tr><tr><td>Zadovoljene potrebe</td><td>0,426</td><td>0,471</td></tr><tr><td>Potrebe · ukupno</td><td>1072</td><td>1056</td></tr><tr><td>Posudbe · ukupno</td><td>457</td><td>497</td></tr><tr><td>Odbijanja (nestašica)</td><td>59</td><td>177</td></tr><tr><td>Ograničeno budžetom</td><td>10</td><td>11</td></tr><tr><td>Prosječan stav</td><td>0,453</td><td>0,661</td></tr><tr><td>Rasipanje stava</td><td>0,313</td><td>0,263</td></tr></tbody></table><p class="izvori">Kontrolni scenarij je snaga 0 uz uključen prekidač. Isključen prekidač ne troši slučajne brojeve razgovora, pa ostatak toka nije isti: uz seed 114 daje doseg 0,80 i zadovoljene potrebe 0,409, kao na V07. Snaga 0 daje 0,82 i 0,426. Stav je u oba slučaja nepromijenjen. Par je pošten samo ako se razlikuje jedino snaga.</p></div></section>
+<section class="slajd" id="s13" data-naslov="Ako stigne · tumačenje"><div class="okvir"><div class="glava"><span class="oznaka">17:18–17:24</span><h2>Ako stigne · tumačenje</h2></div><table><thead><tr><th>Pitanje</th><th>Iz para uz seed 114, snaga 0,3</th></tr></thead><tbody><tr><td>Zašto su zadovoljene potrebe niže od dosega?</td><td>Doseg broji domaćinstva s barem jednom posudbom (0,99). Zadovoljene potrebe broje svaku potrebu (497 od 1056). Od 1056 potreba samo 674 postane zahtjev: o tome odlučuje stav.</td></tr><tr><td>Zašto razgovor povećava i odbijanja?</td><td>Viši stav daje više zahtjeva, a zaliha ostaje 10. Odbijanja rastu s 59 na 177.</td></tr><tr><td>Može li stav pasti?</td><td>Može. Odbijanje daje iskustvo 0, a sagovornik s iskustvom 0 povlači stav prema 0. Nestašica se tako širi razgovorom.</td></tr></tbody></table><p class="izvori">Jedan seed nije dokaz. Zato A4 §7 traži 100 pokretanja po scenariju.</p></div></section>
+<section class="slajd" id="s14" data-naslov="Ako stigne · BehaviorSpace"><div class="okvir"><div class="glava"><span class="oznaka">17:24–17:30</span><h2>Ako stigne · BehaviorSpace</h2></div><blockquote><cite>A4 §7</cite>„BehaviorSpace – 100 pokretanja po scenariju. Unutar para (s razgovorom i bez njega) koristi se isti seed, a između parova različit. Navode se medijan i raspon (min–maks).“</blockquote><p>Tools → BehaviorSpace → New. Variables: <code>["sjeme" [1 1 100]]</code> i <code>["snaga-utjecaja" 0 0.3]</code>; ostalo fiksno (zaliha 10, p-potrebe 0.2, naknada 2, razgovor? true). Repetitions 1, Time limit 52, mjere na kraju pokretanja. Run, Table output, isključiti „Update view“.</p><table><thead><tr><th>Mjera poslije 52 sedmice</th><th>snaga 0 · medijan (min–maks)</th><th>snaga 0,3 · medijan (min–maks)</th><th>razlika u paru · medijan</th></tr></thead><tbody><tr><td>Doseg</td><td>0,89 (0,81–0,96)</td><td>0,98 (0,93–1,00)</td><td>0,085 · rast u 98 od 100</td></tr><tr><td>Zadovoljene potrebe</td><td>0,435 (0,396–0,474)</td><td>0,479 (0,452–0,519)</td><td>0,041 · rast u 100 od 100</td></tr><tr><td>Prosječan stav</td><td>0,498 (0,440–0,578)</td><td>0,686 (0,617–0,749)</td><td>0,182 · rast u 100 od 100</td></tr><tr><td>Rasipanje stava</td><td>0,291 (0,254–0,321)</td><td>0,250 (0,194–0,309)</td><td>-0,040 · pad u 91 od 100</td></tr></tbody></table><p class="izvori">200 pokretanja, headless 5 s. Gotov eksperiment „par-scenarija“ je u <a href="../modeli/v08-kraj.nlogox">v08-kraj.nlogox</a>.</p><p class="akcent">Tačka prekida 2 · V09 počinje od v08-kraj.nlogox i tumačenja tabele.</p></div></section>
+<section class="slajd" id="s15" data-naslov="Rezerva · osjetljivost na snagu"><div class="okvir"><div class="glava"><span class="oznaka">ako ostane vremena</span><h2>Rezerva · osjetljivost na snagu</h2></div><blockquote><cite>A4 §8</cite>„Bez podataka – analiza osjetljivosti. snaga-uticaja 0; 0,1; 0,3; 0,6“</blockquote><table><thead><tr><th>snaga</th><th>doseg</th><th>zadovoljene potrebe</th><th>prosječan stav</th><th>rasipanje stava</th></tr></thead><tbody><tr><td>0,0</td><td>0,89 (0,81–0,96)</td><td>0,435 (0,396–0,474)</td><td>0,498 (0,440–0,578)</td><td>0,291 (0,254–0,321)</td></tr><tr><td>0,1</td><td>0,97 (0,93–1,00)</td><td>0,474 (0,448–0,506)</td><td>0,676 (0,624–0,726)</td><td>0,208 (0,174–0,255)</td></tr><tr><td>0,3</td><td>0,98 (0,93–1,00)</td><td>0,479 (0,452–0,519)</td><td>0,686 (0,617–0,749)</td><td>0,250 (0,194–0,309)</td></tr><tr><td>0,6</td><td>0,97 (0,93–1,00)</td><td>0,481 (0,456–0,516)</td><td>0,687 (0,571–0,762)</td><td>0,299 (0,254–0,354)</td></tr></tbody></table><p class="predvidi"><b>Pitanje za chat</b><br>Prosjek stava se poslije 0,1 skoro ne mijenja, a rasipanje pri 0,6 ponovo raste. Šta to govori o jakom uticaju jednog sagovornika s iskustvom 0 ili 1?</p><p class="izvori">Eksperiment „osjetljivost-snage“ (400 pokretanja) je u v08-kraj.nlogox.</p></div></section>
+<section class="slajd" id="s16" data-naslov="Kraj i nastavak"><div class="okvir"><div class="glava"><span class="oznaka">17:28–17:30</span><h2>Kraj i nastavak</h2></div>
+<p class="teza">Sačuvajte model i u chatu napišite dokle ste stigli: R, graf, par ili BehaviorSpace.</p>
+<div class="tekst"><p><a href="../modeli/v08-razgovor.nlogox">v08-razgovor.nlogox</a> · <a href="../modeli/v08-kraj.nlogox">v08-kraj.nlogox</a> · <a href="../modeli/v08-blokovi-za-lijepljenje.html">Kod za copy-paste</a> · <a href="../index.html">Povratak na V08</a></p>
+<p>Na V09 nastavljamo od posljednje tačke prekida: poređenje scenarija, medijan i raspon, tumačenje.</p></div></div></section></main>
+<nav class="navigacija" aria-label="Navigacija slajdova"><div class="napredak" id="napredak"></div><div class="okvir"><button id="nazad" type="button" aria-label="Prethodni slajd">←</button><span class="broj" id="broj" aria-live="polite"></span><span id="naslov-slajda" class="naslov-slajda"></span><button id="naprijed" type="button" aria-label="Sljedeći slajd">→</button></div></nav>
+<script>// Zajednički dio lekcija (isti kao u mini-prezentacijama blokova s vježbi 3): jedan slajd na ekranu ili svi jedan
+// ispod drugog (način „Čitanje“), strelice i prevlačenje, adresa #sN, zapamćen način prikaza.
+// Upotreba: Prezentacija("lekcija1", crtajVidljivo), gdje crtajVidljivo iscrta grafike na vidljivim slajdovima.
+window.Prezentacija = function (kljuc, crtajVidljivo) {
+  const $ = s => document.querySelector(s);
+  const main = $("#slajdovi"), slajdovi = [...document.querySelectorAll(".slajd")];
+  let tren = 0;
+  function prikazi(i, izHasha) {
+    tren = Math.max(0, Math.min(slajdovi.length - 1, i));
+    slajdovi.forEach((s, k) => s.classList.toggle("aktivan", k === tren));
+    $("#broj").textContent = `${tren + 1} / ${slajdovi.length}`;
+    $("#naslov-slajda").textContent = slajdovi[tren].dataset.naslov;
+    $("#napredak").style.width = `${((tren + 1) / slajdovi.length) * 100}%`;
+    $("#nazad").disabled = tren === 0; $("#naprijed").disabled = tren === slajdovi.length - 1;
+    if (!izHasha) { try { history.replaceState(null, "", "#" + slajdovi[tren].id); } catch (e) {} }
+    if (main.classList.contains("prezentacija")) window.scrollTo(0, 0);
+    crtajVidljivo();
+  }
+  $("#nazad").addEventListener("click", () => prikazi(tren - 1));
+  $("#naprijed").addEventListener("click", () => prikazi(tren + 1));
+  document.addEventListener("keydown", e => {
+    if (!main.classList.contains("prezentacija") || e.target.closest("input, textarea, select")) return;
+    if (["ArrowRight", "PageDown"].includes(e.key) || (e.key === " " && !e.target.closest("button"))) { e.preventDefault(); prikazi(tren + 1); }
+    if (["ArrowLeft", "PageUp"].includes(e.key)) { e.preventDefault(); prikazi(tren - 1); }
+    if (e.key === "Home") prikazi(0);
+    if (e.key === "End") prikazi(slajdovi.length - 1);
+  });
+  let dodirX = null;
+  main.addEventListener("touchstart", e => { dodirX = e.touches[0].clientX; }, { passive: true });
+  main.addEventListener("touchend", e => {
+    if (dodirX === null || !main.classList.contains("prezentacija")) return;
+    const dx = e.changedTouches[0].clientX - dodirX; dodirX = null;
+    if (e.target.closest("input, select, canvas, .interaktivno")) return;
+    if (Math.abs(dx) > 70) prikazi(tren + (dx < 0 ? 1 : -1));
+  });
+  function nacin(citanje) {
+    main.classList.toggle("citanje", citanje); main.classList.toggle("prezentacija", !citanje);
+    $("#nacin-citanje").setAttribute("aria-pressed", citanje); $("#nacin-prezentacija").setAttribute("aria-pressed", !citanje);
+    try { localStorage.setItem(kljuc + "-nacin", citanje ? "citanje" : "prezentacija"); } catch (e) {}
+    if (citanje) requestAnimationFrame(() => slajdovi[tren].scrollIntoView());
+    crtajVidljivo();
+  }
+  $("#nacin-citanje").addEventListener("click", () => nacin(true));
+  $("#nacin-prezentacija").addEventListener("click", () => nacin(false));
+  addEventListener("resize", () => crtajVidljivo());
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => crtajVidljivo());
+
+  let pocetni = 0;
+  const h = location.hash.replace("#", ""), k = slajdovi.findIndex(s => s.id === h); if (k >= 0) pocetni = k;
+  let sacuvano = null; try { sacuvano = localStorage.getItem(kljuc + "-nacin"); } catch (e) {}
+  if (sacuvano === "citanje") nacin(true);
+  prikazi(pocetni, true);
+  if (main.classList.contains("prezentacija")) setTimeout(() => window.scrollTo(0, 0), 0);
+  addEventListener("hashchange", () => {
+    const i = slajdovi.findIndex(s => s.id === location.hash.replace("#", ""));
+    if (i >= 0 && i !== tren) { prikazi(i, true); if (main.classList.contains("citanje")) slajdovi[i].scrollIntoView(); }
+  });
+  return { prikazi };
+};
+
+// Zajedničke pomoćne funkcije za grafike (SVG) i brojeve.
+window.Pomoc = (() => {
+  const SVG = "http://www.w3.org/2000/svg";
+  const el = (ime, atr = {}, tekst) => { const e = document.createElementNS(SVG, ime); for (const [k, v] of Object.entries(atr)) e.setAttribute(k, v); if (tekst !== undefined) e.textContent = tekst; return e; };
+  const zarez = (x, d = 2) => x.toFixed(d).replace(".", ",").replace("-", "−");
+  const pct = x => `${Math.round(x * 100)}%`;
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  // mulberry32: ponovljivi slučajni brojevi za ilustracije u web pregledniku
+  const rng = seed => () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  return { el, zarez, pct, css, rng };
+})();
+</script>
+<script>
+Prezentacija('v08-razgovor-i-stav',()=>{});
+(()=>{
+ const prikaz=document.getElementById('rucni-rezultat');
+ document.getElementById('rucni-prikazi').addEventListener('click',()=>{
+  const ab=document.querySelector('input[name="red"]:checked').value==='AB';
+  const budzeti=ab?[1,2,1]:[3,0,1];
+  const ishodi=ab?['Posudba','Nestašica','Ograničen budžetom']:['Nestašica','Posudba','Ograničen budžetom'];
+  const iskustva=ab?['1','0','Ostaje prethodno']:['0','1','Ostaje prethodno'];
+  prikaz.innerHTML='<table><thead><tr><th>Domaćinstvo</th><th>Ishod sedmice 3</th><th>Budžet</th><th>Iskustvo</th></tr></thead><tbody>'+budzeti.map((x,i)=>'<tr><td>'+['A','B','C'][i]+'</td><td>'+ishodi[i]+'</td><td>'+x+' KM</td><td>'+iskustva[i]+'</td></tr>').join('')+'</tbody></table><p class="izvori">Zadovoljena je 1 od 3 potrebe. Jedno odbijanje zbog nestašice i jedno ograničenje budžetom. Na početku sedmice 4 alat se vraća, raspoloživo je 1. Nakon uplate budžeti A/B/C su <b>'+budzeti.map(x=>x+4).join('/')+' KM</b>, prije nove posudbe.</p>';
+ });
+ document.querySelectorAll('input[name="red"]').forEach(x=>x.addEventListener('change',()=>prikaz.replaceChildren()));
+ document.getElementById('rucni-reset').addEventListener('click',()=>{document.getElementById('red-ba').checked=true;prikaz.replaceChildren()});
+})();
+
+(()=>{
+ const el=id=>document.getElementById(id); if(!el('k-stav')) return;
+ const racun=()=>{
+  const s=+el('k-stav').value, i=+el('k-int').value, k=+el('k-snaga').value, e=el('k-isk').value;
+  if([s,i,k].some(x=>isNaN(x)||x<0||x>1)){el('k-rez').textContent='Vrijednosti moraju biti između 0 i 1.';return;}
+  if(e==='nema'){el('k-rez').innerHTML='Nema poznanika s iskustvom: stav ostaje <b>'+s.toFixed(3)+'</b>.';return;}
+  const n=s+((+e)-s)*(1-i)*k;
+  el('k-rez').innerHTML='novi stav = '+s+' + ('+e+' − '+s+') × (1 − '+i+') × '+k+' = <b>'+n.toFixed(3)+'</b>';
+ };
+ ['k-stav','k-int','k-snaga','k-isk'].forEach(x=>el(x).addEventListener('input',racun)); racun();
+})();
+</script>
+</body>
+</html>

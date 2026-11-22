@@ -165,6 +165,22 @@ def v07(p):
         k(gore + "vjezbe-06/prezentacije/v06-od-papira-do-koda.html", "Vježbe 6: Od modela na papiru do koda", "Svijet, centar, domaćinstva, poznanstva i seed, na koje se nastavlja ovaj čas."),
     ]) + '  <p class="siva">Pitanja o temama, prijavama, varijantama, sastavu timova i rokovima za teme šaljite Adilu Joldiću na adil@edu.fit.ba.</p>\n'
 
+def v08(p):
+    gore = "../" if p == "" else ""
+    nlw = "https://www.netlogoweb.org/launch#https://adil-fit-ba.github.io/modeliranje-i-simulacije-2026-27/vjezbe-08/modeli/"
+    return grupa("Prezentacija", [
+        k(p + "prezentacije/v08-razgovor-i-stav.html", "Razgovor i promjena stava", "Ručna sedmica, pravilo razgovora iz modela na papiru, kod u dva koraka, provjere, graf stava i poređenje scenarija."),
+    ]) + grupa("NetLogo modeli", [
+        k(p + "modeli/v08-pocetak.nlogox", "Početna datoteka", "Kod s vježbi 7 (ispravljen naziv zadovoljene-potrebe); razgovor je prazan. Otvara se u NetLogu 7.0.4."),
+        k(p + "modeli/v08-razgovor.nlogox", "Model s razgovorom", "Razgovor po A4 §5.2, monitori i graf prosjeka i rasipanja stava. Služi za provjeru vlastite radne kopije."),
+        web(nlw + "v08-razgovor.nlogox", "Model s razgovorom u web pregledniku, bez instalacije. Za rad na času koristi se NetLogo 7.0.4 na računaru."),
+        k(p + "modeli/v08-kraj.nlogox", "Model s BehaviorSpaceom", "Isti model uz eksperimente par-scenarija (snaga 0 i 0,3) i osjetljivost-snage. BehaviorSpace radi samo u NetLogu 7.0.4 na računaru."),
+        k(p + "modeli/v08-blokovi-za-lijepljenje.html", "Kod za copy-paste", "Deklaracija, procedura razgovor, reporteri za monitore i postavke BehaviorSpacea."),
+    ]) + grupa("Za pripremu", [
+        k(gore + "vjezbe-05/primjer-model-na-papiru-alat.html", "Primjer modela na papiru (vježbe 5)", "A4 opis primjera „Iznajmljivanje alata u naselju“; razgovor je u §5, mjere u §6, scenariji u §7."),
+        k(gore + "vjezbe-07/prezentacije/v07-od-pravila-do-ticka.html", "Vježbe 7: Od pravila do ticka", "Jedna sedmica posudbe alata, na koju se nastavlja ovaj čas."),
+    ]) + '  <p class="siva">Pitanja o temama, prijavama, varijantama, sastavu timova i rokovima za teme šaljite Adilu Joldiću na adil@edu.fit.ba.</p>\n'
+
 def stranica(naslov, opis, tijelo, oznaka="Modeliranje i simulacije · FIT UNMO 2026/27", dodatni_css=""):
     return f"""<!doctype html>
 <html lang="bs">
@@ -192,7 +208,8 @@ root = ('  <h1>Modeliranje i simulacije: materijali s vježbi</h1>\n' + uvod
         + '  <h2>Vježbe 4 (31.10.2026.): tema „Društvo s više naroda“</h2>\n' + v04("vjezbe-04/")
         + '  <h2 id="vjezbe-05">Vježbe 5 (07.11.2026.) · Model na papiru i scenariji</h2>\n' + v05("vjezbe-05/")
         + '  <h2 id="vjezbe-06">Vježbe 6 (13.11.2026.) · Kodiranje primjera: svijet i domaćinstva</h2>\n' + v06("vjezbe-06/")
-        + '  <h2 id="vjezbe-07">Vježbe 7 (20.11.2026.) · Kodiranje primjera: jedna sedmica</h2>\n' + v07("vjezbe-07/"))
+        + '  <h2 id="vjezbe-07">Vježbe 7 (20.11.2026.) · Kodiranje primjera: jedna sedmica</h2>\n' + v07("vjezbe-07/")
+        + '  <h2 id="vjezbe-08">Vježbe 8 (27.11.2026.) · Kodiranje primjera: razgovor i stav</h2>\n' + v08("vjezbe-08/"))
 io.open(REPO + "/index.html", "w", encoding="utf-8", newline="\n").write(
     stranica("Modeliranje i simulacije 2026/27 — materijali s vježbi", "Materijali s vježbi: prezentacije, mini-prezentacije i NetLogo modeli.", root, "FIT UNMO · 2026/27", dodatni_css=V05_CSS))
 io.open(REPO + "/vjezbe-03/index.html", "w", encoding="utf-8", newline="\n").write(
@@ -210,4 +227,8 @@ io.open(REPO + "/vjezbe-07/index.html", "w", encoding="utf-8", newline="\n").wri
     stranica("Vježbe 7 — materijali", "Modeliranje i simulacije, FIT UNMO 2026/27. Kodiranje primjera: jedna sedmica.",
              '  <h1>Vježbe 7 · Kodiranje primjera: jedna sedmica</h1>\n  <p class="siva">Petak, 20.11.2026. u 16:00. Vježbe drži asistent Adil Eminagić.</p>\n'
              + uvod + v07("")))
+io.open(REPO + "/vjezbe-08/index.html", "w", encoding="utf-8", newline="\n").write(
+    stranica("Vježbe 8 — materijali", "Modeliranje i simulacije, FIT UNMO 2026/27. Kodiranje primjera: razgovor i promjena stava.",
+             '  <h1>Vježbe 8 · Kodiranje primjera: razgovor i promjena stava</h1>\n  <p class="siva">Petak, 27.11.2026. u 16:00. Vježbe drži asistent Adil Eminagić.</p>\n'
+             + uvod + v08("")))
 print("ok")
