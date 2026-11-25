@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="bs" xml:lang="bs">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Ugovor · Društvo s više naroda</title>
+  <style>
+
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">body{font:17px/1.5 "Segoe UI",Arial,sans-serif;max-width:980px;margin:auto;padding:24px;background:#eef1f4;color:#17212b}h1,h2,h3{font-family:Georgia,Cambria,serif}header#title-block-header{display:none}a{color:#a44b18}table{border-collapse:collapse;width:100%;font-size:15px;background:#fff}col{width:auto!important}th,td{border:1px solid #c3ccd5;padding:6px 8px;text-align:left;vertical-align:top}pre{background:#fff;border-left:4px solid #b9531a;padding:12px;white-space:pre-wrap;overflow-wrap:anywhere;font:15px/1.35 Consolas,monospace}code{font-family:Consolas,monospace;font-size:.93em;overflow-wrap:anywhere}blockquote{border-left:4px solid #b9531a;margin-left:0;padding:.3rem .8rem;background:#fff}@media(max-width:700px){body{padding:14px}table{display:block;overflow-x:auto}}@media print{body{background:#fff;max-width:none}}</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Ugovor · Društvo s više naroda</h1>
+</header>
+<h1 id="ugovor-za-timove-društvo-s-više-naroda-na-primjeru-bih-prijedlog-v04-30102026">Ugovor
+za timove: društvo s više naroda, na primjeru BiH (prijedlog v0.4,
+30.10.2026.)</h1>
+<p>Verzija v0.4 je prijedlog ugovora za dogovor timova. Verzije ugovora
+i kostura broje se odvojeno.</p>
+<p><strong>Glavne odrednice verzije v0.4:</strong></p>
+<ul>
+<li>agenti su <strong>osobe</strong>; porodicu drži agent
+domaćinstva;</li>
+<li>narodi su <strong>breedovi</strong>;</li>
+<li><code>identitet</code> zamjenjuje <code>sklonost</code>;</li>
+<li>u kosturu su <strong>firme, plate, potrošačka korpa, putovanje na
+posao, kriza i demografija</strong>;</li>
+<li>svaka selidba odmjerava zaradu i identitet istom formulom;</li>
+<li>susreti su jedan modul s pet mjesta.</li>
+<li>kostur je složen u <strong>slojeve L0–L4</strong> s prekidačima, da
+rezultati ostanu čitljivi.</li>
+</ul>
+<p><strong>Svrha.</strong> Ugovor sadrži samo ono što je potrebno da se
+modeli različitih timova mogu porediti i, ako se timovi odluče, spojiti.
+Sve ostalo je slobodno. Svaki tim bira varijantu teme, dodaje mehanizme
+koji je pokreću i pravi cjelovit model.</p>
+<p><strong>Pitanja istraživanja:</strong> nema jednog obaveznog pitanja.
+Svaki tim bira varijantu teme koja mu je zanimljiva i predlaže šta želi
+analizirati. Jedna od varijanti: ljudi idu za većom platom bez obzira na
+nacionalni stav; koliko jača mora biti zarada od identiteta da mjesta
+ostanu ili postanu mješovita? Za nju je u kosturu eksperiment
+<code>zarada-i-identitet</code> (odjeljak 11), a služi i za provjeru
+kostura.</p>
+<p><strong>Kod:</strong> Kostur v0.3 izrađen je prema ovom ugovoru. Ako
+se ugovor i kod razlikuju, mjerodavan je kod. Poznate razlike navedene
+su u README.md kostura. Svaku novu razliku treba prijaviti nastavnom
+osoblju.</p>
+<p><strong>Izmjene jezgra:</strong> Tim smije mijenjati jezgro u svojoj
+kopiji. U radu navodi svaku izmjenu i obrazlaže je. U tom slučaju tim
+samostalno usklađuje prelazak na novu verziju kostura. Rezultati s
+izmijenjenim jezgrom nisu neposredno uporedivi s kontrolnim scenarijem
+neizmijenjenog kostura.</p>
+<p><strong>Oznake:</strong> grupe su A, B, C (D), obavezno u kodu, na
+prikazima i u radu. Teritorije su u kosturu T1–T3; tim ih smije
+imenovati drugačije (npr. stvarnim nazivima u fazi mape).</p>
+<p><strong>Šta je u kosturu, a šta nije.</strong> U kosturu su:</p>
+<ul>
+<li>svijet, osobe, domaćinstva, firme i institucije;</li>
+<li>ekonomija, selidba, demografija i kriza;</li>
+<li>mjere i kontrolni scenarij.</li>
+</ul>
+<p>Kostur je složen u slojeve L0–L4 koji se uključuju prekidačima
+(odjeljak 11a).</p>
+<p><strong>U kosturu se identitet ne mijenja</strong>; mijenjaju ga samo
+moduli i mehanizmi timova. Susreti, mediji i zapošljavanje svojih su
+<strong>moduli-primjeri</strong> (odjeljak 9): uključuju se prekidačima,
+a tim koji bira takav mehanizam smije modul zamijeniti svojim
+pravilom.</p>
+<p>Sve brojke označene kao <em>probne</em> su polazne vrijednosti za
+kalibraciju, a ne podaci.</p>
+<h2 id="1-svijet">1. Svijet</h2>
+<p>Tri nivoa prostora. Svaki patch zna kojoj četvrti, mjestu i
+teritoriji pripada.</p>
+<table>
+<thead>
+<tr>
+<th>Varijabla patcha</th>
+<th>Vrijednosti</th>
+<th>Značenje</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cetvrt-id</code></td>
+<td>cijeli broj; −1 izvan mjesta</td>
+<td>susjedstvo: blok 5×5 patcheva</td>
+</tr>
+<tr>
+<td><code>mjesto-id</code></td>
+<td>cijeli broj; −1 izvan mjesta</td>
+<td>selo ili grad</td>
+</tr>
+<tr>
+<td><code>tip-mjesta</code></td>
+<td><code>&quot;selo&quot;</code>, <code>&quot;manji-grad&quot;</code>,
+<code>&quot;veliki-grad&quot;</code>, <code>&quot;nema&quot;</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>teritorija-id</code></td>
+<td><code>&quot;T1&quot;</code>, <code>&quot;T2&quot;</code>, <code>&quot;T3&quot;</code></td>
+<td>u fazi mape: entiteti i Brčko distrikt (kantoni kao niži nivo u
+FBiH)</td>
+</tr>
+</tbody>
+</table>
+<p>Početni svijet u apstraktnoj fazi:</p>
+<ul>
+<li><strong>Raspored:</strong> svijet 90 × 60; tri teritorije (trake
+širine 30), svaka s jednim velikim gradom (4 četvrti), dva manja grada
+(po 2) i 12 sela (po 1). Ukupno 60 četvrti i 45 mjesta.</li>
+<li><strong>Sastav teritorija:</strong> bira se biračem
+(<code>sastav-T1</code> … <code>sastav-T3</code>): većina jedne grupe,
+pola-pola dvije grupe ili mješovito. Udio većine je
+<code>udio-vecine</code>.</li>
+<li><strong>Podijeljen grad</strong> (<code>podijeljen-grad?</code>):
+veliki grad u T3, s dva dijela od po dvije četvrti za dvije glavne grupe
+teritorije (90 %), podijeljenim školama i dva univerziteta (oblik kao
+Mostar).</li>
+<li><strong>Jedan patch je jedan stan:</strong> na njemu je najviše
+jedno domaćinstvo.</li>
+</ul>
+<h2 id="2-agenti">2. Agenti</h2>
+<pre><code>breed [ grupa-a osoba-a ]            ;; osobe grupe A
+breed [ grupa-b osoba-b ]
+breed [ grupa-c osoba-c ]
+breed [ grupa-d osoba-d ]            ;; prazna kad je broj-grupa 3
+breed [ ostali  osoba-ostalo ]       ;; neizjašnjeni, Bosanci, manjine
+breed [ domacinstva domacinstvo ]    ;; porodica: stan, novac, korpa (bez naroda)
+breed [ firme firma ]
+breed [ institucije institucija ]    ;; škole, univerziteti, kafići, prodavnice</code></pre>
+<ul>
+<li>Grupu osobe određuje breed; varijabla <code>nacionalnost</code> ne
+postoji. Poređenje: <code>breed = [breed] of druga</code>.</li>
+<li>Reporter <code>osobe</code> vraća sve osobe (sve grupe i
+<code>ostali</code>). Lista <code>grupe</code> sadrži breedove grupa
+koje postoje prema <code>broj-grupa</code> (2–4, osnovno 3).</li>
+<li>Zajednički atributi osoba su u <code>turtles-own</code>, da tim
+svoju varijablu deklariše jednom, a ne pet puta. Firme i institucije
+zato nose i atribute osoba koje ne koriste.</li>
+<li>Promjenu grupe (<code>set breed</code>) kostur ne radi, ali je tim
+smije koristiti.</li>
+</ul>
+<h3 id="21-osoba">2.1 Osoba</h3>
+<table>
+<thead>
+<tr>
+<th>Varijabla</th>
+<th>Vrijednosti</th>
+<th>Značenje</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>starost</code></td>
+<td>godine</td>
+<td>dijete &lt; 18 (u školi od 6 do 17), odrasli 18–64, penzioner ≥
+65</td>
+</tr>
+<tr>
+<td><code>dom</code></td>
+<td>domaćinstvo</td>
+<td>porodica kojoj pripada</td>
+</tr>
+<tr>
+<td><code>identitet</code></td>
+<td>0–1</td>
+<td>jačina etničkog identiteta i nacionalnog stava; 0 = nije važan</td>
+</tr>
+<tr>
+<td><code>integritet</code></td>
+<td>0–1</td>
+<td>otpor promjeni identiteta; ne mijenja se tokom simulacije</td>
+</tr>
+<tr>
+<td><code>sposobnost</code></td>
+<td>0–1</td>
+<td>prihod = plata × (0,5 + sposobnost); firma bira najsposobnijeg</td>
+</tr>
+<tr>
+<td><code>ambicija</code></td>
+<td>0–1</td>
+<td>vjerovatnoća da zaposlen traži bolji posao te godine</td>
+</tr>
+<tr>
+<td><code>radno-mjesto</code></td>
+<td>firma ili <code>nobody</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>skola</code></td>
+<td>institucija ili <code>nobody</code></td>
+<td>djeca od 6 do 17</td>
+</tr>
+</tbody>
+</table>
+<p>Početne vrijednosti:</p>
+<ul>
+<li><strong>Identitet:</strong> iz normalne raspodjele sa sredinom
+<code>identitet-prosjek</code> (0,5) i sd <code>identitet-sd</code>
+(0,15), ograničeno na 0–1. <strong>Ista raspodjela za sve
+grupe</strong>; to je kontrolna pretpostavka, a ne tvrdnja o stvarnim
+grupama.</li>
+<li><strong>Okruženje:</strong> početni identitet je niži u mješovitoj
+četvrti:
+<code>identitet ← identitet − efekat-okruzenja × (1 − udio-svojih u četvrti)</code>
+(<em>probno</em> <code>efekat-okruzenja</code> = 0,2).</li>
+<li><strong><code>ostali</code>:</strong> sredina
+<code>identitet-ostali</code> (<em>probno</em> 0,2). Ni za koga nisu
+„svoji“ i nemaju nacionalni razlog selidbe.</li>
+<li><strong><code>sposobnost</code>:</strong> normalna raspodjela (0,5;
+0,15), ograničeno na 0–1.</li>
+<li><strong><code>ambicija</code>:</strong> normalna raspodjela
+(<code>ambicija-prosjek</code> 0,2; 0,1), ograničeno na 0–1.</li>
+<li><strong><code>integritet</code>:</strong> ravnomjerna raspodjela
+0–1.</li>
+</ul>
+<h3 id="22-domaćinstvo">2.2 Domaćinstvo</h3>
+<table>
+<thead>
+<tr>
+<th>Varijabla</th>
+<th>Vrijednosti</th>
+<th>Značenje</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>(patch)</td>
+<td></td>
+<td>stan; osobe domaćinstva stoje na istom patchu</td>
+</tr>
+<tr>
+<td><code>novac</code></td>
+<td>≥ 0</td>
+<td>zajednička ušteđevina</td>
+</tr>
+<tr>
+<td><code>razlog-selidbe</code></td>
+<td>iz liste <code>razlozi</code></td>
+<td>razlog posljednje selidbe, za mjere</td>
+</tr>
+<tr>
+<td><code>zarobljeno?</code></td>
+<td><code>true</code> / <code>false</code></td>
+<td>ove godine se isplatilo seliti, a nije bilo novca (odjeljak 6)</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Članovi su <code>osobe with [ dom = myself ]</code>.</li>
+<li><strong>Grupa domaćinstva</strong> se izvodi iz članova: ako su svi
+odrasli iz iste grupe, domaćinstvo pripada njoj, inače je mješovito. U
+kosturu su domaćinstva jednonacionalna; mješovita nastaju samo kroz
+mehanizam tima (brak).</li>
+<li>Domaćinstvo bez članova se briše, a stan se oslobađa.</li>
+</ul>
+<p>Početni sastav (<em>probno</em>; u fazi mape iz popisa 2013, Knjiga
+3):</p>
+<ul>
+<li>15 % domaćinstava su penzioneri (1–2 osobe, 65–85 godina);</li>
+<li>ostala domaćinstva imaju 1 ili 2 odrasla (2 s vjerovatnoćom 0,7;
+25–64 godine) i djecu (Poissonova raspodjela, prosjek
+<code>djece-selo</code> 1,8 ili <code>djece-grad</code> 1,2; 0–17
+godina);</li>
+<li>svi članovi su iz grupe izabrane prema sastavu teritorije.</li>
+</ul>
+<h3 id="23-firma">2.3 Firma</h3>
+<table>
+<thead>
+<tr>
+<th>Varijabla</th>
+<th>Vrijednosti</th>
+<th>Značenje</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mjesto-id</code></td>
+<td></td>
+<td>gdje je firma</td>
+</tr>
+<tr>
+<td><code>plata</code></td>
+<td>&gt; 0</td>
+<td>godišnja plata u jedinicama korpe</td>
+</tr>
+<tr>
+<td><code>kapacitet</code></td>
+<td>cijeli broj</td>
+<td>broj radnih mjesta</td>
+</tr>
+<tr>
+<td><code>grupa-vlasnika</code></td>
+<td><code>&quot;A&quot;</code> … <code>&quot;D&quot;</code></td>
+<td>grupa koja preovladava u četvrti firme na početku; kostur je samo
+zapisuje</td>
+</tr>
+<tr>
+<td><code>otvorena?</code></td>
+<td><code>true</code> / <code>false</code></td>
+<td>zatvara je samo kriza</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Broj firmi: 4 u velikom gradu, 2 u manjem, 1 u selu. <strong>Broj
+firmi je stalan</strong>, a mijenja ga samo kriza.</li>
+<li>Kapacitet: <code>stopa-radnih-mjesta</code> (<em>probno</em> 0,7) ×
+broj odraslih 18–64 u mjestu, podijeljeno na firme mjesta.</li>
+<li>Plata: <code>plata-veliki-grad</code> 1,6,
+<code>plata-manji-grad</code> 1,3, <code>plata-selo</code> 1,0
+(<em>probno</em>), × (1 + slučajno odstupanje sd
+<code>rasipanje-plata</code> 0,15).</li>
+</ul>
+<h3 id="24-institucije">2.4 Institucije</h3>
+<table>
+<thead>
+<tr>
+<th><code>tip</code></th>
+<th>Gdje</th>
+<th>Ko ide</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&quot;skola&quot;</code></td>
+<td>u svakom mjestu; uz <code>skole-zajednicke?</code> = false po jedna
+za svaku grupu</td>
+<td>djeca 6–17</td>
+</tr>
+<tr>
+<td><code>&quot;univerzitet&quot;</code></td>
+<td>u svakom velikom gradu (dva u podijeljenom)</td>
+<td>kostur ih ne koristi; za mehanizam „školovanje“</td>
+</tr>
+<tr>
+<td><code>&quot;kafic&quot;</code></td>
+<td>jedan u svakoj četvrti</td>
+<td>odrasli (modul susreti)</td>
+</tr>
+<tr>
+<td><code>&quot;prodavnica&quot;</code></td>
+<td>jedna u svakoj četvrti</td>
+<td>svi od 6 godina (modul susreti)</td>
+</tr>
+</tbody>
+</table>
+<p>Atributi su <code>zajednicka?</code> i <code>grupa-institucije</code>
+(<code>&quot;A&quot;</code> … <code>&quot;D&quot;</code>, <code>&quot;sve&quot;</code>). Kafić ima
+<code>grupa-kafica</code>: većinsku grupu njegovih gostiju prošle
+godine, a na početku većinsku grupu četvrti.</p>
+<h2 id="3-vrijeme-i-skala">3. Vrijeme i skala</h2>
+<ul>
+<li>1 tick = 1 godina. <strong>Period i broj tickova bira tim</strong>
+(osnovno 20): npr. 20 godina od popisa 2013, ili 30 godina prije rata
+(1961–1991), kad je etnička pripadnost u prosjeku bila slabija (manji
+<code>identitet-prosjek</code>). Period koji obuhvata 1992–1995 ne može
+objasniti promjene iz rata, jer rata nema u modelu. Plata, korpa i
+trošak puta su godišnji.</li>
+<li>U apstraktnoj fazi jedan agent je jedna osoba. Skala (koliko
+stvarnih osoba predstavlja agent) dolazi u fazi mape.</li>
+</ul>
+<h2 id="4-ekonomija">4. Ekonomija</h2>
+<h3 id="41-korpa-i-novac">4.1 Korpa i novac</h3>
+<ul>
+<li><strong>Korpa</strong> domaćinstva je godišnji trošak, po OECD
+modifikovanoj skali:
+<code>korpa = korpa-osnovna × faktor-mjesta × (1 + 0,5 × (osobe od 14 godina − 1) + 0,3 × djeca do 14)</code>.
+<code>korpa-osnovna</code> = 1 je jedinica modela.
+<code>faktor-mjesta</code> (<em>probno</em>): veliki grad 1,2, manji
+grad 1,1, selo 1,0.</li>
+<li><strong>Prihod osobe:</strong>
+<ul>
+<li>zaposlen: <code>plata</code> firme × (0,5 +
+<code>sposobnost</code>);</li>
+<li>nezaposlen odrasli: <code>socijalna-pomoc</code> (<em>probno</em>
+0,3);</li>
+<li>penzioner: <code>penzija</code> (<em>probno</em> 0,6);</li>
+<li>dijete: 0.</li>
+</ul></li>
+<li><strong>Trošak puta:</strong> ko radi u drugom mjestu, plaća
+<code>trosak-puta</code> × udaljenost u patchevima (<em>probno</em>
+0,01). Putovanje je moguće do <code>max-putovanje</code> patcheva
+(<em>probno</em> 15), i preko granice teritorije.</li>
+<li><strong>Novac:</strong>
+<code>novac ← max(0, novac + zbir prihoda − korpa − zbir troškova puta)</code>.</li>
+<li><strong>Ispod korpe:</strong> domaćinstvo čiji je zbir prihoda manji
+od korpe.</li>
+</ul>
+<p>Napomena za rad: s ovim probnim vrijednostima jedna prosječna plata
+ne pokriva korpu četvoročlane porodice (1,6 prema 2,1). To odgovara
+stanju u BiH, ali to treba provjeriti na podacima u fazi mape.</p>
+<h3 id="42-tržište-rada-svaki-tick">4.2 Tržište rada (svaki tick)</h3>
+<ol type="1">
+<li><strong>Penzija i otkaz:</strong> s 65 godina osoba odlazi u penziju
+i ostavlja posao. Zaposleni gube posao s vjerovatnoćom
+<code>p-gubitak-posla</code> (<em>probno</em> 0,05).</li>
+<li><strong>Ko traži posao:</strong>
+<ul>
+<li>nezaposleni odrasli: uvijek;</li>
+<li>zaposleni: s vjerovatnoćom <code>ambicija</code>;</li>
+<li>svi odrasli iz domaćinstva ispod korpe: uvijek.</li>
+</ul></li>
+<li><strong>Ponude:</strong> tražilac gleda otvorene firme sa slobodnim
+mjestom i platom većom od svog sadašnjeg neto prihoda:
+<ul>
+<li>u svom mjestu i do <code>max-putovanje</code>;</li>
+<li>s vjerovatnoćom <code>ambicija</code> još jednu slučajnu dalju
+firmu, za koju bi se porodica morala seliti.</li>
+</ul></li>
+<li><strong>Prijava:</strong> tražilac se prijavljuje na ponudu s
+najvećom ličnom koristi:
+<code>tezina-zarade × (novi neto prihod − sadašnji neto prihod) / korpa-osnovna</code>,
+gdje je neto prihod umanjen za trošak puta. Prijavljuje se samo ako je
+korist &gt; 0.</li>
+<li><strong>Izbor:</strong> firme, slučajnim redom, primaju
+<strong>najsposobnije</strong> prijavljene dok se ne popune.</li>
+<li><strong>Ponuda koja traži selidbu:</strong> ostaje ponuda samo do
+odluke porodice (odjeljak 5). Ako se porodica ne seli, ponuda
+propada.</li>
+</ol>
+<h3 id="43-kriza">4.3 Kriza</h3>
+<ul>
+<li><strong>Kada:</strong>
+<ul>
+<li>u godini <code>godina-krize</code> (0 = bez krize); isti trenutak u
+svakom ponavljanju omogućava poređenje;</li>
+<li>ili, uz <code>slucajne-krize?</code>, svake godine s vjerovatnoćom
+<code>p-krize</code>.</li>
+</ul></li>
+<li><strong>Jačina</strong> <code>jacina-krize</code>: 0,1–0,9.</li>
+<li><strong>Obuhvat:</strong> <code>obuhvat-krize</code>:
+<code>&quot;svijet&quot;</code> ili jedna teritorija (<code>&quot;T1&quot;</code> …
+<code>&quot;T3&quot;</code>).</li>
+<li><strong>Šta resetuje</strong> u obuhvatu:
+<ul>
+<li>svako domaćinstvo gubi udio <code>jacina-krize</code>
+ušteđevine;</li>
+<li>udio <code>jacina-krize</code> firmi se zatvara, a njihovi radnici
+ostaju bez posla.</li>
+</ul></li>
+<li><strong>Obnova:</strong> zatvorena firma se svake godine ponovo
+otvara s vjerovatnoćom <code>p-obnove</code> (<em>probno</em> 0,2), s
+istom platom i kapacitetom.</li>
+<li>Šta kriza radi s identitetom, grupisanjem ili iseljavanjem, određuje
+mehanizam tima.</li>
+</ul>
+<h2 id="5-selidba-jedno-pravilo-za-sve-razloge">5. Selidba: jedno
+pravilo za sve razloge</h2>
+<p>Domaćinstvo procjenjuje selidbu u stan <code>cilj</code> ovom
+koristi, kao zbir preko svojih odraslih:</p>
+<pre><code>K = tezina-zarade × (ΔP − T) / korpa-osnovna
+  + tezina-identiteta × Σ_odrasli identitet_i × (manjak_i(sada) − manjak_i(cilj))
+
+manjak_i(četvrt) = max(0, prag − udio grupe osobe i među osobama te četvrti)   ;; za `ostali` uvijek 0
+ΔP = promjena neto prihoda domaćinstva (nova plata; ko više ne može putovati na posao, gubi ga; novi troškovi puta)
+T  = trosak-selidbe (+ trosak-granice ako mijenja teritoriju)</code></pre>
+<p>Domaćinstvo se seli ako je <strong>K &gt; 0</strong> i ima
+<strong>novac ≥ T</strong>. Udio grupe u četvrti računa se jednom na
+početku selidbi u ticku.</p>
+<p><strong>Težine:</strong> plate, korpa i trošak puta su iz podataka, a
+težine nisu. Odluka zavisi samo od odnosa težina (ako se obje pomnože
+istim brojem, nijedna odluka se ne mijenja). Zato je
+<code>tezina-zarade</code> = 1 (zarada se mjeri u korpama), a
+<code>tezina-identiteta</code> je <strong>slajder</strong> (0–4) s
+jasnim značenjem: koliko korpi godišnje bi osoba s identitetom 1 dala da
+ne bude potpuno bez ljudi svoje grupe u četvrti. Vrijednost se
+procjenjuje:</p>
+<ul>
+<li>malom anketom, npr. „Koliko bi vam plata morala biti veća da se
+preselite u četvrt u kojoj je vaša grupa manjina?“ (odgovor u KM
+podijeljen s korpom);</li>
+<li>kalibracijom na popisima (npr. sastav općina 1961 → 1991, ili
+pražnjenje sela poslije 2013);</li>
+<li>mapom ishoda: model se pusti za cijeli raspon i pokaže se gdje se
+ishod mijenja.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Razlog</th>
+<th>Kada se procjenjuje</th>
+<th>Kandidati</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&quot;posao&quot;</code></td>
+<td>član ima ponudu koja traži selidbu (4.2)</td>
+<td>do <code>broj-kandidata</code> (<em>probno</em> 5) slobodnih stanova
+u mjestu firme; bira se onaj s najvećim K</td>
+</tr>
+<tr>
+<td><code>&quot;susjedstvo&quot;</code></td>
+<td>bar jedan odrasli ima manjak(sada) &gt; 0; procjenjuje s
+vjerovatnoćom prosječnog identiteta odraslih</td>
+<td>do <code>broj-kandidata</code> slobodnih stanova u svom mjestu i do
+<code>max-putovanje</code></td>
+</tr>
+<tr>
+<td><code>&quot;ostalo&quot;</code></td>
+<td>s vjerovatnoćom <code>p-slucajne-selidbe</code></td>
+<td>slučajan slobodan stan; K se ne računa, ali treba novac ≥ T</td>
+</tr>
+</tbody>
+</table>
+<p>Poslije selidbe:</p>
+<ul>
+<li>ko više ne može putovati na posao, ostaje bez posla;</li>
+<li>djeca prelaze u školu novog mjesta;</li>
+<li>postavlja se <code>razlog-selidbe</code>.</li>
+</ul>
+<p><strong>Zarobljeni:</strong> domaćinstvo kojem je najbolji kandidat
+imao K &gt; 0, a nema novac ≥ T, te godine je <code>zarobljeno?</code> =
+true.</p>
+<h2 id="6-demografija-d2">6. Demografija (D2+)</h2>
+<p>Svaki tick:</p>
+<ol type="1">
+<li><strong>Starenje:</strong> <code>starost</code> + 1. S 6 godina
+dijete ide u školu, s 18 izlazi iz škole i traži posao, a s 65 ide u
+penziju.</li>
+<li><strong>Umiranje</strong> po starosti (<em>probno</em>): do 64
+godine 0,002; 65–74 0,02; 75–84 0,06; 85 i više 0,15.</li>
+<li><strong>Rađanje:</strong> domaćinstvo s bar jednom odraslom osobom
+od 20 do 44 godine dobija dijete s vjerovatnoćom
+<code>stopa-radjanja</code> (<em>probno</em> 0,08).
+<ul>
+<li><strong>Pojednostavljenje kostura:</strong> partner se ne modelira,
+pa rađa i domaćinstvo s jednom odraslom osobom. Mehanizam „brak“ ovo
+zamjenjuje.</li>
+<li><strong>Dijete:</strong>
+<ul>
+<li>grupa: grupa domaćinstva (za mješovito domaćinstvo pravilo određuje
+tim);</li>
+<li><code>identitet</code>: prosjek identiteta odraslih + odstupanje sd
+<code>odstupanje-identiteta</code> (<em>probno</em> 0,05);</li>
+<li><code>sposobnost</code>, <code>ambicija</code> i
+<code>integritet</code> iz početnih raspodjela.</li>
+</ul></li>
+</ul></li>
+<li><strong>Odvajanje:</strong> odrasla osoba od 25 do 35 godina koja
+živi s roditeljima osniva svoje domaćinstvo s vjerovatnoćom
+<code>p-odvajanja</code> (<em>probno</em> 0,08).
+<ul>
+<li>Novi stan je u mjestu gdje radi, ili u svom mjestu ako ne radi.</li>
+<li>Trošak selidbe plaća roditeljsko domaćinstvo. Ako nema dovoljno
+novca, osoba ostaje.</li>
+<li>Novo domaćinstvo počinje s novcem 0. Razlog je
+<code>&quot;odvajanje&quot;</code>.</li>
+</ul></li>
+</ol>
+<p>Nema doseljavanja ni iseljavanja u inostranstvo; to je mehanizam za
+tim.</p>
+<h2 id="7-redoslijed-u-ticku">7. Redoslijed u ticku</h2>
+<ol type="1">
+<li>demografija</li>
+<li>kriza (ako je na redu) i obnova firmi</li>
+<li>moduli: mediji → susreti</li>
+<li><strong>mehanizam tima</strong></li>
+<li>tržište rada (s modulom zapošljavanja svojih, ako je uključen)</li>
+<li>novac</li>
+<li>selidba (posao → susjedstvo → ostalo) i zarobljeni</li>
+<li>mjere</li>
+</ol>
+<h2 id="8-api-za-mehanizme-u-kosturu">8. API za mehanizme (u
+kosturu)</h2>
+<table>
+<thead>
+<tr>
+<th>Procedura / reporter</th>
+<th>Ko poziva</th>
+<th>Šta radi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>promijeni-identitet cilj jacina</code></td>
+<td>osoba</td>
+<td><code>identitet ← identitet + jacina × (cilj − identitet) × (1 − integritet)</code></td>
+</tr>
+<tr>
+<td><code>korist-selidbe cilj</code></td>
+<td>domaćinstvo</td>
+<td>K iz odjeljka 5 za stan <code>cilj</code></td>
+</tr>
+<tr>
+<td><code>pokusaj-selidbu razlog kandidati</code></td>
+<td>domaćinstvo</td>
+<td>seli u najbolji od kandidata ako je K &gt; 0 i ima novca; vraća true
+ili false</td>
+</tr>
+<tr>
+<td><code>udio-grupe-u cetvrt grupa</code></td>
+<td>bilo ko</td>
+<td>udio grupe među osobama četvrti</td>
+</tr>
+<tr>
+<td><code>manjak-svojih cetvrt</code></td>
+<td>osoba</td>
+<td>manjak iz odjeljka 5</td>
+</tr>
+<tr>
+<td><code>neto-prihod</code></td>
+<td>osoba</td>
+<td>prihod umanjen za trošak puta</td>
+</tr>
+<tr>
+<td><code>clanovi</code>, <code>odrasli</code>, <code>djeca</code></td>
+<td>domaćinstvo</td>
+<td>članovi domaćinstva</td>
+</tr>
+<tr>
+<td><code>korpa</code>, <code>ispod-korpe?</code></td>
+<td>domaćinstvo</td>
+<td>odjeljak 4.1</td>
+</tr>
+<tr>
+<td><code>cetvrti</code>, <code>mjesta</code>, <code>grupe</code>,
+<code>razlozi</code></td>
+<td>bilo ko</td>
+<td>liste</td>
+</tr>
+</tbody>
+</table>
+<p><code>razlozi</code>: <code>&quot;nema&quot;</code>, <code>&quot;posao&quot;</code>,
+<code>&quot;susjedstvo&quot;</code>, <code>&quot;odvajanje&quot;</code>,
+<code>&quot;skola&quot;</code>, <code>&quot;rodbina&quot;</code>, <code>&quot;ostalo&quot;</code>.
+<code>&quot;skola&quot;</code> i <code>&quot;rodbina&quot;</code> su za mehanizme timova.
+Tim koji uvodi novi razlog dodaje ga u listu.</p>
+<h2 id="9-moduli-primjeri-uključuju-se-prekidačima-tim-ih-smije-zamijeniti">9.
+Moduli-primjeri (uključuju se prekidačima; tim ih smije zamijeniti)</h2>
+<p>Svi koriste <code>promijeni-identitet</code>. Jačine su parametri i
+mogu biti 0.</p>
+<p><strong>Susreti</strong> (<code>modul-susreti.nls</code>, prekidač
+<code>modul-susreti?</code>). Godišnje svaka osoba ima
+<code>broj-susreta-X</code> susreta na svakom mjestu X:</p>
+<table>
+<thead>
+<tr>
+<th>Mjesto X</th>
+<th>Ko</th>
+<th>S kim</th>
+<th>Težina (<em>probno</em>)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>kuća</td>
+<td>svi</td>
+<td>članovi domaćinstva i osobe iz domaćinstava u radijusu
+<code>radijus-susjedstva</code> (2)</td>
+<td>1,0</td>
+</tr>
+<tr>
+<td>posao</td>
+<td>zaposleni</td>
+<td>kolege iz iste firme</td>
+<td>1,5 (najjači kontakt: zajednički cilj i jednak položaj)</td>
+</tr>
+<tr>
+<td>škola</td>
+<td>djeca 6–17</td>
+<td>djeca iz iste škole</td>
+<td>1,0</td>
+</tr>
+<tr>
+<td>kafić</td>
+<td>odrasli</td>
+<td>osobe koje su ove godine izabrale isti kafić</td>
+<td>0,7</td>
+</tr>
+<tr>
+<td>prodavnica</td>
+<td>svi od 6 godina</td>
+<td>stanovnici četvrti i oni koji u njoj rade</td>
+<td>0,2 (kratak kontakt, ali miješa sve)</td>
+</tr>
+</tbody>
+</table>
+<p>Pravila:</p>
+<ul>
+<li><strong>Izbor kafića:</strong> odrasli s vjerovatnoćom
+<code>identitet</code> ide u „naš“ kafić. To je najbliži kafić u svom
+mjestu čija je <code>grupa-kafica</code> njegova grupa, ako postoji.
+Inače ide u kafić svoje četvrti.</li>
+<li><strong>Pri susretu:</strong> <code>promijeni-identitet</code> s
+ciljem = identitet sagovornika i jačinom = <code>uticaj-susreta</code> ×
+težina mjesta.</li>
+<li><strong>Ako je sagovornik druge grupe:</strong> dodatno
+<code>identitet ← identitet − efekat-kontakta × težina × (1 − integritet)</code>.</li>
+</ul>
+<p><strong>Mediji</strong> (<code>modul-mediji.nls</code>, prekidač
+<code>modul-mediji?</code>), za odrasle:</p>
+<ul>
+<li>atribut osobe <code>mediji-nacionalni</code> (0–1);</li>
+<li>s vjerovatnoćom <code>mediji-nacionalni</code> osoba te godine
+pretežno prati nacionalne medije (<code>cilj</code> =
+<code>cilj-nacionalnih</code>), inače opšte (<code>cilj</code> =
+<code>cilj-opstih</code>); <code>jacina</code> =
+<code>uticaj-medija</code>;</li>
+<li>selektivna izloženost:
+<code>mediji-nacionalni ← mediji-nacionalni + selektivnost × (identitet − mediji-nacionalni)</code>.</li>
+</ul>
+<p><strong>Zapošljavanje svojih</strong>
+(<code>modul-zaposljavanje.nls</code>, prekidač
+<code>modul-zaposljavanje?</code>):</p>
+<ul>
+<li>firma dobija <code>identitet-vlasnika</code>, iz iste raspodjele kao
+identitet osoba;</li>
+<li>pri izboru (4.2, korak 5) firma s vjerovatnoćom
+<code>identitet-vlasnika</code> ×
+<code>jacina-zaposljavanja-svojih</code> bira najsposobnijeg
+prijavljenog iz <code>grupa-vlasnika</code>, ako takav postoji, a inače
+najsposobnijeg uopšte.</li>
+</ul>
+<h2 id="10-mjere-reporteri-s-ovim-nazivima">10. Mjere (reporteri s ovim
+nazivima)</h2>
+<table>
+<thead>
+<tr>
+<th>Reporter</th>
+<th>Definicija</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>indeks-razlicitosti nivo</code></td>
+<td>za svaki par grupa X, Y: D = ½ · Σᵢ |xᵢ/X − yᵢ/Y| po jedinicama
+nivoa (<code>&quot;cetvrt&quot;</code>, <code>&quot;mjesto&quot;</code>,
+<code>&quot;teritorija&quot;</code>), računato na osobama; vraća prosjek svih
+parova</td>
+</tr>
+<tr>
+<td><code>broj-mjesovitih nivo</code></td>
+<td>broj jedinica u kojima nijedna grupa nema više od
+<code>prag-mjesovito</code> (npr. 0,66) osoba</td>
+</tr>
+<tr>
+<td><code>selidbe-po-razlogu</code></td>
+<td>lista: broj selidbi domaćinstava u ovom ticku po razlogu</td>
+</tr>
+<tr>
+<td><code>stanovnistvo tip</code></td>
+<td>broj osoba po tipu mjesta</td>
+</tr>
+<tr>
+<td><code>prosjecna-starost tip</code></td>
+<td>prosječna starost po tipu mjesta (pražnjenje i starenje sela)</td>
+</tr>
+<tr>
+<td><code>udio-ispod-korpe grupa</code></td>
+<td>udio domaćinstava ispod korpe, po grupi domaćinstva</td>
+</tr>
+<tr>
+<td><code>ekvivalentni-prihod grupa</code></td>
+<td>prosjek (zbir prihoda / OECD skala) po grupi domaćinstva</td>
+</tr>
+<tr>
+<td><code>nezaposlenost grupa</code></td>
+<td>udio nezaposlenih među odraslima 18–64</td>
+</tr>
+<tr>
+<td><code>udio-putnika</code></td>
+<td>udio zaposlenih koji rade u drugom mjestu</td>
+</tr>
+<tr>
+<td><code>udio-mjesovitih-radnih-mjesta</code></td>
+<td>udio firmi s bar dva radnika u kojima nijedna grupa nema više od
+<code>prag-mjesovito</code></td>
+</tr>
+<tr>
+<td><code>udio-zarobljenih</code></td>
+<td>udio domaćinstava sa <code>zarobljeno?</code> = true u ovom
+ticku</td>
+</tr>
+<tr>
+<td><code>udio-mjesovitih-domacinstava</code></td>
+<td>u kosturu 0; za mehanizam „brak“</td>
+</tr>
+<tr>
+<td><code>mjesta-bez-djece</code></td>
+<td>broj mjesta bez djece 6–17</td>
+</tr>
+<tr>
+<td><code>prosjecan-identitet grupa tip</code></td>
+<td>prosječan <code>identitet</code> po grupi i tipu mjesta</td>
+</tr>
+<tr>
+<td><code>udio-nacionalnih-medija</code></td>
+<td>(modul mediji) udio odraslih s <code>mediji-nacionalni</code> &gt;
+0,5; 0 ako je modul isključen</td>
+</tr>
+</tbody>
+</table>
+<p>Rezultati se izvoze iz BehaviorSpacea u CSV s ovim kolonama, uz
+najmanje 10 ponavljanja po scenariju. Mjere po grupi i tipu mjesta mogu
+se pisati i izravno preko breedova, npr.
+<code>mean [identitet] of grupa-a</code>.</p>
+<p><strong>Provjera realnosti:</strong> popis na početku perioda služi
+za početno stanje, pa nije nezavisna potvrda; potvrda je sljedeći popis
+(npr. 1961 → 1971, 1981, 1991). Svaki tim u radu opiše prepoznaju li se
+ishodi u stvarnom društvu (BiH) i gdje model griješi.</p>
+<h2 id="11-kontrolni-scenarij-glavni-eksperiment-i-poređenje">11.
+Kontrolni scenarij, glavni eksperiment i poređenje</h2>
+<p><strong>Kontrolni scenarij</strong> (BehaviorSpace eksperiment
+<code>kontrolni</code>), obavezan za sve:</p>
+<ul>
+<li><code>identitet</code> = 0 za sve (<code>identitet-prosjek</code>,
+<code>identitet-sd</code>, <code>identitet-ostali</code> i
+<code>efekat-okruzenja</code> = 0);</li>
+<li>svi moduli isključeni; mehanizam tima isključen;</li>
+<li>bez krize;</li>
+<li>sve institucije zajedničke; nema podijeljenog grada;</li>
+<li>prelazak granice bez troška.</li>
+</ul>
+<p>Ekonomija i demografija rade i u kontrolnom scenariju. On zato
+pokazuje koliko razdvajanja nastaje samo iz ekonomije i početnog
+sastava.</p>
+<p><strong>Eksperiment kostura</strong>
+(<code>zarada-i-identitet</code>; provjera kostura i primjer jedne
+varijante, nije obavezan za timove): <code>tezina-identiteta</code> u
+rasponu 0–4 (<code>tezina-zarade</code> = 1), uz mjere
+<code>indeks-razlicitosti &quot;cetvrt&quot;</code>,
+<code>udio-mjesovitih-radnih-mjesta</code>,
+<code>selidbe-po-razlogu</code> i <code>udio-zarobljenih</code>. On
+pokazuje pri kojem odnosu težina ekonomija nadjača identitet.</p>
+<p><strong>Poređenje s mehanizmom i bez njega:</strong> svaki tim
+pokazuje učinak svog mehanizma tako što pusti isti model, s istim
+početnim stanjima (<code>random-seed</code>) i istim parametrima, s
+mehanizmom i bez njega, uz najmanje 10 ponavljanja. Kontrolni scenarij
+je dodatna provjera, jer isključuje sve odjednom.</p>
+<p><strong>Više mehanizama:</strong> broj mehanizama po timu nije
+propisan; mjerilo je da simulacija bude korisna. Ako tim ima više
+mehanizama, svaki ima svoj prekidač, a učinak se pokazuje za svaki
+posebno i za sve zajedno (za dva mehanizma: nijedan, samo prvi, samo
+drugi, oba).</p>
+<h2 id="11a-slojevi-i-čitljivost-rezultata">11a. Slojevi i čitljivost
+rezultata</h2>
+<p>Kostur ima mnogo sila, a isti ishod može imati više uzroka. Na
+primjer, prazna sela mogu biti posljedica plata, odvajanja mladih ili
+krize. Zato se svaki sloj kostura može isključiti, pa se model čita kao
+ljestvica:</p>
+<table>
+<thead>
+<tr>
+<th>Sloj</th>
+<th>Šta dodaje</th>
+<th>Prekidač</th>
+<th>Očekivani rezultat (provjera koda)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>L0</td>
+<td>identitet i selidba „svojima“; firme s istom platom, rad samo u svom
+mjestu, bez demografije i krize</td>
+<td>—</td>
+<td>poznati Schellingov efekat: malo nezadovoljstva daje veliko
+razdvajanje</td>
+</tr>
+<tr>
+<td>L1</td>
+<td>različite plate po mjestu i firmi</td>
+<td><code>plate-razlicite?</code> (isključeno: sve firme imaju
+<code>plata-jedinstvena</code>)</td>
+<td>tok iz sela u grad; mješovitija radna mjesta</td>
+</tr>
+<tr>
+<td>L2</td>
+<td>putovanje na posao</td>
+<td><code>putovanje?</code> (isključeno: rad samo u svom mjestu)</td>
+<td>manje selidbi zbog posla, više putnika</td>
+</tr>
+<tr>
+<td>L3</td>
+<td>demografija (odjeljak 6)</td>
+<td><code>demografija?</code> (isključeno: nema starenja, rađanja,
+umiranja ni odvajanja)</td>
+<td>sela stare, mladi odlaze</td>
+</tr>
+<tr>
+<td>L4</td>
+<td>kriza (4.3)</td>
+<td><code>godina-krize</code> &gt; 0 ili
+<code>slucajne-krize?</code></td>
+<td>zarobljeni; slika se „zamrzne“</td>
+</tr>
+</tbody>
+</table>
+<p>Pravila za rad i za prikaz rezultata:</p>
+<ul>
+<li><strong>Sloj po sloj.</strong> Glavni rezultat kostura i rezultat
+tima opisuju se kao razlika koju je donio jedan sloj ili jedan mehanizam
+(„L2 je smanjio indeks različitosti za …“), a ne kao ishod svega
+zajedno.</li>
+<li><strong>Najniži potreban sloj.</strong> Tim u prijavi navede koji
+najniži sloj njegov mehanizam traži. Mehanizam se pokazuje na tom sloju
+i na punom modelu (L3, s krizom ako je mehanizam o krizi).</li>
+<li><strong>Mjere koje pokazuju uzrok.</strong> Uz krajnje mjere (indeks
+različitosti) uvijek se prikazuju <code>selidbe-po-razlogu</code>,
+<code>udio-putnika</code> i <code>udio-zarobljenih</code>. One pokazuju
+zašto su se ljudi pomjerili.</li>
+<li><strong>Jedna promjena odjednom.</strong> Poređenje s mehanizmom i
+bez njega (odjeljak 11) radi se uz iste slojeve i isti
+<code>random-seed</code>. Analiza osjetljivosti ide parametar po
+parametar, poslije glavnog eksperimenta.</li>
+<li><strong>Prikaz svijeta:</strong> birač <code>prikaz</code> boji
+osobe po grupi (osnovno), identitetu ili prihodu. Firme i institucije su
+sitne i sive, da slika ne bude šarena.</li>
+<li><strong>Kod se piše i provjerava sloj po sloj:</strong> svaki sloj
+mora dati svoj očekivani rezultat prije nego se doda sljedeći.</li>
+</ul>
+<p>Ako se pokaže da je i ovo previše, iz kostura se prvo izbacuje
+putovanje, pa demografija. Ostaje L1, koji već nosi glavno pitanje
+„zarada je jača od nacionalnog stava“.</p>
+<h2 id="12-prijedlog-tima">12. Prijedlog tima</h2>
+<p>Svaki tim predlaže sljedeće:</p>
+<blockquote>
+<p>Želimo analizirati … Mehanizam (za svaki): kad se [ko] i [ko] sretnu
+/ kad [uslov], onda … Pitamo: …</p>
+</blockquote>
+<p>uz spisak onoga što mu treba od zajedničkog dijela (atribut, mjera,
+podatak). Dozvoljen je i mehanizam koji nije na spisku.</p>
+<p>Mehanizmi koje kostur namjerno ostavlja timovima:</p>
+<ul>
+<li><strong>predrasude:</strong> druga varijabla uz identitet; kontakt
+ih smanjuje, a identitet ostaje;</li>
+<li><strong>firme koje otvaraju ljudi:</strong> ambiciozni s ušteđevinom
+otvaraju firmu i zapošljavaju prema svom identitetu;</li>
+<li><strong>posljedice krize:</strong> kriza jača identitet ili
+grupisanje;</li>
+<li><strong>iseljavanje</strong> u inostranstvo, npr. kad je domaćinstvo
+dugo ispod korpe;</li>
+<li><strong>brak i mješoviti brakovi:</strong> izbor partnera prema
+identitetu, pripadnost djece iz mješovitih brakova;</li>
+<li><strong>zapošljavanje svojih / nepotizam:</strong> zamjena
+modula-primjera;</li>
+<li><strong>mediji:</strong> zamjena modula-primjera;</li>
+<li><strong>školovanje:</strong> univerziteti, susreti studenata,
+odlazak u veliki grad;</li>
+<li><strong>podijeljene institucije i podijeljen grad;</strong></li>
+<li><strong>idealisti i napredak društva</strong>: atribut osobe (0–1)
+koliko joj je stalo do napretka društva; idealisti otvaraju firme i
+zapošljavaju bez obzira na etničku pripadnost, a za djecu biraju
+najbolju ili najbližu školu, ne školu svoje grupe. Ako ga izaberu bar
+dva tima, atribut prelazi u kostur.</li>
+</ul>
+<h2 id="13-spajanje-svi-zajedno-nije-obavezno">13. Spajanje (svi
+zajedno, nije obavezno)</h2>
+<p>Poređenje na istim mjerama (tačke 1 i 2) omogućava zajedničko
+jezgro.</p>
+<ol type="1">
+<li>Svi modeli se puste kroz isti kontrolni scenarij i iste scenarije s
+mehanizmom.</li>
+<li>Tabela: mehanizam → efekat na svaku mjeru.</li>
+<li>Zajednički se bira koji mehanizmi ulaze u konačni model.</li>
+<li>Konačni model se gradi zajedno; zatim slijedi faza mape s podacima
+iz popisa 2013.</li>
+</ol>
+<h2 id="otvoreno">Otvoreno</h2>
+<p><strong>Za dogovor timova:</strong></p>
+<ul>
+<li><code>prag</code>, <code>prag-mjesovito</code>, težine i parametri
+modula: polazne vrijednosti iz literature, ankete ili kalibracije; do
+tada slajderi.</li>
+<li>Početni sastav domaćinstava, starosna struktura, stope rađanja i
+umiranja, korpa i plate: iz popisa 2013 i statistike, u fazi mape.</li>
+<li>Sve osnovne vrijednosti su probne i biće kalibrisane na kostur
+v0.3.</li>
+</ul>
+</body>
+</html>

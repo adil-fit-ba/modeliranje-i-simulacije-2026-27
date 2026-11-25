@@ -61,7 +61,9 @@ def v03(p):
 
 def v04(p):
     return grupa("Prezentacija", [
-        k(p + "prezentacije/v04-tema-tri-naroda.html", "Društvo s više naroda", "Seobe i mješovitost mjesta, na primjeru BiH: kostur modela, 13 varijanti teme, simulacija zarade i etničke pripadnosti u web pregledniku (15 slajdova).")])
+        k(p + "prezentacije/v04-tema-tri-naroda.html", "Društvo s više naroda", "Seobe i mješovitost mjesta, na primjeru BiH: kostur modela, 13 varijanti teme, simulacija zarade i etničke pripadnosti u web pregledniku (15 slajdova).")
+    ]) + grupa("Za timove koji obrađuju ovu temu", [
+        k("tema-drustvo-s-vise-naroda/index.html", "Kostur i ugovor", "Zajednički kostur v0.3 (zip) i ugovor za timove (prijedlog v0.4).")])
 
 V05_CSS = """<style>
 .tok-v05 { display: grid; gap: 0.8rem; margin: 1rem 0; padding: 0; list-style: none; }
